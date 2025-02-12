@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { MdHome, MdLocationOn, MdPhone } from "react-icons/md";
+import { Link } from "react-router-dom"; // Import Link from react-router-dom
 import logo from "../assets/logo.png";
 
 const Navigation = () => {
   const [scrolled, setScrolled] = useState(false);
   const [activeLink, setActiveLink] = useState("");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -15,7 +17,7 @@ const Navigation = () => {
   }, []);
 
   const navItems = [
-    { icon: <MdHome size={22} />, label: "Properties", href: "#properties" },
+    { icon: <MdHome size={22} />, label: "Properties", href: "/properties" },
     {
       icon: <MdLocationOn size={22} />,
       label: "Locations",
@@ -40,9 +42,9 @@ const Navigation = () => {
       >
         <div className="container">
           {/* Logo and Brand */}
-          <a
+          <Link
             className="navbar-brand d-flex align-items-center"
-            href="#"
+            to="/" // Use Link to navigate to the home page
             style={{ transform: "translateY(2px)" }}
           >
             <img
@@ -85,28 +87,39 @@ const Navigation = () => {
                 Your Home Away from Home
               </span>
             </div>
-          </a>
+          </Link>
 
+          {/* Navbar Toggler */}
           <button
             className="navbar-toggler border-0 shadow-none"
             type="button"
             data-bs-toggle="collapse"
             data-bs-target="#navbarNav"
             style={{ padding: "0.5rem" }}
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             <span className="navbar-toggler-icon"></span>
           </button>
 
-          <div className="collapse navbar-collapse" id="navbarNav">
+          {/* Navbar Links */}
+          <div
+            className={`collapse navbar-collapse ${
+              isMobileMenuOpen ? "show" : ""
+            }`}
+            id="navbarNav"
+          >
             <ul className="navbar-nav ms-auto">
               {navItems.map((item, index) => (
                 <li className="nav-item mx-1" key={index}>
-                  <a
+                  <Link
                     className={`nav-link d-flex align-items-center px-3 py-2 position-relative ${
                       activeLink === item.href ? "active" : ""
                     }`}
-                    href={item.href}
-                    onClick={() => setActiveLink(item.href)}
+                    to={item.href} // Use Link for navigation
+                    onClick={() => {
+                      setActiveLink(item.href);
+                      setIsMobileMenuOpen(false); // Close mobile menu on link click
+                    }}
                     style={{
                       color: "white",
                       transition: "all 0.3s ease",
@@ -143,15 +156,13 @@ const Navigation = () => {
                         }}
                       ></span>
                     )}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
         </div>
       </nav>
-      {/* Spacer div to prevent content overlap */}
-      <div style={{ height: "140px" }}></div>
     </>
   );
 };
