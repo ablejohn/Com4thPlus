@@ -13,8 +13,8 @@ const Newsletter = () => {
         <div className="row justify-content-center">
           <div className="col-lg-8 text-center">
             {/* Section Header */}
-            <h2 className="text-white mb-4 display-5 fw-bold">
-              Get Special Offers
+            <h2 className="text-white mb-4 display-7 fw-bold">
+              Get the best Properties in your Inbox
             </h2>
             <p className="text-white-50 mb-5 lead">
               Subscribe to our newsletter and receive exclusive deals on luxury

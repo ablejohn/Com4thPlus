@@ -4,6 +4,7 @@ import { Container, Spinner } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Navigation from "./components/navigation";
 import Footer from "./components/footer";
+import ScrollToTop from "./components/scrolltoTop";
 
 // Lazy load pages for better performance
 const Home = lazy(() => import("./pages/home"));
@@ -41,10 +42,15 @@ const App = () => {
       {/* Footer Component */}
       <Footer />
 
+      {/* Scroll To Top Component */}
+      <ScrollToTop />
+
       {/* Style to ensure footer stays at bottom */}
       <style jsx>{`
         .main-content {
-          min-height: calc(100vh - 160px); /* Adjust based on your footer height */
+          min-height: calc(
+            100vh - 160px
+          ); /* Adjust based on your footer height */
           padding-bottom: 2rem;
         }
       `}</style>

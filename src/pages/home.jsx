@@ -7,6 +7,7 @@ import FeaturedProperties from "../sections/fproperties";
 import WhyChooseUs from "../sections/whychooseus";
 import TestimonialsSection from "../sections/testimonial";
 import Newsletter from "../sections/newsletter";
+import AboutUs from "../sections/Aboutus";
 
 const LandingPage = () => {
   const [currentImage, setCurrentImage] = useState(0);
@@ -38,7 +39,8 @@ const LandingPage = () => {
             className="position-absolute w-100 h-100"
             style={{
               opacity: currentImage === index ? 1 : 0,
-              transition: "opacity 1.5s ease-in-out, transform 1.5s ease-in-out",
+              transition:
+                "opacity 1.5s ease-in-out, transform 1.5s ease-in-out",
               transform: currentImage === index ? "scale(1.05)" : "scale(1)",
             }}
           >
@@ -75,9 +77,10 @@ const LandingPage = () => {
               className="lead mb-5 text-white-50"
               style={{ fontSize: "1.25rem" }}
             >
-              Experience unparalleled comfort in our exclusive apartments,
-              where luxury meets exceptional service.
+              Experience unparalleled comfort in our exclusive apartments, where
+              luxury meets exceptional service.
             </p>
+
             {/* Search Form */}
             <div
               className="bg-white p-4 rounded-4 shadow-lg mt-5 mb-5 mx-auto"
@@ -87,78 +90,88 @@ const LandingPage = () => {
                 maxWidth: "800px",
               }}
             >
-              <div className="row g-3">
+              <div className="row g-3 align-items-end">
+                {" "}
+                {/* Changed to align-items-end */}
+                {/* Check-in Date */}
                 <div className="col-12 col-md-4">
-                  <div className="input-group border rounded-3 overflow-hidden">
-                    <span className="input-group-text border-0 bg-transparent">
-                      <Calendar size={20} className="text-primary" />
-                    </span>
-                    <input
-                      type="date"
-                      className="form-control border-0 shadow-none py-3"
-                      onFocus={(e) =>
-                        e.target.showPicker && e.target.showPicker()
-                      }
-                      placeholder="Check-in"
-                    />
+                  <div className="d-flex flex-column">
+                    <label className="small fw-bold text-dark mb-1">
+                      Check-in
+                    </label>
+                    <div className="input-group border rounded-3 overflow-hidden">
+                      <span className="input-group-text border-0 bg-transparent pe-0">
+                        <Calendar size={20} className="text-primary" />
+                      </span>
+                      <input
+                        type="date"
+                        className="form-control border-0 shadow-none py-3 ps-2"
+                        placeholder="mm/dd/yyyy"
+                        id="checkin-date"
+                      />
+                    </div>
                   </div>
                 </div>
+                {/* Check-out Date */}
                 <div className="col-12 col-md-4">
-                  <div className="input-group border rounded-3 overflow-hidden">
-                    <span className="input-group-text border-0 bg-transparent">
-                      <Calendar size={20} className="text-primary" />
-                    </span>
-                    <input
-                      type="date"
-                      className="form-control border-0 shadow-none py-3"
-                      onFocus={(e) =>
-                        e.target.showPicker && e.target.showPicker()
-                      }
-                      placeholder="Check-out"
-                    />
+                  <div className="d-flex flex-column">
+                    <label className="small fw-bold text-dark mb-1">
+                      Check-out
+                    </label>
+                    <div className="input-group border rounded-3 overflow-hidden">
+                      <span className="input-group-text border-0 bg-transparent pe-0">
+                        <Calendar size={20} className="text-primary" />
+                      </span>
+                      <input
+                        type="date"
+                        className="form-control border-0 shadow-none py-3 ps-2"
+                        placeholder="mm/dd/yyyy"
+                        id="checkout-date"
+                      />
+                    </div>
                   </div>
                 </div>
+                {/* Search Button */}
                 <div className="col-12 col-md-4">
-                  <button
-                    className="btn btn-primary w-100 py-3 d-flex align-items-center justify-content-center gap-2"
-                    style={{
-                      background:
-                        "linear-gradient(to right, #003087, #004299)",
-                      border: "none",
-                      transition: "transform 0.3s ease",
-                    }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.transform = "translateY(-2px)")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.transform = "translateY(0)")
-                    }
-                  >
-                    <Search size={20} />
-                    <span className="fw-semibold">Check Availability</span>
-                  </button>
+                  <div className="d-flex flex-column">
+                    {/* Empty label for spacing alignment */}
+                    <label className="small fw-bold text-dark mb-1 opacity-0">
+                      Check Availability
+                    </label>
+                    <button
+                      className="btn btn-primary w-100 py-3 d-flex align-items-center justify-content-center gap-2"
+                      style={{
+                        background:
+                          "linear-gradient(to right, #003087, #004299)",
+                        border: "none",
+                        transition: "transform 0.3s ease",
+                        height: "56px", // Match input height
+                      }}
+                    >
+                      <Search size={20} />
+                      <span className="fw-semibold">Check Availability</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      {/* About us Section */}
+      <AboutUs />
 
       {/* Featured Properties Section */}
       <FeaturedProperties />
-     
 
       {/* Why Choose Us Section */}
       <WhyChooseUs />
-      
 
       {/* Testimonials Section */}
       <TestimonialsSection />
-      
 
       {/* Newsletter Section */}
       <Newsletter />
-  
 
       {/* Custom Styles */}
       <style jsx>{`

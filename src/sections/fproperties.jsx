@@ -1,49 +1,67 @@
 import React from "react";
-import { Star } from "react-bootstrap-icons";
+import { Star, ArrowRight } from "react-bootstrap-icons";
+import { Link } from "react-router-dom";
+import Apartment1 from "../assets/appartment1.jpg";
+import Apartment2 from "../assets/appartment2.jpg";
+import Apartment3 from "../assets/appartment3.jpg";
 
 const FeaturedProperties = () => {
   const properties = [
     {
       id: 1,
-      image: "appartment1.jpg", // Replace with actual image URL
-      title: "Luxury Suite in Downtown",
-      description: "Modern amenities with stunning city views",
-      price: 299,
+      image: Apartment1,
+      title: "5-Bedroom Luxury Apartment",
+      description:
+        "Spacious living areas with premium amenities and en-suite bathrooms",
+      price: 399,
       rating: 4.9,
+      rooms: 5,
       featured: true,
     },
     {
       id: 2,
-      image: "appartment1.jpg", // Replace with actual image URL
-      title: "Beachfront Villa",
-      description: "Private beach access with ocean views",
-      price: 499,
+      image: Apartment2,
+      title: "4-Bedroom Premium Suite",
+      description: "Elegant design with state-of-the-art smart home features",
+      price: 349,
       rating: 4.8,
+      rooms: 4,
       featured: true,
     },
     {
       id: 3,
-      image: "appartment1.jpg", // Replace with actual image URL
-      title: "Mountain Retreat",
-      description: "Secluded cabin with panoramic mountain views",
-      price: 399,
+      image: Apartment3,
+      title: "3-Bedroom Deluxe Apartment",
+      description: "Modern comfort with stunning views of GRA Ikeja",
+      price: 299,
       rating: 4.7,
+      rooms: 3,
       featured: true,
     },
   ];
 
   return (
-    <section id="properties" className="py-5 bg-light">
-      <div className="container">
+    <section
+      id="properties"
+      className="py-5"
+      style={{
+        background:
+          "linear-gradient(135deg, #f5f7fa 0%,rgb(182, 203, 243) 100%)",
+        borderTop: "1px solid rgba(0,48,135,0.1)",
+        borderBottom: "1px solid rgba(0,48,135,0.1)",
+      }}
+    >
+      <div className="container py-4">
         {/* Section Header */}
         <div className="text-center mb-5">
-          <h2 className="display-5 fw-bold mb-3">
-            <span className="border-bottom border-primary border-3 pb-2">
-              Featured Properties
+          <div className="bg-primary bg-opacity-10 text-primary d-inline-block px-3 py-2 rounded-pill mb-3">
+            <span className="text-uppercase fw-bold small">
+              Premium Accommodation
             </span>
-          </h2>
-          <p className="text-muted lead">
-            Explore our handpicked selection of luxury properties
+          </div>
+          <h2 className="display-5 fw-bold mb-3">Our Luxury Apartments</h2>
+          <p className="text-muted lead mx-auto" style={{ maxWidth: "700px" }}>
+            Experience exceptional comfort in our exclusive GRA Ikeja residences
           </p>
         </div>
 
@@ -52,61 +70,63 @@ const FeaturedProperties = () => {
           {properties.map((property) => (
             <div key={property.id} className="col-md-4">
               <div
-                className="card border-0 shadow-sm h-100"
+                className="card border-0 h-100 overflow-hidden"
                 style={{
                   borderRadius: "16px",
                   transition: "all 0.3s ease",
                   cursor: "pointer",
+                  boxShadow: "0 10px 30px rgba(0, 0, 0, 0.08)",
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = "translateY(-10px)";
                   e.currentTarget.style.boxShadow =
-                    "0 12px 24px rgba(0, 0, 0, 0.15)";
+                    "0 15px 35px rgba(0, 0, 0, 0.15)";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = "translateY(0)";
                   e.currentTarget.style.boxShadow =
-                    "0 4px 12px rgba(0, 0, 0, 0.1)";
+                    "0 10px 30px rgba(0, 0, 0, 0.08)";
                 }}
               >
                 {/* Property Image */}
-                <div
-                  className="position-relative"
-                  style={{ overflow: "hidden", height: "250px" }}
-                >
+                <div className="position-relative" style={{ height: "250px" }}>
                   <img
                     src={property.image}
                     className="card-img-top w-100 h-100"
                     alt={property.title}
                     style={{
-                      borderTopLeftRadius: "16px",
-                      borderTopRightRadius: "16px",
                       objectFit: "cover",
-                      transition: "transform 0.3s ease",
+                      transition: "transform 0.6s ease",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = "scale(1.1)";
+                      e.currentTarget.style.transform = "scale(1.05)";
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.transform = "scale(1)";
                     }}
                   />
-                  {property.featured && (
+                  <div className="position-absolute top-0 end-0 m-3">
                     <span
-                      className="badge bg-primary position-absolute top-0 start-0 m-3"
-                      style={{ zIndex: 1 }}
+                      className="badge rounded-pill"
+                      style={{
+                        background: "rgba(0, 48, 135, 0.85)",
+                        backdropFilter: "blur(4px)",
+                        padding: "0.5rem 1rem",
+                      }}
                     >
-                      Featured
+                      {property.rooms} Bedrooms
                     </span>
-                  )}
+                  </div>
                   <div
                     className="position-absolute bottom-0 start-0 w-100 p-3"
                     style={{
                       background:
-                        "linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent)",
+                        "linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent)",
                     }}
                   >
-                    <h5 className="text-white mb-0">{property.title}</h5>
+                    <h5 className="text-white mb-0 text-shadow">
+                      {property.title}
+                    </h5>
                   </div>
                 </div>
 
@@ -120,7 +140,7 @@ const FeaturedProperties = () => {
                       ))}
                     </span>
                     <small className="text-muted ms-2">
-                      {property.rating} Rating
+                      {property.rating} Guest Rating
                     </small>
                   </div>
 
@@ -135,31 +155,67 @@ const FeaturedProperties = () => {
                       ${property.price}
                       <small className="text-muted">/night</small>
                     </span>
-                    <button
-                      className="btn btn-primary"
+                    <Link
+                      to="/propertydetail"
+                      className="btn btn-outline-primary d-flex align-items-center gap-2"
                       style={{
                         transition: "all 0.3s ease",
-                        backgroundColor: "#003087",
-                        border: "none",
+                        borderColor: "#003087",
+                        color: "#003087",
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = "#004299";
-                        e.currentTarget.style.transform = "scale(1.05)";
+                        e.currentTarget.style.backgroundColor = "#003087";
+                        e.currentTarget.style.color = "white";
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = "#003087";
-                        e.currentTarget.style.transform = "scale(1)";
+                        e.currentTarget.style.backgroundColor = "transparent";
+                        e.currentTarget.style.color = "#003087";
                       }}
                     >
-                      View Details
-                    </button>
+                      <span>View Details</span>
+                      <ArrowRight />
+                    </Link>
                   </div>
                 </div>
               </div>
             </div>
           ))}
         </div>
+
+        {/* View All Button */}
+        <div className="text-center mt-5">
+          <Link
+            to="/properties"
+            className="btn btn-primary px-4 py-2"
+            style={{
+              background: "linear-gradient(to right, #003087, #004299)",
+              border: "none",
+              borderRadius: "50px",
+              padding: "0.75rem 2rem",
+              transition: "all 0.3s ease",
+              boxShadow: "0 4px 15px rgba(0, 48, 135, 0.2)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-3px)";
+              e.currentTarget.style.boxShadow =
+                "0 6px 20px rgba(0, 48, 135, 0.3)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow =
+                "0 4px 15px rgba(0, 48, 135, 0.2)";
+            }}
+          >
+            Explore All Apartments
+          </Link>
+        </div>
       </div>
+
+      <style jsx>{`
+        .text-shadow {
+          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+      `}</style>
     </section>
   );
 };

@@ -163,6 +163,15 @@ const Navigation = () => {
           </div>
         </div>
       </nav>
+
+      {/* This div adds space below the fixed navbar */}
+      <div
+        style={{
+          height: scrolled ? "75px" : "90px",
+          transition: "height 0.3s ease-in-out",
+          marginBottom: "1.5rem",
+        }}
+      ></div>
     </>
   );
 };
