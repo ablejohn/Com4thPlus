@@ -7,7 +7,7 @@ import FeaturedProperties from "../sections/fproperties";
 import WhyChooseUs from "../sections/whychooseus";
 import TestimonialsSection from "../sections/testimonial";
 import Newsletter from "../sections/newsletter";
-import AboutUs from "../sections/Aboutus";
+import AboutUs from "../sections/aboutUs";
 
 const LandingPage = () => {
   const [currentImage, setCurrentImage] = useState(0);
