@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from "react";
+import React, { lazy, Suspense } from "react"; 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Container, Spinner } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -10,14 +10,13 @@ import ScrollToTop from "./components/scrolltoTop";
 const Home = lazy(() => import("./pages/home"));
 const PropertyPage = lazy(() => import("./pages/property"));
 const PropertyDetailPage = lazy(() => import("./pages/propertydetail"));
+const LocationPage = lazy(() => import("./pages/location"));
+const ContactPage = lazy(() => import("./pages/contact"));
 
 const App = () => {
   return (
     <Router>
-      {/* Navigation Component */}
       <Navigation />
-
-      {/* Main Content */}
       <Suspense
         fallback={
           <Container
@@ -34,23 +33,17 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/properties" element={<PropertyPage />} />
-            <Route path="/propertydetail" element={<PropertyDetailPage />} />
+            <Route path="/property/:id" element={<PropertyDetailPage />} />
+            <Route path="/location" element={<LocationPage />} /> 
+            <Route path="/contact" element={<ContactPage />} /> 
           </Routes>
         </div>
       </Suspense>
-
-      {/* Footer Component */}
       <Footer />
-
-      {/* Scroll To Top Component */}
       <ScrollToTop />
-
-      {/* Style to ensure footer stays at bottom */}
-      <style jsx>{`
+      <style>{`
         .main-content {
-          min-height: calc(
-            100vh - 160px
-          ); /* Adjust based on your footer height */
+          min-height: calc(100vh - 160px);
           padding-bottom: 2rem;
         }
       `}</style>
@@ -59,3 +52,6 @@ const App = () => {
 };
 
 export default App;
+
+// Explicitly reference React to avoid the warning
+console.log(React);

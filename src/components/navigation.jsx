@@ -21,9 +21,9 @@ const Navigation = () => {
     {
       icon: <MdLocationOn size={22} />,
       label: "Locations",
-      href: "#locations",
+      href: "/location",
     },
-    { icon: <MdPhone size={22} />, label: "Contact", href: "#contact" },
+    { icon: <MdPhone size={22} />, label: "Contact", href: "/contact" },
   ];
 
   return (
