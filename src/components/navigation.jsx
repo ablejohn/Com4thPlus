@@ -1,28 +1,38 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { MdHome, MdLocationOn, MdPhone } from "react-icons/md";
-import { Link } from "react-router-dom"; // Import Link from react-router-dom
+import { Link, useLocation } from "react-router-dom"; // Import useLocation for active link tracking
 import logo from "../assets/logo.png";
 
 const Navigation = () => {
   const [scrolled, setScrolled] = useState(false);
-  const [activeLink, setActiveLink] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation(); // Track current route for active link
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+  // Handle scroll event to toggle navbar background
+  const handleScroll = useCallback(() => {
+    setScrolled(window.scrollY > 50);
   }, []);
 
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [handleScroll]);
+
+  // Close mobile menu when resizing to desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 992 && isMobileMenuOpen) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [isMobileMenuOpen]);
+
+  // Navbar items
   const navItems = [
     { icon: <MdHome size={22} />, label: "Properties", href: "/properties" },
-    {
-      icon: <MdLocationOn size={22} />,
-      label: "Locations",
-      href: "/location",
-    },
+    { icon: <MdLocationOn size={22} />, label: "Locations", href: "/location" },
     { icon: <MdPhone size={22} />, label: "Contact", href: "/contact" },
   ];
 
@@ -39,12 +49,14 @@ const Navigation = () => {
           transition: "all 0.3s ease-in-out",
           padding: scrolled ? "0.75rem 0" : "1.25rem 0",
         }}
+        aria-label="Main navigation"
       >
         <div className="container">
           {/* Logo and Brand */}
           <Link
             className="navbar-brand d-flex align-items-center"
-            to="/" // Use Link to navigate to the home page
+            to="/"
+            aria-label="Go to homepage"
             style={{ transform: "translateY(2px)" }}
           >
             <img
@@ -93,10 +105,10 @@ const Navigation = () => {
           <button
             className="navbar-toggler border-0 shadow-none"
             type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarNav"
-            style={{ padding: "0.5rem" }}
+            aria-label="Toggle navigation"
+            aria-expanded={isMobileMenuOpen}
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            style={{ padding: "0.5rem" }}
           >
             <span className="navbar-toggler-icon"></span>
           </button>
@@ -113,13 +125,10 @@ const Navigation = () => {
                 <li className="nav-item mx-1" key={index}>
                   <Link
                     className={`nav-link d-flex align-items-center px-3 py-2 position-relative ${
-                      activeLink === item.href ? "active" : ""
+                      location.pathname === item.href ? "active" : ""
                     }`}
-                    to={item.href} // Use Link for navigation
-                    onClick={() => {
-                      setActiveLink(item.href);
-                      setIsMobileMenuOpen(false); // Close mobile menu on link click
-                    }}
+                    to={item.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
                     style={{
                       color: "white",
                       transition: "all 0.3s ease",
@@ -134,6 +143,7 @@ const Navigation = () => {
                       e.target.style.backgroundColor = "transparent";
                       e.target.style.transform = "translateY(0)";
                     }}
+                    aria-current={location.pathname === item.href ? "page" : undefined}
                   >
                     <span
                       className="me-2 d-flex align-items-center"
@@ -145,7 +155,7 @@ const Navigation = () => {
                       {item.icon}
                     </span>
                     <span className="fw-medium">{item.label}</span>
-                    {activeLink === item.href && (
+                    {location.pathname === item.href && (
                       <span
                         className="position-absolute bottom-0 start-0"
                         style={{
@@ -164,7 +174,7 @@ const Navigation = () => {
         </div>
       </nav>
 
-      {/* This div adds space below the fixed navbar */}
+      {/* Spacer for fixed navbar */}
       <div
         style={{
           height: scrolled ? "75px" : "90px",

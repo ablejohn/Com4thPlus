@@ -463,11 +463,6 @@ const PropertiesPage = () => {
         </div>
       </Container>
 
-      {/* Newsletter Section */}
-      <div id="newsletter">
-        <Newsletter />
-      </div>
-
       {/* Custom CSS */}
       <style jsx>{`
         .property-card {

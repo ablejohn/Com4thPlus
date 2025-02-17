@@ -28,7 +28,7 @@ const Footer = () => {
 
   return (
     <footer
-      className="pt-5 pb-4"
+      className="pb-4"
       style={{
         background: "linear-gradient(180deg, #1a1a1a 0%, #000000 100%)",
         color: "#ffffff",
