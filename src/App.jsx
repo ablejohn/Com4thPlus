@@ -1,6 +1,7 @@
 import React, { lazy, Suspense } from "react"; 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Container, Spinner } from "react-bootstrap";
+
 import "bootstrap/dist/css/bootstrap.min.css";
 import Navigation from "./components/navigation";
 import Footer from "./components/footer";
