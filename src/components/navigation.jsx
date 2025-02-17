@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { MdHome, MdLocationOn, MdPhone } from "react-icons/md";
-import { Link, useLocation } from "react-router-dom"; // Import useLocation for active link tracking
-import logo from "../assets/logo.png";
+import { MdHome, MdApartment, MdLocationOn, MdPhone } from "react-icons/md";
+import { Link, useLocation } from "react-router-dom";
+import logo from "../assets/logo1.png";
 
 const Navigation = () => {
   const [scrolled, setScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const location = useLocation(); // Track current route for active link
+  const location = useLocation();
 
-  // Handle scroll event to toggle navbar background
   const handleScroll = useCallback(() => {
     setScrolled(window.scrollY > 50);
   }, []);
@@ -18,7 +17,6 @@ const Navigation = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
 
-  // Close mobile menu when resizing to desktop
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 992 && isMobileMenuOpen) {
@@ -29,9 +27,14 @@ const Navigation = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, [isMobileMenuOpen]);
 
-  // Navbar items
+  // Updated navItems with Home and new icon for Properties
   const navItems = [
-    { icon: <MdHome size={22} />, label: "Properties", href: "/properties" },
+    { icon: <MdHome size={22} />, label: "Home", href: "/" },
+    {
+      icon: <MdApartment size={22} />,
+      label: "Properties",
+      href: "/properties",
+    },
     { icon: <MdLocationOn size={22} />, label: "Locations", href: "/location" },
     { icon: <MdPhone size={22} />, label: "Contact", href: "/contact" },
   ];
@@ -101,16 +104,17 @@ const Navigation = () => {
             </div>
           </Link>
 
-          {/* Navbar Toggler */}
+          {/* Modern Hamburger Menu */}
           <button
-            className="navbar-toggler border-0 shadow-none"
+            className={`hamburger-menu ${isMobileMenuOpen ? "active" : ""}`}
             type="button"
             aria-label="Toggle navigation"
             aria-expanded={isMobileMenuOpen}
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            style={{ padding: "0.5rem" }}
           >
-            <span className="navbar-toggler-icon"></span>
+            <span className="hamburger-line"></span>
+            <span className="hamburger-line"></span>
+            <span className="hamburger-line"></span>
           </button>
 
           {/* Navbar Links */}
@@ -143,7 +147,9 @@ const Navigation = () => {
                       e.target.style.backgroundColor = "transparent";
                       e.target.style.transform = "translateY(0)";
                     }}
-                    aria-current={location.pathname === item.href ? "page" : undefined}
+                    aria-current={
+                      location.pathname === item.href ? "page" : undefined
+                    }
                   >
                     <span
                       className="me-2 d-flex align-items-center"
@@ -182,6 +188,72 @@ const Navigation = () => {
           marginBottom: "1.5rem",
         }}
       ></div>
+
+      {/* Styles for the modern hamburger menu */}
+      <style>{`
+        .hamburger-menu {
+          display: none;
+          flex-direction: column;
+          justify-content: space-around;
+          width: 2rem;
+          height: 2rem;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          padding: 0;
+          z-index: 10;
+        }
+
+        @media (max-width: 991.98px) {
+          .hamburger-menu {
+            display: flex;
+          }
+        }
+
+        .hamburger-line {
+          width: 2rem;
+          height: 0.25rem;
+          background: #FFD700;
+          border-radius: 10px;
+          transition: all 0.3s linear;
+          position: relative;
+          transform-origin: 1px;
+        }
+
+        .hamburger-menu.active .hamburger-line:first-child {
+          transform: rotate(45deg);
+        }
+
+        .hamburger-menu.active .hamburger-line:nth-child(2) {
+          opacity: 0;
+          transform: translateX(20px);
+        }
+
+        .hamburger-menu.active .hamburger-line:nth-child(3) {
+          transform: rotate(-45deg);
+        }
+
+        @media (max-width: 991.98px) {
+          .navbar-collapse.show {
+            animation: slideIn 0.3s ease-out forwards;
+            background: rgba(0,48,135,0.98);
+            padding: 1rem;
+            border-radius: 0 0 1rem 1rem;
+            margin-top: 0.5rem;
+          }
+
+          @keyframes slideIn {
+            from {
+              opacity: 0;
+              transform: translateY(-10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        }
+      `}</style>
     </>
   );
 };

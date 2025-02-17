@@ -1,8 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { Star, MapPin, Home, Shield, Zap, ChevronRight } from "lucide-react";
 import Apartment1 from "../assets/appartment1.jpg";
+import BookingModal from "../components/bookingModal";
 
 const AboutUs = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <section className="py-5 bg-light">
       <div className="container py-5">
@@ -85,7 +88,7 @@ const AboutUs = () => {
               </div>
             </div>
 
-            <div className="d-flex align-items-center">
+            <div className="d-flex align-items-center mb-4">
               <div className="bg-white rounded-circle p-3 shadow-sm me-4">
                 <Zap className="text-primary" size={24} />
               </div>
@@ -97,13 +100,14 @@ const AboutUs = () => {
               </div>
             </div>
 
-            <a
-              href="#contact"
+            <button
+              onClick={() => setIsModalOpen(true)}
               className="btn btn-primary mt-5 py-3 px-5 d-inline-flex align-items-center gap-2"
               style={{
                 background: "linear-gradient(to right, #003087, #004299)",
                 border: "none",
                 transition: "transform 0.3s ease",
+                cursor: "pointer",
               }}
               onMouseEnter={(e) =>
                 (e.currentTarget.style.transform = "translateY(-2px)")
@@ -114,7 +118,12 @@ const AboutUs = () => {
             >
               Book Your Stay
               <ChevronRight size={18} />
-            </a>
+            </button>
+
+            <BookingModal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+            />
           </div>
         </div>
       </div>
