@@ -39,7 +39,7 @@ const LuxuryProperty = () => {
               src="appartment2.jpg"
               className="card-img-top"
               alt="Luxury Property"
-              style={{ height: '400px', objectFit: 'cover' }}
+              style={{ height: '400px', objectFit: 'cover', width: '100%' }}
             />
             <div className="position-absolute top-0 end-0 m-3">
               <span className="badge bg-dark bg-opacity-75 px-3 py-2 fs-6 rounded-pill">
@@ -97,17 +97,17 @@ const LuxuryProperty = () => {
                   <small className="text-muted fs-6">/night</small>
                 </h3>
               </div>
-              <div className="d-flex gap-2">
-                <button className="btn btn-outline-primary rounded-pill d-flex align-items-center gap-2">
+              <div className="d-flex gap-2 flex-wrap">
+                <button className="btn btn-outline-primary rounded-pill d-flex align-items-center gap-2 px-3 py-2">
                   <Phone size={18} />
-                  Contact
+                  <span>Contact</span>
                 </button>
-                <button className="btn btn-outline-primary rounded-pill d-flex align-items-center gap-2">
+                <button className="btn btn-outline-primary rounded-pill d-flex align-items-center gap-2 px-3 py-2">
                   <Calendar size={18} />
-                  Schedule Tour
+                  <span>Schedule Tour</span>
                 </button>
-                <button className="btn btn-primary rounded-pill d-flex align-items-center gap-2">
-                  Book Now
+                <button className="btn btn-primary rounded-pill d-flex align-items-center gap-2 px-3 py-2">
+                  <span>Book Now</span>
                   <ArrowRight size={18} />
                 </button>
               </div>
