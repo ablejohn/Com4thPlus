@@ -11,7 +11,6 @@ const BookingModal = ({ isOpen, onClose }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission logic here
     console.log("Form submitted:", formData);
     onClose();
   };
@@ -22,7 +21,7 @@ const BookingModal = ({ isOpen, onClose }) => {
     <>
       <div className="modal-overlay" onClick={onClose}></div>
       <div className="booking-modal">
-        <button className="close-button" onClick={onClose}>
+        <button className="close-button" onClick={onClose} aria-label="Close">
           <X size={24} />
         </button>
 
@@ -33,7 +32,11 @@ const BookingModal = ({ isOpen, onClose }) => {
           </p>
 
           <form onSubmit={handleSubmit} className="booking-form">
+            {/* Check-in Date */}
             <div className="form-group">
+              <label htmlFor="checkIn" className="input-label">
+                Check-in Date
+              </label>
               <div className="input-wrapper">
                 <Calendar className="input-icon" size={20} />
                 <input
@@ -44,12 +47,16 @@ const BookingModal = ({ isOpen, onClose }) => {
                   }
                   required
                   className="form-input"
+                  id="checkIn"
                 />
-                <label className="input-label">Check-in Date</label>
               </div>
             </div>
 
+            {/* Check-out Date */}
             <div className="form-group">
+              <label htmlFor="checkOut" className="input-label">
+                Check-out Date
+              </label>
               <div className="input-wrapper">
                 <Calendar className="input-icon" size={20} />
                 <input
@@ -60,12 +67,16 @@ const BookingModal = ({ isOpen, onClose }) => {
                   }
                   required
                   className="form-input"
+                  id="checkOut"
                 />
-                <label className="input-label">Check-out Date</label>
               </div>
             </div>
 
+            {/* Number of Guests */}
             <div className="form-group">
+              <label htmlFor="guests" className="input-label">
+                Number of Guests
+              </label>
               <div className="input-wrapper">
                 <Users className="input-icon" size={20} />
                 <select
@@ -75,6 +86,7 @@ const BookingModal = ({ isOpen, onClose }) => {
                   }
                   className="form-input"
                   required
+                  id="guests"
                 >
                   {[1, 2, 3, 4, 5, 6].map((num) => (
                     <option key={num} value={num}>
@@ -82,11 +94,14 @@ const BookingModal = ({ isOpen, onClose }) => {
                     </option>
                   ))}
                 </select>
-                <label className="input-label">Number of Guests</label>
               </div>
             </div>
 
+            {/* Special Requests */}
             <div className="form-group">
+              <label htmlFor="special" className="input-label">
+                Special Requests
+              </label>
               <div className="input-wrapper">
                 <Clock className="input-icon" size={20} />
                 <textarea
@@ -97,10 +112,12 @@ const BookingModal = ({ isOpen, onClose }) => {
                   className="form-input"
                   placeholder="Any special requests?"
                   rows="3"
+                  id="special"
                 ></textarea>
               </div>
             </div>
 
+            {/* Submit Button */}
             <button type="submit" className="submit-button">
               Confirm Booking
               <ChevronRight size={18} />
@@ -129,9 +146,11 @@ const BookingModal = ({ isOpen, onClose }) => {
           transform: translate(-50%, -50%);
           background: white;
           border-radius: 16px;
-          padding: 2rem;
+          padding: 1.5rem;
           width: 90%;
           max-width: 500px;
+          max-height: 90vh;
+          overflow-y: auto;
           z-index: 1001;
           animation: slideIn 0.3s ease-out;
           box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
@@ -156,7 +175,7 @@ const BookingModal = ({ isOpen, onClose }) => {
         }
 
         .modal-title {
-          font-size: 1.75rem;
+          font-size: 1.5rem;
           font-weight: bold;
           margin-bottom: 0.5rem;
           color: #003087;
@@ -164,13 +183,14 @@ const BookingModal = ({ isOpen, onClose }) => {
 
         .modal-subtitle {
           color: #666;
-          margin-bottom: 2rem;
+          margin-bottom: 1.5rem;
+          font-size: 0.9rem;
         }
 
         .booking-form {
           display: flex;
           flex-direction: column;
-          gap: 1.5rem;
+          gap: 1.25rem;
         }
 
         .form-group {
@@ -192,10 +212,10 @@ const BookingModal = ({ isOpen, onClose }) => {
 
         .form-input {
           width: 100%;
-          padding: 1rem 1rem 1rem 3rem;
+          padding: 0.75rem 0.75rem 0.75rem 2.75rem;
           border: 2px solid #e0e0e0;
           border-radius: 8px;
-          font-size: 1rem;
+          font-size: 0.9rem;
           transition: all 0.3s ease;
           background: white;
         }
@@ -209,33 +229,22 @@ const BookingModal = ({ isOpen, onClose }) => {
         textarea.form-input {
           resize: vertical;
           min-height: 100px;
+          padding-left: 1rem;
         }
 
         .input-label {
-          position: absolute;
-          left: 3rem;
-          top: 50%;
-          transform: translateY(-50%);
-          color: #666;
-          transition: all 0.3s ease;
-          pointer-events: none;
-        }
-
-        .form-input:focus + .input-label,
-        .form-input:not(:placeholder-shown) + .input-label {
-          top: 0;
-          left: 1rem;
-          background: white;
-          padding: 0 0.5rem;
-          font-size: 0.8rem;
+          display: block;
+          margin-bottom: 0.5rem;
           color: #003087;
+          font-size: 0.9rem;
+          font-weight: 500;
         }
 
         .submit-button {
           background: linear-gradient(to right, #003087, #004299);
           color: white;
           border: none;
-          padding: 1rem 2rem;
+          padding: 0.75rem 1.5rem;
           border-radius: 8px;
           font-weight: bold;
           cursor: pointer;
@@ -244,6 +253,7 @@ const BookingModal = ({ isOpen, onClose }) => {
           justify-content: center;
           gap: 0.5rem;
           transition: transform 0.3s ease;
+          font-size: 0.9rem;
         }
 
         .submit-button:hover {
@@ -265,8 +275,37 @@ const BookingModal = ({ isOpen, onClose }) => {
             transform: translate(-50%, -50%);
           }
         }
+
+        @media (max-width: 480px) {
+          .booking-modal {
+            padding: 1rem;
+          }
+
+          .modal-title {
+            font-size: 1.25rem;
+          }
+
+          .modal-subtitle {
+            font-size: 0.8rem;
+          }
+
+          .form-input {
+            padding: 0.5rem 0.5rem 0.5rem 2.5rem;
+            font-size: 0.8rem;
+          }
+
+          .input-label {
+            font-size: 0.8rem;
+          }
+
+          .submit-button {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+          }
+        }
       `}</style>
     </>
   );
 };
+
 export default BookingModal;
