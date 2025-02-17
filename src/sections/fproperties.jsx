@@ -1,223 +1,122 @@
-import React from "react";
-import { Star, ArrowRight } from "react-bootstrap-icons";
-import { Link } from "react-router-dom";
-import Apartment1 from "../assets/appartment1.jpg";
-import Apartment2 from "../assets/appartment2.jpg";
-import Apartment3 from "../assets/appartment3.jpg";
+import React from 'react';
+import { Star, ArrowRight, Phone, Calendar, MapPin } from 'lucide-react';
 
-const FeaturedProperties = () => {
-  const properties = [
-    {
-      id: 1,
-      image: Apartment1,
-      title: "5-Bedroom Luxury Apartment",
-      description:
-        "Spacious living areas with premium amenities and en-suite bathrooms",
-      price: 399,
-      rating: 4.9,
-      rooms: 5,
-      featured: true,
-    },
-    {
-      id: 2,
-      image: Apartment2,
-      title: "4-Bedroom Premium Suite",
-      description: "Elegant design with state-of-the-art smart home features",
-      price: 349,
-      rating: 4.8,
-      rooms: 4,
-      featured: true,
-    },
-    {
-      id: 3,
-      image: Apartment3,
-      title: "3-Bedroom Deluxe Apartment",
-      description: "Modern comfort with stunning views of GRA Ikeja",
-      price: 299,
-      rating: 4.7,
-      rooms: 3,
-      featured: true,
-    },
-  ];
+const LuxuryProperty = () => {
+  const property = {
+    title: "Exclusive 5-Bedroom Luxury Suite",
+    location: "GRA Ikeja, Lagos",
+    description: "Experience unparalleled luxury in this meticulously designed residence featuring premium finishes, smart home technology, and breathtaking views. Complete with a private garden and 24/7 concierge service.",
+    price: 899,
+    rating: 4.9,
+    amenities: [
+      "Private Pool",
+      "Smart Home System",
+      "24/7 Security",
+      "Concierge Service"
+    ]
+  };
 
   return (
-    <section
-      id="properties"
-      className="py-5"
-      style={{
-        background:
-          "linear-gradient(135deg, #f5f7fa 0%,rgb(182, 203, 243) 100%)",
-        borderTop: "1px solid rgba(0,48,135,0.1)",
-        borderBottom: "1px solid rgba(0,48,135,0.1)",
-      }}
-    >
-      <div className="container py-4">
-        {/* Section Header */}
+    <div className="bg-white py-5">
+      <div className="container">
+        {/* Header Section */}
         <div className="text-center mb-5">
-          <div className="bg-primary bg-opacity-10 text-primary d-inline-block px-3 py-2 rounded-pill mb-3">
-            <span className="text-uppercase fw-bold small">
-              Premium Accommodation
-            </span>
-          </div>
-          <h2 className="display-5 fw-bold mb-3">Our Luxury Apartments</h2>
-          <p className="text-muted lead mx-auto" style={{ maxWidth: "700px" }}>
-            Experience exceptional comfort in our exclusive GRA Ikeja residences
+          <span className="badge bg-primary bg-opacity-10 text-primary px-3 py-2 mb-3 rounded-pill">
+            Premium Property
+          </span>
+          <h2 className="display-5 fw-bold mb-3">{property.title}</h2>
+          <p className="text-muted">
+            <MapPin className="inline-block me-2" size={18} />
+            {property.location}
           </p>
         </div>
 
-        {/* Property Cards */}
-        <div className="row g-4">
-          {properties.map((property) => (
-            <div key={property.id} className="col-md-4">
-              <div
-                className="card border-0 h-100 overflow-hidden"
-                style={{
-                  borderRadius: "16px",
-                  transition: "all 0.3s ease",
-                  cursor: "pointer",
-                  boxShadow: "0 10px 30px rgba(0, 0, 0, 0.08)",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-10px)";
-                  e.currentTarget.style.boxShadow =
-                    "0 15px 35px rgba(0, 0, 0, 0.15)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow =
-                    "0 10px 30px rgba(0, 0, 0, 0.08)";
-                }}
-              >
-                {/* Property Image */}
-                <div className="position-relative" style={{ height: "250px" }}>
-                  <img
-                    src={property.image}
-                    className="card-img-top w-100 h-100"
-                    alt={property.title}
-                    style={{
-                      objectFit: "cover",
-                      transition: "transform 0.6s ease",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = "scale(1.05)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = "scale(1)";
-                    }}
+        {/* Main Card */}
+        <div className="card border-0 shadow-lg overflow-hidden rounded-4">
+          {/* Image Section */}
+          <div className="position-relative">
+            <img
+              src="appartment2.jpg"
+              className="card-img-top"
+              alt="Luxury Property"
+              style={{ height: '400px', objectFit: 'cover' }}
+            />
+            <div className="position-absolute top-0 end-0 m-3">
+              <span className="badge bg-dark bg-opacity-75 px-3 py-2 fs-6 rounded-pill">
+                5 Bedrooms
+              </span>
+            </div>
+          </div>
+
+          <div className="card-body p-4">
+            {/* Rating Section */}
+            <div className="d-flex align-items-center mb-3">
+              <div className="text-warning me-2">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className="me-1"
+                    size={20}
+                    fill={i < Math.floor(property.rating) ? "currentColor" : "none"}
                   />
-                  <div className="position-absolute top-0 end-0 m-3">
-                    <span
-                      className="badge rounded-pill"
-                      style={{
-                        background: "rgba(0, 48, 135, 0.85)",
-                        backdropFilter: "blur(4px)",
-                        padding: "0.5rem 1rem",
-                      }}
-                    >
-                      {property.rooms} Bedrooms
-                    </span>
-                  </div>
-                  <div
-                    className="position-absolute bottom-0 start-0 w-100 p-3"
-                    style={{
-                      background:
-                        "linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent)",
-                    }}
-                  >
-                    <h5 className="text-white mb-0 text-shadow">
-                      {property.title}
-                    </h5>
+                ))}
+              </div>
+              <span className="text-muted">
+                {property.rating} Exceptional
+              </span>
+            </div>
+
+            {/* Description */}
+            <p className="card-text mb-4 text-muted">
+              {property.description}
+            </p>
+
+            {/* Amenities */}
+            <div className="row g-3 mb-4">
+              {property.amenities.map((amenity, index) => (
+                <div key={index} className="col-md-6">
+                  <div className="d-flex align-items-center p-3 rounded-4 bg-light">
+                    <div className="flex-shrink-0">
+                      <div className="rounded-circle bg-primary bg-opacity-10 p-2" style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Star className="text-primary" size={18} />
+                      </div>
+                    </div>
+                    <div className="ms-3">
+                      <p className="mb-0">{amenity}</p>
+                    </div>
                   </div>
                 </div>
+              ))}
+            </div>
 
-                {/* Card Body */}
-                <div className="card-body p-4">
-                  {/* Rating */}
-                  <div className="d-flex align-items-center mb-3">
-                    <span style={{ color: "#FFD700" }}>
-                      {[...Array(Math.floor(property.rating))].map((_, i) => (
-                        <Star key={i} className="me-1" />
-                      ))}
-                    </span>
-                    <small className="text-muted ms-2">
-                      {property.rating} Guest Rating
-                    </small>
-                  </div>
-
-                  {/* Property Description */}
-                  <p className="card-text text-muted mb-4">
-                    {property.description}
-                  </p>
-
-                  {/* Price and Button */}
-                  <div className="d-flex justify-content-between align-items-center">
-                    <span className="h5 mb-0" style={{ color: "#003087" }}>
-                      ${property.price}
-                      <small className="text-muted">/night</small>
-                    </span>
-                    <Link
-                      to="/propertydetail"
-                      className="btn btn-outline-primary d-flex align-items-center gap-2"
-                      style={{
-                        transition: "all 0.3s ease",
-                        borderColor: "#003087",
-                        color: "#003087",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = "#003087";
-                        e.currentTarget.style.color = "white";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = "transparent";
-                        e.currentTarget.style.color = "#003087";
-                      }}
-                    >
-                      <span>View Details</span>
-                      <ArrowRight />
-                    </Link>
-                  </div>
-                </div>
+            {/* Price and Actions */}
+            <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
+              <div>
+                <h3 className="mb-0 text-primary">
+                  ${property.price}
+                  <small className="text-muted fs-6">/night</small>
+                </h3>
+              </div>
+              <div className="d-flex gap-2">
+                <button className="btn btn-outline-primary rounded-pill d-flex align-items-center gap-2">
+                  <Phone size={18} />
+                  Contact
+                </button>
+                <button className="btn btn-outline-primary rounded-pill d-flex align-items-center gap-2">
+                  <Calendar size={18} />
+                  Schedule Tour
+                </button>
+                <button className="btn btn-primary rounded-pill d-flex align-items-center gap-2">
+                  Book Now
+                  <ArrowRight size={18} />
+                </button>
               </div>
             </div>
-          ))}
-        </div>
-
-        {/* View All Button */}
-        <div className="text-center mt-5">
-          <Link
-            to="/properties"
-            className="btn btn-primary px-4 py-2"
-            style={{
-              background: "linear-gradient(to right, #003087, #004299)",
-              border: "none",
-              borderRadius: "50px",
-              padding: "0.75rem 2rem",
-              transition: "all 0.3s ease",
-              boxShadow: "0 4px 15px rgba(0, 48, 135, 0.2)",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "translateY(-3px)";
-              e.currentTarget.style.boxShadow =
-                "0 6px 20px rgba(0, 48, 135, 0.3)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow =
-                "0 4px 15px rgba(0, 48, 135, 0.2)";
-            }}
-          >
-            Explore All Apartments
-          </Link>
+          </div>
         </div>
       </div>
-
-      <style jsx>{`
-        .text-shadow {
-          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-      `}</style>
-    </section>
+    </div>
   );
 };
 
-export default FeaturedProperties;
+export default LuxuryProperty;
