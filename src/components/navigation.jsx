@@ -55,7 +55,7 @@ const Navigation = () => {
         aria-label="Main navigation"
       >
         <div className="container">
-          {/* Logo and Brand */}
+          {/* Logo and Brand - Modified section */}
           <Link
             className="navbar-brand d-flex align-items-center"
             to="/"
@@ -72,7 +72,8 @@ const Navigation = () => {
               }}
               className="me-3"
             />
-            <div className="d-flex flex-column">
+            {/* Add d-none d-lg-flex to hide text on mobile */}
+            <div className="d-none d-lg-flex flex-column">
               <span
                 className="fs-2 fw-bold mb-0 lh-1"
                 style={{
@@ -83,7 +84,7 @@ const Navigation = () => {
                 <span className="text-white">Com4th</span>
                 <span
                   style={{
-                    color: "#FFD700",
+                    color: "#40E0D0",
                     textShadow: "0 2px 4px rgba(255,215,0,0.2)",
                   }}
                 >
@@ -154,7 +155,7 @@ const Navigation = () => {
                     <span
                       className="me-2 d-flex align-items-center"
                       style={{
-                        color: "#FFD700",
+                        color: "#40E0D0",
                         transition: "transform 0.3s ease",
                       }}
                     >
@@ -167,7 +168,7 @@ const Navigation = () => {
                         style={{
                           height: "2px",
                           width: "100%",
-                          backgroundColor: "#FFD700",
+                          backgroundColor: "#40E0D0",
                           transition: "all 0.3s ease",
                         }}
                       ></span>
@@ -196,7 +197,7 @@ const Navigation = () => {
           flex-direction: column;
           justify-content: space-around;
           width: 2rem;
-          height: 2rem;
+          height: 1.5rem;
           background: transparent;
           border: none;
           cursor: pointer;
@@ -213,7 +214,7 @@ const Navigation = () => {
         .hamburger-line {
           width: 2rem;
           height: 0.25rem;
-          background: #FFD700;
+          background: #40E0D0;
           border-radius: 10px;
           transition: all 0.3s linear;
           position: relative;
