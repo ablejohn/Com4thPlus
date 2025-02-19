@@ -41,7 +41,7 @@ const Footer = () => {
             <div className="pe-lg-5">
               <h3 className="mb-4">
                 <span className="text-white">Com4th</span>
-                <span style={{ color: "#FFD700" }}>Plus</span>
+                <span style={{ color: "#40E0D0" }}>Plus</span>
               </h3>
               <p className="text-white-50 mb-4">
                 Elevating the standard of luxury accommodation worldwide.
@@ -138,7 +138,7 @@ const Footer = () => {
               />
               <button
                 className="btn position-absolute end-0 top-0 h-100 d-flex align-items-center"
-                style={{ color: "#FFD700" }}
+                style={{ color: "#40E0D0" }}
               >
                 <Send size={20} />
               </button>
@@ -154,7 +154,7 @@ const Footer = () => {
                   transition: "all 0.3s ease",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "#FFD700";
+                  e.currentTarget.style.backgroundColor = "#40E0D0";
                   e.currentTarget.style.color = "#000";
                 }}
                 onMouseLeave={(e) => {
@@ -174,7 +174,7 @@ const Footer = () => {
                   transition: "all 0.3s ease",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "#FFD700";
+                  e.currentTarget.style.backgroundColor = "#40E0D0";
                   e.currentTarget.style.color = "#000";
                 }}
                 onMouseLeave={(e) => {
@@ -194,7 +194,7 @@ const Footer = () => {
                   transition: "all 0.3s ease",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "#FFD700";
+                  e.currentTarget.style.backgroundColor = "#40E0D0";
                   e.currentTarget.style.color = "#000";
                 }}
                 onMouseLeave={(e) => {

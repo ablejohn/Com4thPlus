@@ -14,6 +14,7 @@ const PropertyPage = lazy(() => import("./pages/property"));
 const PropertyDetailPage = lazy(() => import("./pages/propertydetail"));
 const LocationPage = lazy(() => import("./pages/location"));
 const ContactPage = lazy(() => import("./pages/contact"));
+const DashboardPage = lazy(() => import("./pages/Dashboard"));
 
 const App = () => {
   return (
@@ -39,6 +40,7 @@ const App = () => {
             <Route path="/property/:id" element={<PropertyDetailPage />} />
             <Route path="/location" element={<LocationPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/dashboard" element={< DashboardPage/>} />
           </Routes>
         </div>
       </Suspense>

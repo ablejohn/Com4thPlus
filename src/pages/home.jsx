@@ -3,6 +3,7 @@ import { Search, Calendar, MapPin, ChevronRight, Star } from "lucide-react";
 import Apartment1 from "../assets/appartment1.jpg";
 import Apartment2 from "../assets/appartment2.jpg";
 import Apartment3 from "../assets/appartment3.jpg";
+import Apartment4 from "../assets/appartment4.jpeg";
 import FeaturedProperties from "../sections/fproperties";
 import WhyChooseUs from "../sections/whychooseus";
 import TestimonialsSection from "../sections/testimonial";
@@ -12,7 +13,7 @@ import AboutUs from "../sections/aboutUs";
 const LandingPage = () => {
   const [currentImage, setCurrentImage] = useState(0);
   const [scrolled, setScrolled] = useState(false);
-  const images = [Apartment1, Apartment2, Apartment3];
+  const images = [Apartment1, Apartment2, Apartment3, Apartment4];
 
   useEffect(() => {
     const handleScroll = () => {

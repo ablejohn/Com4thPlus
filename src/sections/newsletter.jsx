@@ -29,7 +29,7 @@ const Newsletter = () => {
 
   return (
     <section className="position-relative py-5">
-      {/* Gradient Background */}
+      {/* Original Gradient Background - Maintained */}
       <div
         className="position-absolute top-0 start-0 w-100 h-100"
         style={{
@@ -38,11 +38,11 @@ const Newsletter = () => {
         }}
       />
 
-      {/* Decorative Elements */}
+      {/* Refined Decorative Elements - More subtle for professional look */}
       <div
         className="position-absolute top-0 start-0 w-100 h-100"
         style={{
-          backgroundImage: "radial-gradient(circle at 10% 20%, rgba(255,255,255,0.05) 0%, transparent 20%), radial-gradient(circle at 90% 80%, rgba(255,255,255,0.05) 0%, transparent 20%)",
+          backgroundImage: "radial-gradient(circle at 10% 20%, rgba(255,255,255,0.03) 0%, transparent 20%), radial-gradient(circle at 90% 80%, rgba(255,255,255,0.03) 0%, transparent 20%)",
           zIndex: -1,
         }}
       />
@@ -50,51 +50,51 @@ const Newsletter = () => {
       <div className="container py-5">
         <div className="row justify-content-center">
           <div className="col-lg-8 text-center">
-            {/* Icon Container */}
+            {/* Icon Container - Updated to turquoise with professional styling */}
             <div 
               className="d-inline-block mb-4 p-3 rounded-circle"
               style={{
-                background: "linear-gradient(135deg, rgba(255,215,0,0.2) 0%, rgba(255,215,0,0.1) 100%)",
-                backdropFilter: "blur(10px)",
-                border: "1px solid rgba(255,215,0,0.1)",
+                background: "rgba(64,224,208,0.12)",
+                backdropFilter: "blur(8px)",
+                border: "1px solid rgba(64,224,208,0.18)",
               }}
             >
               <MdEmail 
                 size={32} 
-                className="text-warning"
-                style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.2))" }}
+                className="text-white"
+                style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.1))" }}
               />
             </div>
 
-            {/* Header Text */}
+            {/* Header Text - Clean, professional typography */}
             <h2 
               className="text-white mb-3 display-5 fw-bold"
               style={{ 
-                textShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                letterSpacing: "-0.5px",
+                textShadow: "0 1px 2px rgba(0,0,0,0.1)",
+                letterSpacing: "-0.02em",
               }}
             >
               Discover Exceptional Properties
             </h2>
             <p 
-              className="text-white-50 mb-5 lead px-3"
+              className="text-white-50 mb-5 lead"
               style={{ 
                 maxWidth: "550px", 
                 margin: "0 auto",
-                fontSize: "1.15rem",
-                lineHeight: "1.6",
+                fontSize: "1.1rem",
+                lineHeight: "1.7",
               }}
             >
               Join our exclusive newsletter and get first access to luxury properties, special offers, and expert insights.
             </p>
 
-            {/* Newsletter Form */}
+            {/* Newsletter Form - Professional, corporate styling */}
             <form onSubmit={handleSubmit} className="mb-4">
               <div
                 className="input-group input-group-lg mx-auto position-relative"
                 style={{ 
                   maxWidth: "550px",
-                  filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.1))",
+                  filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.1))",
                 }}
               >
                 <input
@@ -110,36 +110,44 @@ const Newsletter = () => {
                     }
                   }}
                   style={{
-                    borderRadius: "16px 0 0 16px",
-                    padding: "1.25rem 1.75rem",
-                    fontSize: "1.1rem",
+                    borderRadius: "8px 0 0 8px",
+                    padding: "1.25rem 1.5rem",
+                    fontSize: "1rem",
                     backgroundColor: "rgba(255, 255, 255, 0.98)",
-                    boxShadow: "inset 0 2px 4px rgba(0,0,0,0.05)",
+                    boxShadow: "inset 0 1px 2px rgba(0,0,0,0.05)",
+                    transition: "all 0.2s ease",
+                    letterSpacing: "0.01em",
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.boxShadow = "inset 0 1px 2px rgba(0,0,0,0.05), 0 0 0 2px rgba(64,224,208,0.15)";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.boxShadow = "inset 0 1px 2px rgba(0,0,0,0.05)";
                   }}
                   disabled={status === "loading" || status === "success"}
                 />
                 <button
-                  className="btn btn-lg px-5 fw-bold d-flex align-items-center justify-content-center"
+                  className="btn btn-lg px-4 fw-bold d-flex align-items-center justify-content-center"
                   style={{
-                    borderRadius: "0 16px 16px 0",
-                    transition: "all 0.3s ease",
-                    backgroundColor: status === "success" ? "#28a745" : "#FFD700",
+                    borderRadius: "0 8px 8px 0",
+                    transition: "all 0.2s ease",
+                    backgroundColor: status === "success" ? "#28a745" : "#40E0D0",
                     border: "none",
-                    minWidth: "180px",
-                    color: "#000",
-                    fontSize: "1.1rem",
+                    minWidth: "160px",
+                    color: "#003060",
+                    fontSize: "1rem",
+                    fontWeight: "500",
+                    padding: "0.75rem 1.25rem",
                   }}
                   disabled={status === "loading" || status === "success"}
                   onMouseEnter={(e) => {
                     if (status !== "success") {
-                      e.currentTarget.style.backgroundColor = "#FFC000";
-                      e.currentTarget.style.transform = "translateY(-1px)";
+                      e.currentTarget.style.backgroundColor = "#36CFC0";
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (status !== "success") {
-                      e.currentTarget.style.backgroundColor = "#FFD700";
-                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.backgroundColor = "#40E0D0";
                     }
                   }}
                 >
@@ -150,67 +158,69 @@ const Newsletter = () => {
                   )}
                   {status === "success" ? (
                     <>
-                      <MdCheck size={24} className="me-2" />
+                      <MdCheck size={20} className="me-2" />
                       Subscribed
                     </>
                   ) : (
                     <>
                       Subscribe
-                      <MdArrowForward size={24} className="ms-2" />
+                      <MdArrowForward size={20} className="ms-2" />
                     </>
                   )}
                 </button>
               </div>
               
-              {/* Error Message */}
+              {/* Error Message - Professional, subtle design */}
               {status === "error" && (
                 <div 
-                  className="mt-3 px-4 py-2 rounded-3"
+                  className="mt-3 px-3 py-2 rounded-2 d-flex align-items-center justify-content-center"
                   style={{
-                    backgroundColor: "rgba(220, 53, 69, 0.1)",
+                    backgroundColor: "rgba(255, 255, 255, 0.05)",
                     color: "#ff8888",
                     maxWidth: "550px",
                     margin: "0 auto",
-                    backdropFilter: "blur(8px)",
-                    border: "1px solid rgba(220, 53, 69, 0.2)",
+                    backdropFilter: "blur(4px)",
+                    border: "1px solid rgba(255, 136, 136, 0.15)",
+                    fontSize: "0.9rem",
                   }}
                 >
-                  <MdError className="me-2" size={18} />
+                  <MdError className="me-2" size={16} />
                   {errorMessage}
                 </div>
               )}
             </form>
 
-            {/* Success Message */}
+            {/* Success Message - Clean, professional design */}
             {status === "success" && (
               <div 
-                className="mt-3 px-4 py-3 rounded-3 d-inline-block"
+                className="mt-3 px-3 py-2 rounded-2 d-inline-flex align-items-center"
                 style={{
-                  backgroundColor: "rgba(40, 167, 69, 0.1)",
-                  color: "#98ff98",
-                  backdropFilter: "blur(8px)",
-                  border: "1px solid rgba(40, 167, 69, 0.2)",
+                  backgroundColor: "rgba(64, 224, 208, 0.08)",
+                  color: "#40E0D0",
+                  backdropFilter: "blur(4px)",
+                  border: "1px solid rgba(64, 224, 208, 0.15)",
+                  fontSize: "0.9rem",
                 }}
               >
-                <MdCheck className="me-2" size={20} />
+                <MdCheck className="me-2" size={18} />
                 Welcome aboard! Check your inbox for exclusive property updates.
               </div>
             )}
 
-            {/* Trust Indicators */}
+            {/* Trust Indicators - Professional, subtle design */}
             <div className="mt-4 pt-2">
               <div 
                 className="d-flex align-items-center justify-content-center gap-4 text-white-50"
-                style={{ fontSize: "0.9rem" }}
+                style={{ fontSize: "0.85rem", letterSpacing: "0.02em" }}
               >
                 <span>
-                  <MdCheck className="text-warning me-1" /> Weekly Updates
+                  <MdCheck className="text-info me-1" size={14} /> Weekly Updates
                 </span>
                 <span>
-                  <MdCheck className="text-warning me-1" /> Exclusive Deals
+                  <MdCheck className="text-info me-1" size={14} /> Exclusive Deals
                 </span>
                 <span>
-                  <MdCheck className="text-warning me-1" /> No Spam
+                  <MdCheck className="text-info me-1" size={14} /> No Spam
                 </span>
               </div>
             </div>
