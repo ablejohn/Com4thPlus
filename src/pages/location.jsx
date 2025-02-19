@@ -8,10 +8,10 @@ import "leaflet/dist/leaflet.css";
 
 const LocationPage = () => {
   const coordinates = {
-    lat: 6.5999323,
-    lng: 3.3364947,
+    lat: 6.576191,
+    lng: 3.3586809,
     address:
-      "17, INDEPENDENCE STREET, OFF AKINREMI STREET, ANIFOWOSE, IKEJA, LAGOS STATE",
+      "ODUDUWA STREET, BY BOND HOTEL, NEAR INSIGHT COMMUNICATIONS, GRA, IKEJA LAGOS STATE.",
   };
 
   useEffect(() => {
