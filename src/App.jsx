@@ -6,6 +6,7 @@ import Navigation from "./components/navigation";
 import Footer from "./components/footer";
 import AutoScrollToTop from "./components/autoscrolltoTop";
 import ScrollToTopButton from "./components/scrolltoTop";
+import "./styling/styles.css";
 
 // Lazy load pages for better performance
 const Home = lazy(() => import("./pages/home"));

@@ -61,7 +61,10 @@ const LandingPage = () => {
         <div className="container position-relative h-100 d-flex justify-content-center align-items-center">
           <div className="text-center text-white">
             <div className="bg-primary bg-opacity-25 text-warning d-inline-block px-3 py-2 rounded-pill mb-4">
-              <span className="text-uppercase fw-bold small">
+              <span
+                className="text-uppercase fw-bold small"
+                style={{ color: "#40E0D0" }}
+              >
                 Welcome to COM4thPLUS
               </span>
             </div>
@@ -71,7 +74,9 @@ const LandingPage = () => {
             >
               Discover Your Perfect
               <br />
-              <span className="text-gradient">Luxury Residence</span>
+              <span className="text-gradient" style={{ color: "#40E0D0" }}>
+                Luxury Residence
+              </span>
             </h1>
             <p
               className="lead mb-5 text-white-50"
@@ -176,7 +181,7 @@ const LandingPage = () => {
       {/* Custom Styles */}
       <style jsx>{`
         .text-gradient {
-          background: linear-gradient(to right, #ffd700, #ffa500);
+          background: linear-gradient(to right, #40E0D0,rgb(116, 128, 129);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
         }
