@@ -1,5 +1,10 @@
 import React, { lazy, Suspense } from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 import { Container, Spinner } from "react-bootstrap";
 import Navigation from "./components/navigation";
 import Footer from "./components/footer";
@@ -9,11 +14,12 @@ import "./styling/styles.css";
 
 // Lazy load pages for better performance
 const Home = lazy(() => import("./pages/home"));
-const PropertyPage = lazy(() => import("./pages/property"));
+const PropertyPage = lazy(() => import("./pages/newProperties"));
 const PropertyDetailPage = lazy(() => import("./pages/propertydetail"));
 const LocationPage = lazy(() => import("./pages/location"));
 const ContactPage = lazy(() => import("./pages/contact"));
-const AdminPage = lazy(() => import("./Admin/Dashboard"));
+const AdminPage = lazy(() => import("./services/property"));
+const ViewAllProperties = lazy(() => import("./services/viewallproperties"));
 
 const App = () => {
   const location = useLocation(); // Get the current route location
@@ -46,6 +52,7 @@ const App = () => {
             <Route path="/location" element={<LocationPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/admin/*" element={<AdminPage />} />
+            <Route path="/viewallproperties" element={<ViewAllProperties />} />
           </Routes>
         </div>
       </Suspense>

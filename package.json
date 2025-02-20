@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
+    "axios": "^1.7.9",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
     "framer-motion": "^12.4.4",
@@ -27,6 +28,7 @@
     "react-parallax": "^3.5.1",
     "react-router-dom": "^7.1.5",
     "react-slick": "^0.30.3",
+    "react-toastify": "^11.0.3",
     "recharts": "^2.15.1",
     "slick-carousel": "^1.8.1"
   },
