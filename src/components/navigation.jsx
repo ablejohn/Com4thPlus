@@ -81,7 +81,7 @@ const Navigation = () => {
             ? "rgba(0,48,135,0.97)"
             : "linear-gradient(180deg, rgb(0,48,135) 0%, rgba(0,48,135,0.9) 100%)",
           transition: "all 0.25s ease-in-out",
-          padding: scrolled ? "0.6rem 0" : "0.6rem 0",
+          padding: scrolled ? "0.6rem 0" : "0.8rem 0",
           boxShadow: scrolled ? "0 2px 10px rgba(0,0,0,0.15)" : "none",
           height: "auto", // Let height adjust naturally
         }}
