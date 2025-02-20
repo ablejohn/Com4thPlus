@@ -214,7 +214,7 @@ const LandingPage = () => {
       {/* Global styles to remove any default spacing */}
       <style jsx global>{`
         html, body {
-          margin-top: -50px !important;
+          margin-top: -30px !important;
           padding: 0 !important;
           overflow-x: hidden;
           box-sizing: border-box;
