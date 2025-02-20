@@ -45,9 +45,9 @@ const PropertyDetailPage = () => {
         ],
         images: [
           "appartment1.jpg",
-          "appartment1.jpg",
-          "appartment1.jpg",
-          "appartment1.jpg",
+          "appartment6.jpeg",
+          "appartment10.jpeg",
+          "appartment12.jpeg",
         ],
         reviews_list: [
           {

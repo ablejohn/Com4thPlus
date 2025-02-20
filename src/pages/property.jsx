@@ -75,10 +75,10 @@ const PropertiesPage = () => {
     id: 1,
     images: [
       "appartment1.jpg",
-      "appartment1-living.jpg",
-      "appartment1-bedroom.jpg",
-      "appartment1-kitchen.jpg",
-      "appartment1-bathroom.jpg",
+      "appartment5.jpeg",
+      "appartment6.jpeg",
+      "appartment7.jpeg",
+      "appartment8.jpeg",
     ],
     title: "COM4TH PLUS LIMITED Apartment",
     description:
