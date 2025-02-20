@@ -32,7 +32,7 @@ const LandingPage = () => {
 
   return (
     <div className="overflow-hidden m-0 p-0">
-      {/* Hero Section - Fixing extra space issue */}
+      {/* Hero Section */}
       <div className="position-relative vh-100 m-0 p-0">
         {images.map((img, index) => (
           <div
@@ -43,7 +43,7 @@ const LandingPage = () => {
               transition: "opacity 1.5s ease-in-out, transform 1.5s ease-in-out",
               transform: currentImage === index ? "scale(1)" : "scale(1)",
               zIndex: 1,
-              marginTop: "5px" // Added margin-top to the image container
+              
             }}
           >
             <img
@@ -52,14 +52,14 @@ const LandingPage = () => {
               className="w-100 h-100 object-fit-cover"
               style={{ 
                 filter: "brightness(0.7)",
-                marginTop: "5px" // Also adding margin to the image itself for better control
+                
               }}
             />
             <div
               className="position-absolute top-0 start-0 w-100 h-100"
               style={{
                 background: "linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7))",
-                marginTop: "5px" // Also adjusting the overlay to match
+                
               }}
             />
           </div>
