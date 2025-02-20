@@ -28,21 +28,21 @@ const LandingPage = () => {
       setCurrentImage((prev) => (prev + 1) % images.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [images.length]);
 
   return (
-    <div className="overflow-hidden">
-      {/* Hero Section */}
-      <div className="position-relative vh-100">
+    <div className="overflow-hidden m-0 p-0">
+      {/* Hero Section - Fixing extra space issue */}
+      <div className="position-relative vh-100 m-0 p-0">
         {images.map((img, index) => (
           <div
             key={index}
-            className="position-absolute w-100 h-100"
+            className="position-absolute w-100 h-100 top-0 start-0"
             style={{
               opacity: currentImage === index ? 1 : 0,
-              transition:
-                "opacity 1.5s ease-in-out, transform 1.5s ease-in-out",
+              transition: "opacity 1.5s ease-in-out, transform 1.5s ease-in-out",
               transform: currentImage === index ? "scale(1.05)" : "scale(1)",
+              zIndex: 1
             }}
           >
             <img
@@ -59,7 +59,7 @@ const LandingPage = () => {
             />
           </div>
         ))}
-        <div className="container position-relative h-100 d-flex justify-content-center align-items-center">
+        <div className="container position-relative h-100 d-flex justify-content-center align-items-center" style={{ zIndex: 2 }}>
           <div className="text-center text-white">
             <div className="bg-primary bg-opacity-25 text-warning d-inline-block px-3 py-2 rounded-pill mb-4">
               <span
@@ -75,7 +75,7 @@ const LandingPage = () => {
             >
               Discover Your Perfect
               <br />
-              <span className="text-gradient" style={{ color: "#40E0D0" }}>
+              <span className="gradient-text">
                 Luxury Residence
               </span>
             </h1>
@@ -89,7 +89,7 @@ const LandingPage = () => {
 
             {/* Search Form */}
             <div
-              className="bg-white p-4 rounded-4 shadow-lg mt-5 mb-5 mx-auto"
+              className="bg-white p-4 rounded-4 shadow-lg mx-auto"
               style={{
                 backdropFilter: "blur(10px)",
                 background: "rgba(255, 255, 255, 0.95)",
@@ -97,8 +97,6 @@ const LandingPage = () => {
               }}
             >
               <div className="row g-3 align-items-end">
-                {" "}
-                {/* Changed to align-items-end */}
                 {/* Check-in Date */}
                 <div className="col-12 col-md-4">
                   <div className="d-flex flex-column">
@@ -141,14 +139,13 @@ const LandingPage = () => {
                 <div className="col-12 col-md-4">
                   <div className="d-flex flex-column">
                     {/* Empty label for spacing alignment */}
-                    <label className="small fw-bold text-dark mb-1 opacity-0">
-                      Check Availability
+                    <label className="small fw-bold text-dark mb-1 d-none d-md-block">
+                      &nbsp;
                     </label>
                     <button
                       className="btn btn-primary w-100 py-3 d-flex align-items-center justify-content-center gap-2"
                       style={{
-                        background:
-                          "linear-gradient(to right, #003087, #004299)",
+                        background: "linear-gradient(to right, #003087, #004299)",
                         border: "none",
                         transition: "transform 0.3s ease",
                         height: "56px", // Match input height
@@ -164,6 +161,7 @@ const LandingPage = () => {
           </div>
         </div>
       </div>
+      
       {/* About us Section */}
       <AboutUs />
 
@@ -181,16 +179,19 @@ const LandingPage = () => {
 
       {/* Custom Styles */}
       <style jsx>{`
-        .text-gradient {
-          background: linear-gradient(to right, #40E0D0,rgb(116, 128, 129);
+        .gradient-text {
+          color: #40E0D0;
+          background: linear-gradient(to right, #40E0D0, rgb(116, 128, 129));
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
+          background-clip: text;
         }
         .input-group:focus-within {
           border-color: #004299 !important;
           box-shadow: 0 0 0 0.2rem rgba(0, 66, 153, 0.25);
         }
         .btn-primary:hover {
+          transform: translateY(-2px);
           background: linear-gradient(to right, #004299, #003087) !important;
         }
       `}</style>

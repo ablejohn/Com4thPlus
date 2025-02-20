@@ -1,6 +1,5 @@
-// App.jsx
 import React, { lazy, Suspense } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { Container, Spinner } from "react-bootstrap";
 import Navigation from "./components/navigation";
 import Footer from "./components/footer";
@@ -17,10 +16,16 @@ const ContactPage = lazy(() => import("./pages/contact"));
 const AdminPage = lazy(() => import("./Admin/Dashboard"));
 
 const App = () => {
+  const location = useLocation(); // Get the current route location
+
+  // Check if the current route is the admin dashboard
+  const isAdminRoute = location.pathname.startsWith("/admin");
+
   return (
-    <Router>
+    <>
       <AutoScrollToTop />
-      <Navigation />
+      {/* Conditionally render Navigation */}
+      {!isAdminRoute && <Navigation />}
       <Suspense
         fallback={
           <Container
@@ -37,14 +42,15 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/properties" element={<PropertyPage />} />
-            <Route path="/property/:id" element={<PropertyDetailPage />} />
+            <Route path="/propertydetail" element={<PropertyDetailPage />} />
             <Route path="/location" element={<LocationPage />} />
             <Route path="/contact" element={<ContactPage />} />
-            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/admin/*" element={<AdminPage />} />
           </Routes>
         </div>
       </Suspense>
-      <Footer />
+      {/* Conditionally render Footer */}
+      {!isAdminRoute && <Footer />}
       <ScrollToTopButton />
       <style>{`
         .main-content {
@@ -52,8 +58,15 @@ const App = () => {
           padding-bottom: 2rem;
         }
       `}</style>
-    </Router>
+    </>
   );
 };
 
-export default App;
+// Wrap the App component with Router to use useLocation
+const AppWrapper = () => (
+  <Router>
+    <App />
+  </Router>
+);
+
+export default AppWrapper;
