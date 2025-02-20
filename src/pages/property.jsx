@@ -78,7 +78,7 @@ const PropertiesPage = () => {
       "appartment5.jpeg",
       "appartment6.jpeg",
       "appartment7.jpeg",
-      "appartment8.jpeg",
+      "appartment8.jpg",
     ],
     title: "COM4TH PLUS LIMITED Apartment",
     description:
@@ -325,307 +325,272 @@ const PropertiesPage = () => {
             </p>
           </div>
 
-          {/* Tab Navigation */}
-          <Nav
-            variant="tabs"
-            className="mb-4 flex-nowrap"
-            style={{ borderBottom: `1px solid ${theme.colors.grayLight}` }}
+          {/* Tab Navigation - FIXED IMPLEMENTATION */}
+          <Tab.Container 
+            id="property-tabs" 
+            activeKey={activeTab} 
+            onSelect={(k) => setActiveTab(k)}
           >
-            <Nav.Item>
-              <Nav.Link
-                active={activeTab === "details"}
-                onClick={() => setActiveTab("details")}
-                style={{
-                  color:
-                    activeTab === "details"
-                      ? theme.colors.primary
-                      : theme.colors.dark,
-                  fontWeight: activeTab === "details" ? "600" : "400",
-                }}
-              >
-                Property Details
-              </Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
-              <Nav.Link
-                active={activeTab === "party"}
-                onClick={() => setActiveTab("party")}
-                style={{
-                  color:
-                    activeTab === "party"
-                      ? theme.colors.primary
-                      : theme.colors.dark,
-                  fontWeight: activeTab === "party" ? "600" : "400",
-                }}
-              >
-                Party/Get-Together
-              </Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
-              <Nav.Link
-                active={activeTab === "amenities"}
-                onClick={() => setActiveTab("amenities")}
-                style={{
-                  color:
-                    activeTab === "amenities"
-                      ? theme.colors.primary
-                      : theme.colors.dark,
-                  fontWeight: activeTab === "amenities" ? "600" : "400",
-                }}
-              >
-                Amenities
-              </Nav.Link>
-            </Nav.Item>
-          </Nav>
-
-          {/* Tab Content */}
-          <div className="tab-content mb-4">
-            {/* Property Details Tab */}
-            <div
-              className={`tab-pane ${activeTab === "details" ? "active" : ""}`}
-            >
-              <p className="mb-4 text-muted">{property.description}</p>
-
-              <div className="status-badge d-flex flex-wrap gap-2 mb-4">
-                <span
-                  className="badge rounded-pill px-3 py-2"
-                  style={{
-                    backgroundColor: theme.colors.primaryLight,
-                    color: theme.colors.primary,
-                  }}
+            <Nav variant="tabs" className="mb-4 flex-nowrap custom-tabs">
+              <Nav.Item>
+                <Nav.Link
+                  eventKey="details"
+                  className={`px-3 py-2 ${activeTab === "details" ? "active-tab" : ""}`}
                 >
-                  <FaRegCalendarAlt className="me-2" />
-                  {property.availability}
-                </span>
-                <span
-                  className="badge rounded-pill px-3 py-2"
-                  style={{
-                    backgroundColor: theme.colors.grayLight,
-                    color: theme.colors.dark,
-                  }}
+                  Property Details
+                </Nav.Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Nav.Link
+                  eventKey="party"
+                  className={`px-3 py-2 ${activeTab === "party" ? "active-tab" : ""}`}
                 >
-                  <FaHome className="me-2" />
-                  {property.type}
-                </span>
-              </div>
-
-              <div
-                className="d-flex flex-wrap text-muted mb-4 p-3 rounded"
-                style={{ backgroundColor: theme.colors.light }}
-              >
-                <div className="me-4 mb-2 mb-md-0 d-flex align-items-center">
-                  <FaBed
-                    className="me-2"
-                    style={{ color: theme.colors.primary }}
-                    size={20}
-                  />
-                  <span>{selectedBedrooms} Bedrooms</span>
-                </div>
-                <div className="me-4 mb-2 mb-md-0 d-flex align-items-center">
-                  <FaBath
-                    className="me-2"
-                    style={{ color: theme.colors.primary }}
-                    size={18}
-                  />
-                  <span>{property.bathrooms} Bathrooms</span>
-                </div>
-                <div className="d-flex align-items-center">
-                  <FaStopwatch
-                    className="me-2"
-                    style={{ color: theme.colors.primary }}
-                    size={18}
-                  />
-                  <span>{property.size}</span>
-                </div>
-              </div>
-
-              <div className="mb-4">
-                <h5 className="mb-3 fw-bold">Select Bedroom Option:</h5>
-                <div className="d-flex flex-wrap gap-2">
-                  {property.pricingOptions.map((option) => (
-                    <Badge
-                      key={option.bedrooms}
-                      bg={
-                        selectedBedrooms === option.bedrooms
-                          ? "primary"
-                          : "light"
-                      }
-                      text={
-                        selectedBedrooms === option.bedrooms ? "white" : "dark"
-                      }
-                      className="py-2 px-3 pricing-option"
-                      onClick={() => setSelectedBedrooms(option.bedrooms)}
-                      style={{
-                        borderRadius: "20px",
-                        backgroundColor:
-                          selectedBedrooms === option.bedrooms
-                            ? theme.colors.primary
-                            : theme.colors.grayLight,
-                        cursor: "pointer",
-                        transition: theme.transition,
-                      }}
-                    >
-                      {option.label}: ₦{option.price.toLocaleString()}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              <div
-                className="featured-section p-4 mb-4 rounded"
-                style={{ backgroundColor: theme.colors.primaryLight }}
-              >
-                <h5
-                  className="mb-3 fw-bold"
-                  style={{ color: theme.colors.primaryDark }}
+                  Party/Get-Together
+                </Nav.Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Nav.Link
+                  eventKey="amenities"
+                  className={`px-3 py-2 ${activeTab === "amenities" ? "active-tab" : ""}`}
                 >
-                  Featured Highlights
-                </h5>
-                <ul className="mb-0 feature-list">
-                  {property.featuredHighlights.map((highlight, index) => (
-                    <li key={index} className="mb-2">
-                      {highlight}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
+                  Amenities
+                </Nav.Link>
+              </Nav.Item>
+            </Nav>
 
-            {/* Party/Get-Together Tab */}
-            <div
-              className={`tab-pane ${activeTab === "party" ? "active" : ""}`}
-            >
-              <div
-                className="party-details p-4 mb-4 rounded"
-                style={{ backgroundColor: theme.colors.primaryLight }}
-              >
-                <h5
-                  className="mb-3 fw-bold"
-                  style={{ color: theme.colors.primaryDark }}
-                >
-                  Party/Get-Together Details
-                </h5>
-                <ul className="mb-0 feature-list">
-                  <li className="mb-3 d-flex align-items-start">
-                    <FaUsers
-                      className="me-3 mt-1"
-                      style={{ color: theme.colors.primary }}
-                    />
-                    <div>
-                      <strong>Maximum Guests:</strong>
-                      <p className="mb-0">
-                        Strictly limited to {property.partyDetails.maxGuests}{" "}
-                        people
-                      </p>
-                    </div>
-                  </li>
-                  <li className="mb-3 d-flex align-items-start">
-                    <FaMoneyBillWave
-                      className="me-3 mt-1"
-                      style={{ color: theme.colors.primary }}
-                    />
-                    <div>
-                      <strong>Pricing:</strong>
-                      <p className="mb-0">
-                        ₦{property.partyDetails.priceRange} for all rooms
-                      </p>
-                    </div>
-                  </li>
-                  <li className="mb-3 d-flex align-items-start">
-                    <FaMoneyBillWave
-                      className="me-3 mt-1"
-                      style={{ color: theme.colors.success }}
-                    />
-                    <div>
-                      <strong>Refundable Caution Fee:</strong>
-                      <p className="mb-0">
-                        ₦{property.partyDetails.cautionFee.toLocaleString()} for
-                        all categories
-                      </p>
-                    </div>
-                  </li>
-                  <li className="mb-3 d-flex align-items-start">
-                    <FaUtensils
-                      className="me-3 mt-1"
-                      style={{ color: theme.colors.accent }}
-                    />
-                    <div>
-                      <strong>Cooking Policy:</strong>
-                      <p
-                        className="mb-0"
-                        style={{
-                          color: property.partyDetails.cookingAllowed
-                            ? theme.colors.success
-                            : theme.colors.accent,
-                        }}
-                      >
-                        {property.partyDetails.cookingAllowed
-                          ? "Large cooking allowed"
-                          : "No large cooking is allowed for any get together or party"}
-                      </p>
-                    </div>
-                  </li>
-                </ul>
+            <Tab.Content className="mb-4">
+              {/* Property Details Tab */}
+              <Tab.Pane eventKey="details">
+                <p className="mb-4 text-muted">{property.description}</p>
+
+                <div className="status-badge d-flex flex-wrap gap-2 mb-4">
+                  <span
+                    className="badge rounded-pill px-3 py-2"
+                    style={{
+                      backgroundColor: theme.colors.primaryLight,
+                      color: theme.colors.primary,
+                    }}
+                  >
+                    <FaRegCalendarAlt className="me-2" />
+                    {property.availability}
+                  </span>
+                  <span
+                    className="badge rounded-pill px-3 py-2"
+                    style={{
+                      backgroundColor: theme.colors.grayLight,
+                      color: theme.colors.dark,
+                    }}
+                  >
+                    <FaHome className="me-2" />
+                    {property.type}
+                  </span>
+                </div>
 
                 <div
-                  className="mt-4 p-3 rounded"
-                  style={{ backgroundColor: "rgba(255, 255, 255, 0.5)" }}
+                  className="d-flex flex-wrap text-muted mb-4 p-3 rounded"
+                  style={{ backgroundColor: theme.colors.light }}
                 >
-                  <p
-                    className="mb-0 text-center fw-bold"
+                  <div className="me-4 mb-2 mb-md-0 d-flex align-items-center">
+                    <FaBed
+                      className="me-2"
+                      style={{ color: theme.colors.primary }}
+                      size={20}
+                    />
+                    <span>{selectedBedrooms} Bedrooms</span>
+                  </div>
+                  <div className="me-4 mb-2 mb-md-0 d-flex align-items-center">
+                    <FaBath
+                      className="me-2"
+                      style={{ color: theme.colors.primary }}
+                      size={18}
+                    />
+                    <span>{property.bathrooms} Bathrooms</span>
+                  </div>
+                  <div className="d-flex align-items-center">
+                    <FaStopwatch
+                      className="me-2"
+                      style={{ color: theme.colors.primary }}
+                      size={18}
+                    />
+                    <span>{property.size}</span>
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <h5 className="mb-3 fw-bold">Select Bedroom Option:</h5>
+                  <div className="d-flex flex-wrap gap-2">
+                    {property.pricingOptions.map((option) => (
+                      <Badge
+                        key={option.bedrooms}
+                        bg={selectedBedrooms === option.bedrooms ? "primary" : "light"}
+                        text={selectedBedrooms === option.bedrooms ? "white" : "dark"}
+                        className="py-2 px-3 pricing-option"
+                        onClick={() => setSelectedBedrooms(option.bedrooms)}
+                        style={{
+                          borderRadius: "20px",
+                          backgroundColor: selectedBedrooms === option.bedrooms
+                            ? theme.colors.primary
+                            : theme.colors.grayLight,
+                          cursor: "pointer",
+                          transition: theme.transition,
+                        }}
+                      >
+                        {option.label}: ₦{option.price.toLocaleString()}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                <div
+                  className="featured-section p-4 mb-4 rounded"
+                  style={{ backgroundColor: theme.colors.primaryLight }}
+                >
+                  <h5
+                    className="mb-3 fw-bold"
                     style={{ color: theme.colors.primaryDark }}
                   >
-                    {property.partyDetails.notes}
-                  </p>
+                    Featured Highlights
+                  </h5>
+                  <ul className="mb-0 feature-list">
+                    {property.featuredHighlights.map((highlight, index) => (
+                      <li key={index} className="mb-2">
+                        {highlight}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              </div>
-            </div>
+              </Tab.Pane>
 
-            {/* Amenities Tab */}
-            <div
-              className={`tab-pane ${
-                activeTab === "amenities" ? "active" : ""
-              }`}
-            >
-              <h5 className="mb-3 fw-bold">Property Amenities</h5>
-              <Row className="row-cols-1 row-cols-md-2 g-4 mb-4">
-                {property.amenities.map((amenity, index) => (
-                  <Col key={index}>
-                    <div
-                      className="d-flex align-items-center p-3 rounded"
-                      style={{ backgroundColor: theme.colors.grayLight }}
+              {/* Party/Get-Together Tab */}
+              <Tab.Pane eventKey="party">
+                <div
+                  className="party-details p-4 mb-4 rounded"
+                  style={{ backgroundColor: theme.colors.primaryLight }}
+                >
+                  <h5
+                    className="mb-3 fw-bold"
+                    style={{ color: theme.colors.primaryDark }}
+                  >
+                    Party/Get-Together Details
+                  </h5>
+                  <ul className="mb-0 feature-list">
+                    <li className="mb-3 d-flex align-items-start">
+                      <FaUsers
+                        className="me-3 mt-1"
+                        style={{ color: theme.colors.primary }}
+                      />
+                      <div>
+                        <strong>Maximum Guests:</strong>
+                        <p className="mb-0">
+                          Strictly limited to {property.partyDetails.maxGuests}{" "}
+                          people
+                        </p>
+                      </div>
+                    </li>
+                    <li className="mb-3 d-flex align-items-start">
+                      <FaMoneyBillWave
+                        className="me-3 mt-1"
+                        style={{ color: theme.colors.primary }}
+                      />
+                      <div>
+                        <strong>Pricing:</strong>
+                        <p className="mb-0">
+                          ₦{property.partyDetails.priceRange} for all rooms
+                        </p>
+                      </div>
+                    </li>
+                    <li className="mb-3 d-flex align-items-start">
+                      <FaMoneyBillWave
+                        className="me-3 mt-1"
+                        style={{ color: theme.colors.success }}
+                      />
+                      <div>
+                        <strong>Refundable Caution Fee:</strong>
+                        <p className="mb-0">
+                          ₦{property.partyDetails.cautionFee.toLocaleString()} for
+                          all categories
+                        </p>
+                      </div>
+                    </li>
+                    <li className="mb-3 d-flex align-items-start">
+                      <FaUtensils
+                        className="me-3 mt-1"
+                        style={{ color: theme.colors.accent }}
+                      />
+                      <div>
+                        <strong>Cooking Policy:</strong>
+                        <p
+                          className="mb-0"
+                          style={{
+                            color: property.partyDetails.cookingAllowed
+                              ? theme.colors.success
+                              : theme.colors.accent,
+                          }}
+                        >
+                          {property.partyDetails.cookingAllowed
+                            ? "Large cooking allowed"
+                            : "No large cooking is allowed for any get together or party"}
+                        </p>
+                      </div>
+                    </li>
+                  </ul>
+
+                  <div
+                    className="mt-4 p-3 rounded"
+                    style={{ backgroundColor: "rgba(255, 255, 255, 0.5)" }}
+                  >
+                    <p
+                      className="mb-0 text-center fw-bold"
+                      style={{ color: theme.colors.primaryDark }}
                     >
-                      {amenity.includes("WiFi") && (
-                        <FaWifi
-                          className="me-3"
-                          style={{ color: theme.colors.primary }}
-                        />
-                      )}
-                      {amenity.includes("Parking") && (
-                        <FaCar
-                          className="me-3"
-                          style={{ color: theme.colors.primary }}
-                        />
-                      )}
-                      {amenity.includes("Pool") && (
-                        <FaSwimmingPool
-                          className="me-3"
-                          style={{ color: theme.colors.primary }}
-                        />
-                      )}
-                      {amenity.includes("Fitness") && (
-                        <FaDumbbell
-                          className="me-3"
-                          style={{ color: theme.colors.primary }}
-                        />
-                      )}
-                      <span>{amenity}</span>
-                    </div>
-                  </Col>
-                ))}
-              </Row>
-            </div>
-          </div>
+                      {property.partyDetails.notes}
+                    </p>
+                  </div>
+                </div>
+              </Tab.Pane>
+
+              {/* Amenities Tab */}
+              <Tab.Pane eventKey="amenities">
+                <h5 className="mb-3 fw-bold">Property Amenities</h5>
+                <Row className="row-cols-1 row-cols-md-2 g-4 mb-4">
+                  {property.amenities.map((amenity, index) => (
+                    <Col key={index}>
+                      <div
+                        className="d-flex align-items-center p-3 rounded"
+                        style={{ backgroundColor: theme.colors.grayLight }}
+                      >
+                        {amenity.includes("WiFi") && (
+                          <FaWifi
+                            className="me-3"
+                            style={{ color: theme.colors.primary }}
+                          />
+                        )}
+                        {amenity.includes("Parking") && (
+                          <FaCar
+                            className="me-3"
+                            style={{ color: theme.colors.primary }}
+                          />
+                        )}
+                        {amenity.includes("Pool") && (
+                          <FaSwimmingPool
+                            className="me-3"
+                            style={{ color: theme.colors.primary }}
+                          />
+                        )}
+                        {amenity.includes("Fitness") && (
+                          <FaDumbbell
+                            className="me-3"
+                            style={{ color: theme.colors.primary }}
+                          />
+                        )}
+                        <span>{amenity}</span>
+                      </div>
+                    </Col>
+                  ))}
+                </Row>
+              </Tab.Pane>
+            </Tab.Content>
+          </Tab.Container>
 
           <div
             className="price-section p-4 rounded"
@@ -654,8 +619,8 @@ const PropertiesPage = () => {
                 >
                   View Details
                 </Button>
-                <a
-                  href="/propertydetail"
+                <Link
+                  to="/propertydetail"
                   style={{
                     display: "inline-block",
                     padding: "10px 20px",
@@ -670,7 +635,7 @@ const PropertiesPage = () => {
                   }}
                 >
                   Book Now
-                </a>
+                </Link>
               </div>
             </div>
           </div>
@@ -894,12 +859,29 @@ const PropertiesPage = () => {
           box-shadow: ${theme.boxShadow.sm};
         }
 
-        .tab-pane {
-          display: none;
+        /* Custom tab styling - FIXED IMPLEMENTATION */
+        .nav-tabs {
+          border-bottom: 1px solid ${theme.colors.grayLight};
         }
-
-        .tab-pane.active {
-          display: block;
+        
+        /* Force dark color for tabs */
+        .custom-tabs .nav-link {
+          color: #333333 !important;
+          border: none;
+          position: relative;
+          transition: ${theme.transition};
+          font-weight: 400;
+        }
+        
+        .custom-tabs .nav-link.active-tab {
+          color: ${theme.colors.primary} !important;
+          font-weight: 600;
+          border-bottom: 2px solid ${theme.colors.primary};
+        }
+        
+        .custom-tabs .nav-link:hover {
+          background-color: ${theme.colors.grayLight};
+          border-color: transparent;
         }
 
         @media (max-width: 768px) {
