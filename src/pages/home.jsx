@@ -16,11 +16,24 @@ const LandingPage = () => {
   const images = [Apartment1, Apartment2, Apartment3, Apartment4];
 
   useEffect(() => {
+    // Remove any default margins and padding from body and html
+    document.body.style.margin = '0';
+    document.body.style.padding = '0';
+    document.documentElement.style.margin = '0';
+    document.documentElement.style.padding = '0';
+    
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
     };
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      // Reset styles when component unmounts
+      document.body.style.margin = '';
+      document.body.style.padding = '';
+      document.documentElement.style.margin = '';
+      document.documentElement.style.padding = '';
+    };
   }, []);
 
   useEffect(() => {
@@ -31,9 +44,9 @@ const LandingPage = () => {
   }, [images.length]);
 
   return (
-    <div className="overflow-hidden m-0 p-0">
+    <div className="overflow-hidden m-0 p-0" style={{ display: 'block' }}>
       {/* Hero Section */}
-      <div className="position-relative vh-100 m-0 p-0">
+      <div className="position-relative vh-100 m-0 p-0" style={{ marginTop: 0, paddingTop: 0 }}>
         {images.map((img, index) => (
           <div
             key={index}
@@ -43,7 +56,6 @@ const LandingPage = () => {
               transition: "opacity 1.5s ease-in-out, transform 1.5s ease-in-out",
               transform: currentImage === index ? "scale(1)" : "scale(1)",
               zIndex: 1,
-              
             }}
           >
             <img
@@ -52,14 +64,12 @@ const LandingPage = () => {
               className="w-100 h-100 object-fit-cover"
               style={{ 
                 filter: "brightness(0.7)",
-                
               }}
             />
             <div
               className="position-absolute top-0 start-0 w-100 h-100"
               style={{
                 background: "linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7))",
-                
               }}
             />
           </div>
@@ -198,6 +208,23 @@ const LandingPage = () => {
         .btn-primary:hover {
           transform: translateY(-2px);
           background: linear-gradient(to right, #004299, #003087) !important;
+        }
+      `}</style>
+
+      {/* Global styles to remove any default spacing */}
+      <style jsx global>{`
+        html, body {
+          margin: 0 !important;
+          padding: 0 !important;
+          overflow-x: hidden;
+          box-sizing: border-box;
+        }
+        #root, #__next {
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+        * {
+          box-sizing: border-box;
         }
       `}</style>
     </div>
