@@ -1,15 +1,38 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Card, Container, Row, Col, Button, Modal } from "react-bootstrap";
-import { Trash2, AlertTriangle } from "lucide-react";
+import {
+  Card,
+  Container,
+  Row,
+  Col,
+  Button,
+  Modal,
+  Form,
+} from "react-bootstrap";
+import {
+  Trash2,
+  AlertTriangle,
+  Edit2,
+  ToggleLeft,
+  ToggleRight,
+} from "lucide-react";
 
 const Properties = () => {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [propertyToDelete, setPropertyToDelete] = useState(null);
   const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [propertyToDelete, setPropertyToDelete] = useState(null);
+  const [propertyToEdit, setPropertyToEdit] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    title: "",
+    description: "",
+    location: "",
+    availability: "",
+    pricingOptions: [],
+  });
 
   useEffect(() => {
     fetchProperties();
@@ -35,7 +58,7 @@ const Properties = () => {
         `${import.meta.env.VITE_API_BASE_URL}/api/properties/${propertyId}`
       );
       setShowDeleteModal(false);
-      await fetchProperties(); // Refresh the list
+      await fetchProperties();
     } catch (err) {
       console.error("Error deleting property:", err);
       setError("Failed to delete property");
@@ -46,10 +69,58 @@ const Properties = () => {
     try {
       await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/properties`);
       setShowDeleteAllModal(false);
-      await fetchProperties(); // Refresh the list
+      await fetchProperties();
     } catch (err) {
       console.error("Error deleting all properties:", err);
       setError("Failed to delete all properties");
+    }
+  };
+
+  const handleEdit = (property) => {
+    setPropertyToEdit(property);
+    setEditFormData({
+      title: property.title,
+      description: property.description,
+      location: property.location,
+      availability: property.availability,
+      pricingOptions: property.pricing_options || [],
+    });
+    setShowEditModal(true);
+  };
+
+  const handleEditSubmit = async () => {
+    try {
+      await axios.put(
+        `${import.meta.env.VITE_API_BASE_URL}/api/properties/${
+          propertyToEdit.id
+        }`,
+        editFormData
+      );
+      setShowEditModal(false);
+      await fetchProperties();
+    } catch (err) {
+      console.error("Error updating property:", err);
+      setError("Failed to update property");
+    }
+  };
+
+  const toggleAvailability = async (property) => {
+    const newAvailability =
+      property.availability === "Available Now"
+        ? "Not Available"
+        : "Available Now";
+
+    try {
+      await axios.patch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/properties/${
+          property.id
+        }/availability`,
+        { availability: newAvailability }
+      );
+      await fetchProperties();
+    } catch (err) {
+      console.error("Error toggling availability:", err);
+      setError("Failed to update availability");
     }
   };
 
@@ -88,37 +159,55 @@ const Properties = () => {
               <Card.Body>
                 <div className="d-flex justify-content-between align-items-start">
                   <Card.Title>{property.title}</Card.Title>
-                  <Button
-                    variant="outline-danger"
-                    size="sm"
-                    onClick={() => {
-                      setPropertyToDelete(property);
-                      setShowDeleteModal(true);
-                    }}
-                    className="p-1"
-                  >
-                    <Trash2 size={16} />
-                  </Button>
+                  <div className="d-flex gap-2">
+                    <Button
+                      variant="outline-primary"
+                      size="sm"
+                      onClick={() => handleEdit(property)}
+                      className="p-1"
+                    >
+                      <Edit2 size={16} />
+                    </Button>
+                    <Button
+                      variant="outline-danger"
+                      size="sm"
+                      onClick={() => {
+                        setPropertyToDelete(property);
+                        setShowDeleteModal(true);
+                      }}
+                      className="p-1"
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                  </div>
                 </div>
                 <Card.Text className="mb-2">{property.location}</Card.Text>
                 <div className="small text-muted mb-2">
                   {property.pricing_options && property.pricing_options[0] && (
                     <div>
-                      From ${property.pricing_options[0].price} |{" "}
+                      From ₦{property.pricing_options[0].price} |{" "}
                       {property.pricing_options[0].bedrooms} Bedrooms
                     </div>
                   )}
                 </div>
                 <div className="d-flex justify-content-between align-items-center">
-                  <span
-                    className={`badge ${
+                  <Button
+                    variant={
                       property.availability === "Available Now"
-                        ? "bg-success"
-                        : "bg-warning"
-                    }`}
+                        ? "success"
+                        : "warning"
+                    }
+                    size="sm"
+                    onClick={() => toggleAvailability(property)}
+                    className="d-flex align-items-center gap-1"
                   >
+                    {property.availability === "Available Now" ? (
+                      <ToggleRight size={16} />
+                    ) : (
+                      <ToggleLeft size={16} />
+                    )}
                     {property.availability}
-                  </span>
+                  </Button>
                   {property.superhost && (
                     <span className="badge bg-primary">Superhost</span>
                   )}
@@ -184,6 +273,78 @@ const Properties = () => {
           </Button>
           <Button variant="danger" onClick={handleDeleteAll}>
             Delete All Properties
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Edit Property Modal */}
+      <Modal
+        show={showEditModal}
+        onHide={() => setShowEditModal(false)}
+        size="lg"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Property</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className="mb-3">
+              <Form.Label>Title</Form.Label>
+              <Form.Control
+                type="text"
+                value={editFormData.title}
+                onChange={(e) =>
+                  setEditFormData({ ...editFormData, title: e.target.value })
+                }
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Location</Form.Label>
+              <Form.Control
+                type="text"
+                value={editFormData.location}
+                onChange={(e) =>
+                  setEditFormData({ ...editFormData, location: e.target.value })
+                }
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Description</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                value={editFormData.description}
+                onChange={(e) =>
+                  setEditFormData({
+                    ...editFormData,
+                    description: e.target.value,
+                  })
+                }
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Availability</Form.Label>
+              <Form.Select
+                value={editFormData.availability}
+                onChange={(e) =>
+                  setEditFormData({
+                    ...editFormData,
+                    availability: e.target.value,
+                  })
+                }
+              >
+                <option value="Available Now">Available Now</option>
+                <option value="Not Available">Not Available</option>
+              </Form.Select>
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowEditModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleEditSubmit}>
+            Save Changes
           </Button>
         </Modal.Footer>
       </Modal>

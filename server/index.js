@@ -4,13 +4,13 @@ const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
 const { Pool } = require("pg");
-const fs = require('fs');  // required for deleting properties
+const fs = require("fs"); // required for deleting properties
 require("dotenv").config();
 
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 
@@ -66,47 +66,6 @@ app.post("/api/properties", upload.array("images"), async (req, res) => {
     const propertyResult = await client.query(propertyQuery, propertyValues);
     const propertyId = propertyResult.rows[0].id;
 
-    // GET endpoint to fetch all properties
-    app.get("/api/properties", async (req, res) => {
-      const client = await pool.connect();
-
-      try {
-        // Get properties with related data
-        const result = await client.query(`
-        SELECT 
-          p.*,
-          json_agg(DISTINCT jsonb_build_object(
-            'price', po.price,
-            'bedrooms', po.bedrooms,
-            'label', po.label
-          )) as pricing_options,
-          json_agg(DISTINCT pi.image_path) as images,
-          json_agg(DISTINCT fh.highlight) as featured_highlights,
-          json_build_object(
-            'maxGuests', pd.max_guests,
-            'priceRange', pd.price_range,
-            'cautionFee', pd.caution_fee,
-            'cookingAllowed', pd.cooking_allowed,
-            'notes', pd.notes
-          ) as party_details
-        FROM properties p
-        LEFT JOIN pricing_options po ON p.id = po.property_id
-        LEFT JOIN property_images pi ON p.id = pi.property_id
-        LEFT JOIN featured_highlights fh ON p.id = fh.property_id
-        LEFT JOIN party_details pd ON p.id = pd.property_id
-        GROUP BY p.id, pd.max_guests, pd.price_range, pd.caution_fee, 
-                 pd.cooking_allowed, pd.notes
-      `);
-
-        res.json(result.rows);
-      } catch (error) {
-        console.error("Error fetching properties:", error);
-        res.status(500).json({ message: "Error fetching properties" });
-      } finally {
-        client.release();
-      }
-    });
-
     // Insert pricing options
     for (const option of propertyData.pricingOptions) {
       await client.query(
@@ -161,6 +120,47 @@ app.post("/api/properties", upload.array("images"), async (req, res) => {
     await client.query("ROLLBACK");
     console.error("Error creating property:", error);
     res.status(500).json({ message: error.message });
+  } finally {
+    client.release();
+  }
+});
+
+// GET endpoint to fetch all properties
+app.get("/api/properties", async (req, res) => {
+  const client = await pool.connect();
+
+  try {
+    // Get properties with related data
+    const result = await client.query(`
+        SELECT 
+          p.*,
+          json_agg(DISTINCT jsonb_build_object(
+            'price', po.price,
+            'bedrooms', po.bedrooms,
+            'label', po.label
+          )) as pricing_options,
+          json_agg(DISTINCT pi.image_path) as images,
+          json_agg(DISTINCT fh.highlight) as featured_highlights,
+          json_build_object(
+            'maxGuests', pd.max_guests,
+            'priceRange', pd.price_range,
+            'cautionFee', pd.caution_fee,
+            'cookingAllowed', pd.cooking_allowed,
+            'notes', pd.notes
+          ) as party_details
+        FROM properties p
+        LEFT JOIN pricing_options po ON p.id = po.property_id
+        LEFT JOIN property_images pi ON p.id = pi.property_id
+        LEFT JOIN featured_highlights fh ON p.id = fh.property_id
+        LEFT JOIN party_details pd ON p.id = pd.property_id
+        GROUP BY p.id, pd.max_guests, pd.price_range, pd.caution_fee, 
+                 pd.cooking_allowed, pd.notes
+      `);
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error fetching properties:", error);
+    res.status(500).json({ message: "Error fetching properties" });
   } finally {
     client.release();
   }
@@ -258,7 +258,69 @@ app.delete("/api/properties", async (req, res) => {
   }
 });
 
+//new endpoints
+// Update property
+app.put("/api/properties/:id", async (req, res) => {
+  const client = await pool.connect();
+  const propertyId = req.params.id;
+
+  try {
+    await client.query("BEGIN");
+
+    const { title, description, location, availability } = req.body;
+
+    // Update main property details
+    const updateQuery = `
+      UPDATE properties 
+      SET title = $1, description = $2, location = $3, availability = $4
+      WHERE id = $5
+      RETURNING *`;
+
+    const result = await client.query(updateQuery, [
+      title,
+      description,
+      location,
+      availability,
+      propertyId,
+    ]);
+
+    await client.query("COMMIT");
+    res.json(result.rows[0]);
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("Error updating property:", error);
+    res.status(500).json({ message: "Error updating property" });
+  } finally {
+    client.release();
+  }
+});
+
+// Update property availability
+app.patch("/api/properties/:id/availability", async (req, res) => {
+  const client = await pool.connect();
+  const propertyId = req.params.id;
+
+  try {
+    const { availability } = req.body;
+
+    const updateQuery = `
+      UPDATE properties 
+      SET availability = $1
+      WHERE id = $2
+      RETURNING *`;
+
+    const result = await client.query(updateQuery, [availability, propertyId]);
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error updating availability:", error);
+    res.status(500).json({ message: "Error updating availability" });
+  } finally {
+    client.release();
+  }
+});
+
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server is running on port ${PORT}`);
 });

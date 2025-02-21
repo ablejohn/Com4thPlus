@@ -71,7 +71,13 @@ const AdminPropertyForm = () => {
       [field]: value,
       label:
         field === "bedrooms"
-          ? `${value} Bedrooms`
+          ? `${value} Bedroom${value !== "1" ? "s" : ""} - ₦${
+              newPricingOptions[index].price
+            }`
+          : field === "price"
+          ? `${newPricingOptions[index].bedrooms} Bedroom${
+              newPricingOptions[index].bedrooms !== "1" ? "s" : ""
+            } - ₦${value}`
           : newPricingOptions[index].label,
     };
     setFormData((prev) => ({
@@ -126,7 +132,7 @@ const AdminPropertyForm = () => {
       setIsLoading(true);
       const result = await propertyService.createProperty(formData);
       toast.success("Property created successfully!");
-      navigate("/properties"); // This will redirect to the properties page
+      navigate("/properties");
     } catch (error) {
       toast.error(error.message || "Failed to create property");
     } finally {
@@ -272,7 +278,7 @@ const AdminPropertyForm = () => {
                     />
                     <Form.Control
                       type="number"
-                      placeholder="Price"
+                      placeholder="Price (₦)"
                       className="w-25"
                       value={option.price}
                       onChange={(e) =>
@@ -365,7 +371,7 @@ const AdminPropertyForm = () => {
                 </Col>
                 <Col md={6}>
                   <Form.Group>
-                    <Form.Label>Price Range</Form.Label>
+                    <Form.Label>Price Range (₦)</Form.Label>
                     <Form.Control
                       type="text"
                       value={formData.partyDetails.priceRange}
