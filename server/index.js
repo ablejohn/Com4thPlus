@@ -1,9 +1,9 @@
-// server/index.js
+//server/index.js
 const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
-const { Pool } = require("pg");
+const { Pool } = require("pg"); // Keep only this one
 const fs = require("fs"); // required for deleting properties
 require("dotenv").config();
 
@@ -15,12 +15,16 @@ app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 
 // PostgreSQL connection
+
 const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
   database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
+  ssl: {
+    rejectUnauthorized: false, // Allow self-signed certificates
+  },
 });
 
 // Multer configuration for image uploads
@@ -35,13 +39,28 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// API Endpoints
 app.post("/api/properties", upload.array("images"), async (req, res) => {
   const client = await pool.connect();
 
   try {
     await client.query("BEGIN");
     const propertyData = JSON.parse(req.body.data);
+
+    // Convert empty strings to null or default values
+    const sanitize = (value, defaultValue = null) =>
+      value === "" ? defaultValue : value;
+
+    const propertyValues = [
+      sanitize(propertyData.title, "Untitled"),
+      sanitize(propertyData.description),
+      sanitize(propertyData.location),
+      sanitize(propertyData.contactPhone),
+      parseInt(sanitize(propertyData.bathrooms, 0)), // Ensure integer
+      sanitize(propertyData.type),
+      sanitize(propertyData.superhost, false),
+      parseInt(sanitize(propertyData.size, 0)), // Ensure integer
+      sanitize(propertyData.availability, false),
+    ];
 
     // Insert property
     const propertyQuery = `
@@ -51,40 +70,34 @@ app.post("/api/properties", upload.array("images"), async (req, res) => {
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING id`;
 
-    const propertyValues = [
-      propertyData.title,
-      propertyData.description,
-      propertyData.location,
-      propertyData.contactPhone,
-      propertyData.bathrooms,
-      propertyData.type,
-      propertyData.superhost,
-      propertyData.size,
-      propertyData.availability,
-    ];
-
     const propertyResult = await client.query(propertyQuery, propertyValues);
     const propertyId = propertyResult.rows[0].id;
 
     // Insert pricing options
-    for (const option of propertyData.pricingOptions) {
+    for (const option of propertyData.pricingOptions || []) {
       await client.query(
         `INSERT INTO pricing_options (property_id, bedrooms, price, label)
          VALUES ($1, $2, $3, $4)`,
-        [propertyId, option.bedrooms, option.price, option.label]
+        [
+          propertyId,
+          parseInt(sanitize(option.bedrooms, 0)), // Ensure integer
+          parseFloat(sanitize(option.price, 0.0)), // Ensure float
+          sanitize(option.label),
+        ]
       );
     }
 
     // Insert featured highlights
-    for (const highlight of propertyData.featuredHighlights) {
+    for (const highlight of propertyData.featuredHighlights || []) {
       await client.query(
         `INSERT INTO featured_highlights (property_id, highlight)
          VALUES ($1, $2)`,
-        [propertyId, highlight]
+        [propertyId, sanitize(highlight)]
       );
     }
 
     // Insert party details
+    const partyDetails = propertyData.partyDetails || {};
     await client.query(
       `INSERT INTO party_details (
         property_id, max_guests, price_range, caution_fee, 
@@ -92,11 +105,11 @@ app.post("/api/properties", upload.array("images"), async (req, res) => {
       ) VALUES ($1, $2, $3, $4, $5, $6)`,
       [
         propertyId,
-        propertyData.partyDetails.maxGuests,
-        propertyData.partyDetails.priceRange,
-        propertyData.partyDetails.cautionFee,
-        propertyData.partyDetails.cookingAllowed,
-        propertyData.partyDetails.notes,
+        parseInt(sanitize(partyDetails.maxGuests, 0)), // Ensure integer
+        sanitize(partyDetails.priceRange),
+        parseFloat(sanitize(partyDetails.cautionFee, 0.0)), // Ensure float
+        sanitize(partyDetails.cookingAllowed, false),
+        sanitize(partyDetails.notes),
       ]
     );
 

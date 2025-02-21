@@ -44,6 +44,12 @@ const AdminPropertyForm = () => {
 
     return errors;
   };
+  const sanitizedData = { ...formData };
+  Object.keys(sanitizedData).forEach((key) => {
+    if (sanitizedData[key] === "") {
+      sanitizedData[key] = null;
+    }
+  });
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
@@ -63,6 +69,7 @@ const AdminPropertyForm = () => {
       images: prev.images.filter((_, i) => i !== index),
     }));
   };
+  const [availableNow, setAvailableNow] = useState(true);
 
   const handlePricingOptionChange = (index, field, value) => {
     const newPricingOptions = [...formData.pricingOptions];
@@ -128,9 +135,14 @@ const AdminPropertyForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const finalData = {
+      ...formData,
+      availability: availableNow, // This sends true or false directly
+    };
+
     try {
       setIsLoading(true);
-      const result = await propertyService.createProperty(formData);
+      const result = await propertyService.createProperty(finalData);
       toast.success("Property created successfully!");
       navigate("/properties");
     } catch (error) {
@@ -389,6 +401,24 @@ const AdminPropertyForm = () => {
                   </Form.Group>
                 </Col>
               </Row>
+              <Form.Group className="mb-4">
+                <Form.Label>Availability</Form.Label>
+                <Form.Check
+                  type="switch"
+                  id="available-now-switch"
+                  label={availableNow ? "Available Now" : "Not Available"}
+                  checked={availableNow}
+                  onChange={(e) => {
+                    setAvailableNow(e.target.checked);
+                    setFormData((prev) => ({
+                      ...prev,
+                      availability: e.target.checked
+                        ? "Available Now"
+                        : "Not Available",
+                    }));
+                  }}
+                />
+              </Form.Group>
 
               {/* Submit Buttons */}
               <div className="d-flex justify-content-end gap-2">

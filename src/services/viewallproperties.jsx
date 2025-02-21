@@ -16,6 +16,7 @@ import {
   ToggleLeft,
   ToggleRight,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 const Properties = () => {
   const [properties, setProperties] = useState([]);
@@ -23,16 +24,8 @@ const Properties = () => {
   const [error, setError] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
   const [propertyToDelete, setPropertyToDelete] = useState(null);
-  const [propertyToEdit, setPropertyToEdit] = useState(null);
-  const [editFormData, setEditFormData] = useState({
-    title: "",
-    description: "",
-    location: "",
-    availability: "",
-    pricingOptions: [],
-  });
+  const navigate = useNavigate(); // Initialize useNavigate
 
   useEffect(() => {
     fetchProperties();
@@ -76,32 +69,9 @@ const Properties = () => {
     }
   };
 
-  const handleEdit = (property) => {
-    setPropertyToEdit(property);
-    setEditFormData({
-      title: property.title,
-      description: property.description,
-      location: property.location,
-      availability: property.availability,
-      pricingOptions: property.pricing_options || [],
-    });
-    setShowEditModal(true);
-  };
-
-  const handleEditSubmit = async () => {
-    try {
-      await axios.put(
-        `${import.meta.env.VITE_API_BASE_URL}/api/properties/${
-          propertyToEdit.id
-        }`,
-        editFormData
-      );
-      setShowEditModal(false);
-      await fetchProperties();
-    } catch (err) {
-      console.error("Error updating property:", err);
-      setError("Failed to update property");
-    }
+  // Navigate to the property form for editing
+  const handleEdit = (propertyId) => {
+    navigate(`/admin?propertyId=${propertyId}`);
   };
 
   const toggleAvailability = async (property) => {
@@ -163,7 +133,7 @@ const Properties = () => {
                     <Button
                       variant="outline-primary"
                       size="sm"
-                      onClick={() => handleEdit(property)}
+                      onClick={() => handleEdit(property.id)} // Redirect to /admin
                       className="p-1"
                     >
                       <Edit2 size={16} />
@@ -273,78 +243,6 @@ const Properties = () => {
           </Button>
           <Button variant="danger" onClick={handleDeleteAll}>
             Delete All Properties
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
-      {/* Edit Property Modal */}
-      <Modal
-        show={showEditModal}
-        onHide={() => setShowEditModal(false)}
-        size="lg"
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Edit Property</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group className="mb-3">
-              <Form.Label>Title</Form.Label>
-              <Form.Control
-                type="text"
-                value={editFormData.title}
-                onChange={(e) =>
-                  setEditFormData({ ...editFormData, title: e.target.value })
-                }
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Location</Form.Label>
-              <Form.Control
-                type="text"
-                value={editFormData.location}
-                onChange={(e) =>
-                  setEditFormData({ ...editFormData, location: e.target.value })
-                }
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Description</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                value={editFormData.description}
-                onChange={(e) =>
-                  setEditFormData({
-                    ...editFormData,
-                    description: e.target.value,
-                  })
-                }
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Availability</Form.Label>
-              <Form.Select
-                value={editFormData.availability}
-                onChange={(e) =>
-                  setEditFormData({
-                    ...editFormData,
-                    availability: e.target.value,
-                  })
-                }
-              >
-                <option value="Available Now">Available Now</option>
-                <option value="Not Available">Not Available</option>
-              </Form.Select>
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowEditModal(false)}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={handleEditSubmit}>
-            Save Changes
           </Button>
         </Modal.Footer>
       </Modal>
