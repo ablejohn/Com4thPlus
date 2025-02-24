@@ -18,7 +18,7 @@ const AdminLogin = () => {
         { username, password }
       );
       localStorage.setItem("authToken", response.data.token); // Sets "authToken"
-      toast.success("Logged in successfully!");
+      toast.success("Logged in successfullyy!");
       navigate("/admin/add-property");
     } catch (error) {
       toast.error("Login failed. Check your credentials.");
