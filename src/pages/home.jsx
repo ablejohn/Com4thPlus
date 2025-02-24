@@ -183,8 +183,7 @@ const LandingPage = () => {
       {/* Why Choose Us Section */}
       <WhyChooseUs />
 
-      {/* Featured Properties Section<FeaturedProperties /> */}
-      
+      {/* Featured Properties Section <FeaturedProperties /> */}
 
       {/* Testimonials Section */}
       <TestimonialsSection />
