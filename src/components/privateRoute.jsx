@@ -3,9 +3,8 @@ import React from "react";
 import { Navigate } from "react-router-dom";
 
 const PrivateRoute = ({ children }) => {
-  const isLoggedIn = localStorage.getItem("isAdminLoggedIn") === "true";
-
-  return isLoggedIn ? children : <Navigate to="/admin/login" />;
+  const token = localStorage.getItem("authToken"); // Check for the JWT token
+  return token ? children : <Navigate to="/admin/login" />;
 };
 
 export default PrivateRoute;

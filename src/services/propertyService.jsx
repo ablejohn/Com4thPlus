@@ -4,8 +4,7 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
 export const propertyService = {
-  // Existing methods remain the same
-  async createProperty(propertyData) {
+  async createProperty(propertyData, token) {
     try {
       const formData = new FormData();
       const propertyDataWithoutImages = { ...propertyData };
@@ -13,7 +12,7 @@ export const propertyService = {
       formData.append("data", JSON.stringify(propertyDataWithoutImages));
 
       propertyData.images.forEach((image) => {
-        formData.append(`images`, image);
+        formData.append("images", image);
       });
 
       const response = await axios.post(
@@ -22,6 +21,7 @@ export const propertyService = {
         {
           headers: {
             "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`, // Add token
           },
         }
       );
@@ -73,8 +73,7 @@ export const propertyService = {
     }
   },
 
-  // New methods for updating and deleting properties
-  async updateProperty(propertyId, propertyData) {
+  async updateProperty(propertyId, propertyData, token) {
     try {
       const formData = new FormData();
       const propertyDataWithoutImages = { ...propertyData };
@@ -90,7 +89,7 @@ export const propertyService = {
       // Append any new images
       if (propertyData.newImages) {
         propertyData.newImages.forEach((image) => {
-          formData.append(`images`, image);
+          formData.append("images", image);
         });
       }
 
@@ -100,6 +99,7 @@ export const propertyService = {
         {
           headers: {
             "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`, // Add token
           },
         }
       );
@@ -113,10 +113,15 @@ export const propertyService = {
     }
   },
 
-  async deleteProperty(propertyId) {
+  async deleteProperty(propertyId, token) {
     try {
       const response = await axios.delete(
-        `${API_BASE_URL}/api/properties/${propertyId}`
+        `${API_BASE_URL}/api/properties/${propertyId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Add token
+          },
+        }
       );
       return response.data;
     } catch (error) {
@@ -127,11 +132,16 @@ export const propertyService = {
     }
   },
 
-  async toggleAvailability(propertyId, isAvailable) {
+  async toggleAvailability(propertyId, isAvailable, token) {
     try {
       const response = await axios.patch(
         `${API_BASE_URL}/api/properties/${propertyId}/availability`,
-        { availability: isAvailable }
+        { availability: isAvailable },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Add token
+          },
+        }
       );
       return response.data;
     } catch (error) {

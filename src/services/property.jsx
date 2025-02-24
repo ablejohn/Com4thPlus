@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; // Add useEffect
 import { Card, Form, Button, Container, Row, Col } from "react-bootstrap";
 import { Plus, Image, Trash2, Save, X, Home, Upload } from "lucide-react";
 import { propertyService } from "./propertyService";
@@ -31,25 +31,27 @@ const AdminPropertyForm = () => {
     images: [],
   });
   const [isLoading, setIsLoading] = useState(false);
-
   const [previewImages, setPreviewImages] = useState([]);
+  const [availableNow, setAvailableNow] = useState(true);
+
+  // Check authentication on mount
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      toast.error("Please log in to access this page");
+      navigate("/admin/login");
+    }
+  }, [navigate]);
+
   const validateForm = () => {
     const errors = {};
-
     if (!formData.title) errors.title = "Title is required";
     if (!formData.location) errors.location = "Location is required";
     if (!formData.description) errors.description = "Description is required";
     if (formData.images.length === 0)
       errors.images = "At least one image is required";
-
     return errors;
   };
-  const sanitizedData = { ...formData };
-  Object.keys(sanitizedData).forEach((key) => {
-    if (sanitizedData[key] === "") {
-      sanitizedData[key] = null;
-    }
-  });
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
@@ -69,7 +71,6 @@ const AdminPropertyForm = () => {
       images: prev.images.filter((_, i) => i !== index),
     }));
   };
-  const [availableNow, setAvailableNow] = useState(true);
 
   const handlePricingOptionChange = (index, field, value) => {
     const newPricingOptions = [...formData.pricingOptions];
@@ -135,18 +136,40 @@ const AdminPropertyForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      Object.values(validationErrors).forEach((error) => toast.error(error));
+      return;
+    }
+
     const finalData = {
       ...formData,
-      availability: availableNow, // This sends true or false directly
+      availability: availableNow,
     };
 
     try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        toast.error("Please log in to create a property");
+        navigate("/admin/login");
+        return;
+      }
+
       setIsLoading(true);
-      const result = await propertyService.createProperty(finalData);
+      const result = await propertyService.createProperty(finalData, token);
       toast.success("Property created successfully!");
       navigate("/properties");
     } catch (error) {
-      toast.error(error.message || "Failed to create property");
+      if (
+        error.response &&
+        (error.response.status === 401 || error.response.status === 403)
+      ) {
+        toast.error("Session expired. Please log in again.");
+        localStorage.removeItem("authToken");
+        navigate("/admin/login");
+      } else {
+        toast.error(error.message || "Failed to create property");
+      }
     } finally {
       setIsLoading(false);
     }

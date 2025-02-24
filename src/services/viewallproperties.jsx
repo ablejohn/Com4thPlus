@@ -12,6 +12,7 @@ import {
 } from "react-bootstrap";
 import { Edit2, Trash2 } from "lucide-react";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const Properties = () => {
   const [properties, setProperties] = useState([]);
@@ -25,6 +26,7 @@ const Properties = () => {
     description: "",
     availability: true,
   });
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchProperties();
@@ -32,13 +34,33 @@ const Properties = () => {
 
   const fetchProperties = async () => {
     try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        navigate("/admin/login");
+        return;
+      }
+
       const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL}/api/properties`
+        `${import.meta.env.VITE_API_BASE_URL}/admin/viewallproperties`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       setProperties(response.data);
       setLoading(false);
     } catch (err) {
-      setError("Failed to fetch properties");
+      if (
+        err.response &&
+        (err.response.status === 401 || err.response.status === 403)
+      ) {
+        toast.error("Session expired. Please log in again.");
+        localStorage.removeItem("authToken");
+        navigate("/admin/login");
+      } else {
+        setError("Failed to fetch properties");
+      }
       setLoading(false);
     }
   };
@@ -55,6 +77,12 @@ const Properties = () => {
 
   const handleEditSave = async () => {
     try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        navigate("/admin/login");
+        return;
+      }
+
       await axios.put(
         `${import.meta.env.VITE_API_BASE_URL}/api/properties/${
           currentProperty.id
@@ -63,14 +91,28 @@ const Properties = () => {
           title: currentProperty.title,
           description: currentProperty.description,
           availability: currentProperty.availability,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
       toast.success("Property updated successfully!");
       setShowEditModal(false);
       fetchProperties();
     } catch (err) {
-      toast.error("Failed to update property");
-      setError("Failed to update property");
+      if (
+        err.response &&
+        (err.response.status === 401 || err.response.status === 403)
+      ) {
+        toast.error("Session expired. Please log in again.");
+        localStorage.removeItem("authToken");
+        navigate("/admin/login");
+      } else {
+        toast.error("Failed to update property");
+        setError("Failed to update property");
+      }
     }
   };
 
@@ -81,17 +123,37 @@ const Properties = () => {
 
   const handleDeleteConfirm = async () => {
     try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        navigate("/admin/login");
+        return;
+      }
+
       await axios.delete(
         `${import.meta.env.VITE_API_BASE_URL}/api/properties/${
           currentProperty.id
-        }`
+        }`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       toast.success("Property deleted successfully!");
       setShowDeleteModal(false);
       fetchProperties();
     } catch (err) {
-      toast.error("Failed to delete property");
-      setError("Failed to delete property");
+      if (
+        err.response &&
+        (err.response.status === 401 || err.response.status === 403)
+      ) {
+        toast.error("Session expired. Please log in again.");
+        localStorage.removeItem("authToken");
+        navigate("/admin/login");
+      } else {
+        toast.error("Failed to delete property");
+        setError("Failed to delete property");
+      }
     }
   };
 

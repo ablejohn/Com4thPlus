@@ -14,24 +14,21 @@ import Navigation from "./components/navigation";
 import Footer from "./components/footer";
 import AutoScrollToTop from "./components/autoscrolltoTop";
 import ScrollToTopButton from "./components/scrolltoTop";
-import PrivateRoute from "./components/privateRoute";
+import PrivateRoute from "./components/privateRoute"; // Default import
 import "./styling/styles.css";
 
-// Lazy load pages for better performance
 const Home = lazy(() => import("./pages/home"));
-const PropertyPage = lazy(() => import("./pages/newProperties")); // User-facing properties
+const PropertyPage = lazy(() => import("./pages/newProperties"));
 const PropertyDetailPage = lazy(() => import("./pages/propertydetail"));
 const LocationPage = lazy(() => import("./pages/location"));
 const ContactPage = lazy(() => import("./pages/contact"));
-const AdminPage = lazy(() => import("./services/property")); 
-const AdminPropertyForm = lazy(() => import("./services/property")); // Edit/Delete page
+const AdminPropertyForm = lazy(() => import("./services/property"));
 const ViewAllProperties = lazy(() => import("./services/viewallproperties"));
 const AdminLogin = lazy(() => import("./components/adminlogin"));
 
 const App = () => {
-  const location = useLocation(); // Get the current route location
+  const location = useLocation();
 
-  // Check if the current route is an admin route
   const isAdminRoute =
     location.pathname.startsWith("/admin") ||
     location.pathname === "/viewallproperties";
@@ -40,7 +37,6 @@ const App = () => {
     <>
       <ToastContainer position="top-right" autoClose={3000} />
       <AutoScrollToTop />
-      {/* Conditionally render Navigation */}
       {!isAdminRoute && <Navigation />}
       <Suspense
         fallback={
@@ -62,17 +58,9 @@ const App = () => {
             <Route path="/propertydetail" element={<PropertyDetailPage />} />
             <Route path="/location" element={<LocationPage />} />
             <Route path="/contact" element={<ContactPage />} />
-
-            {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
-            <Route
-              path="/admin/properties"
-              element={
-                <PrivateRoute>
-                  <AdminPage />
-                </PrivateRoute>
-              }
-            />
+
+            {/* Protected Admin Routes */}
             <Route
               path="/admin/add-property"
               element={
@@ -95,7 +83,6 @@ const App = () => {
           </Routes>
         </div>
       </Suspense>
-      {/* Conditionally render Footer */}
       {!isAdminRoute && <Footer />}
       <ScrollToTopButton />
       <style>{`
@@ -108,7 +95,6 @@ const App = () => {
   );
 };
 
-// Wrap the App component with Router to use useLocation
 const AppWrapper = () => (
   <Router>
     <App />

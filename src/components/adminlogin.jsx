@@ -1,84 +1,61 @@
-// src/components/AdminLogin.jsx
+// components/adminlogin.jsx
 import React, { useState } from "react";
-import { Container, Card, Form, Button, Alert } from "react-bootstrap";
+import { Form, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { Lock } from "lucide-react";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 const AdminLogin = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Hardcoded credentials for simplicity (replace with backend auth later)
-    const correctUsername = "admin";
-    const correctPassword = "password123";
-
-    if (username === correctUsername && password === correctPassword) {
-      localStorage.setItem("isAdminLoggedIn", "true");
-      setError("");
-      navigate("/admin/properties");
-    } else {
-      setError("Invalid username or password");
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/admin/login`,
+        { username, password }
+      );
+      localStorage.setItem("authToken", response.data.token); // Sets "authToken"
+      toast.success("Logged in successfully!");
+      navigate("/admin/add-property");
+    } catch (error) {
+      toast.error("Login failed. Check your credentials.");
     }
   };
 
   return (
-    <Container
-      fluid
-      className="d-flex align-items-center justify-content-center min-vh-100 bg-light"
-    >
-      <Card
-        className="shadow-lg border-0"
-        style={{ width: "100%", maxWidth: "400px" }}
+    <div className="d-flex justify-content-center align-items-center min-vh-100">
+      <Form
+        onSubmit={handleLogin}
+        className="p-4 border rounded shadow"
+        style={{ width: "300px" }}
       >
-        <Card.Body className="p-5">
-          <div className="text-center mb-4">
-            <Lock size={40} className="text-primary" />
-            <h2 className="fw-bold mt-3">Admin Login</h2>
-            <p className="text-muted">Access the admin dashboard</p>
-          </div>
-
-          {error && <Alert variant="danger">{error}</Alert>}
-
-          <Form onSubmit={handleLogin}>
-            <Form.Group className="mb-3">
-              <Form.Label className="fw-medium">Username</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="rounded-3"
-                required
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-4">
-              <Form.Label className="fw-medium">Password</Form.Label>
-              <Form.Control
-                type="password"
-                placeholder="Enter password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="rounded-3"
-                required
-              />
-            </Form.Group>
-
-            <Button
-              variant="primary"
-              type="submit"
-              className="w-100 rounded-3 py-2"
-            >
-              Login
-            </Button>
-          </Form>
-        </Card.Body>
-      </Card>
-    </Container>
+        <h3 className="mb-3 text-center">Admin Login</h3>
+        <Form.Group className="mb-3">
+          <Form.Label>Username</Form.Label>
+          <Form.Control
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+        </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>Password</Form.Label>
+          <Form.Control
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </Form.Group>
+        <Button type="submit" variant="primary" className="w-100">
+          Login
+        </Button>
+      </Form>
+    </div>
   );
 };
 
