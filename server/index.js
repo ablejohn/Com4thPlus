@@ -1,10 +1,10 @@
-//server/index.js
 const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
-const { Pool } = require("pg"); // Keep only this one
-const fs = require("fs"); // required for deleting properties
+const { Pool } = require("pg");
+const fs = require("fs");
+const jwt = require("jsonwebtoken"); // Add JWT
 require("dotenv").config();
 
 const app = express();
@@ -15,7 +15,6 @@ app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 
 // PostgreSQL connection
-
 const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
@@ -23,7 +22,7 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
   ssl: {
-    rejectUnauthorized: false, // Allow self-signed certificates
+    rejectUnauthorized: false,
   },
 });
 
@@ -39,137 +38,70 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-app.post("/api/properties", upload.array("images"), async (req, res) => {
-  const client = await pool.connect();
+// JWT Secret Key (store in .env in production)
+const SECRET_KEY = process.env.JWT_SECRET || "your-secret-key";
 
-  try {
-    await client.query("BEGIN");
-    const propertyData = JSON.parse(req.body.data);
+// Authentication Middleware
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1]; // Bearer TOKEN
+  if (!token) return res.status(401).json({ message: "Access denied" });
 
-    // Convert empty strings to null or default values
-    const sanitize = (value, defaultValue = null) =>
-      value === "" ? defaultValue : value;
+  jwt.verify(token, SECRET_KEY, (err, user) => {
+    if (err) return res.status(403).json({ message: "Invalid token" });
+    req.user = user;
+    next();
+  });
+};
 
-    const propertyValues = [
-      sanitize(propertyData.title, "Untitled"),
-      sanitize(propertyData.description),
-      sanitize(propertyData.location),
-      sanitize(propertyData.contactPhone),
-      parseInt(sanitize(propertyData.bathrooms, 0)), // Ensure integer
-      sanitize(propertyData.type),
-      sanitize(propertyData.superhost, false),
-      parseInt(sanitize(propertyData.size, 0)), // Ensure integer
-      sanitize(propertyData.availability, false),
-    ];
+// Dummy admin credentials (replace with a database table in production)
+const adminCredentials = {
+  username: "admin",
+  password: "password123",
+};
 
-    // Insert property
-    const propertyQuery = `
-      INSERT INTO properties (
-        title, description, location, contact_phone, 
-        bathrooms, type, superhost, size, availability
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-      RETURNING id`;
-
-    const propertyResult = await client.query(propertyQuery, propertyValues);
-    const propertyId = propertyResult.rows[0].id;
-
-    // Insert pricing options
-    for (const option of propertyData.pricingOptions || []) {
-      await client.query(
-        `INSERT INTO pricing_options (property_id, bedrooms, price, label)
-         VALUES ($1, $2, $3, $4)`,
-        [
-          propertyId,
-          parseInt(sanitize(option.bedrooms, 0)), // Ensure integer
-          parseFloat(sanitize(option.price, 0.0)), // Ensure float
-          sanitize(option.label),
-        ]
-      );
-    }
-
-    // Insert featured highlights
-    for (const highlight of propertyData.featuredHighlights || []) {
-      await client.query(
-        `INSERT INTO featured_highlights (property_id, highlight)
-         VALUES ($1, $2)`,
-        [propertyId, sanitize(highlight)]
-      );
-    }
-
-    // Insert party details
-    const partyDetails = propertyData.partyDetails || {};
-    await client.query(
-      `INSERT INTO party_details (
-        property_id, max_guests, price_range, caution_fee, 
-        cooking_allowed, notes
-      ) VALUES ($1, $2, $3, $4, $5, $6)`,
-      [
-        propertyId,
-        parseInt(sanitize(partyDetails.maxGuests, 0)), // Ensure integer
-        sanitize(partyDetails.priceRange),
-        parseFloat(sanitize(partyDetails.cautionFee, 0.0)), // Ensure float
-        sanitize(partyDetails.cookingAllowed, false),
-        sanitize(partyDetails.notes),
-      ]
-    );
-
-    // Insert images
-    const imagePaths = req.files.map((file) => `/uploads/${file.filename}`);
-    for (const imagePath of imagePaths) {
-      await client.query(
-        `INSERT INTO property_images (property_id, image_path)
-         VALUES ($1, $2)`,
-        [propertyId, imagePath]
-      );
-    }
-
-    await client.query("COMMIT");
-
-    res.status(201).json({
-      message: "Property created successfully",
-      propertyId: propertyId,
-    });
-  } catch (error) {
-    await client.query("ROLLBACK");
-    console.error("Error creating property:", error);
-    res.status(500).json({ message: error.message });
-  } finally {
-    client.release();
+// Login Endpoint
+app.post("/admin/login", async (req, res) => {
+  const { username, password } = req.body;
+  if (
+    username === adminCredentials.username &&
+    password === adminCredentials.password
+  ) {
+    const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: "1h" });
+    return res.json({ token });
   }
+  return res.status(401).json({ message: "Invalid credentials" });
 });
 
-// GET endpoint to fetch all properties
+// Public Endpoint: Fetch all properties (no auth required for public view)
 app.get("/api/properties", async (req, res) => {
   const client = await pool.connect();
-
   try {
-    // Get properties with related data
     const result = await client.query(`
-        SELECT 
-          p.*,
-          json_agg(DISTINCT jsonb_build_object(
-            'price', po.price,
-            'bedrooms', po.bedrooms,
-            'label', po.label
-          )) as pricing_options,
-          json_agg(DISTINCT pi.image_path) as images,
-          json_agg(DISTINCT fh.highlight) as featured_highlights,
-          json_build_object(
-            'maxGuests', pd.max_guests,
-            'priceRange', pd.price_range,
-            'cautionFee', pd.caution_fee,
-            'cookingAllowed', pd.cooking_allowed,
-            'notes', pd.notes
-          ) as party_details
-        FROM properties p
-        LEFT JOIN pricing_options po ON p.id = po.property_id
-        LEFT JOIN property_images pi ON p.id = pi.property_id
-        LEFT JOIN featured_highlights fh ON p.id = fh.property_id
-        LEFT JOIN party_details pd ON p.id = pd.property_id
-        GROUP BY p.id, pd.max_guests, pd.price_range, pd.caution_fee, 
-                 pd.cooking_allowed, pd.notes
-      `);
-
+      SELECT 
+        p.*,
+        json_agg(DISTINCT jsonb_build_object(
+          'price', po.price,
+          'bedrooms', po.bedrooms,
+          'label', po.label
+        )) as pricing_options,
+        json_agg(DISTINCT pi.image_path) as images,
+        json_agg(DISTINCT fh.highlight) as featured_highlights,
+        json_build_object(
+          'maxGuests', pd.max_guests,
+          'priceRange', pd.price_range,
+          'cautionFee', pd.caution_fee,
+          'cookingAllowed', pd.cooking_allowed,
+          'notes', pd.notes
+        ) as party_details
+      FROM properties p
+      LEFT JOIN pricing_options po ON p.id = po.property_id
+      LEFT JOIN property_images pi ON p.id = pi.property_id
+      LEFT JOIN featured_highlights fh ON p.id = fh.property_id
+      LEFT JOIN party_details pd ON p.id = pd.property_id
+      GROUP BY p.id, pd.max_guests, pd.price_range, pd.caution_fee, 
+               pd.cooking_allowed, pd.notes
+    `);
     res.json(result.rows);
   } catch (error) {
     console.error("Error fetching properties:", error);
@@ -178,21 +110,156 @@ app.get("/api/properties", async (req, res) => {
     client.release();
   }
 });
-// DELETE endpoint to delete a property and all associated data
-app.delete("/api/properties/:id", async (req, res) => {
+
+// Protected Endpoint: Admin view all properties
+app.get("/admin/viewallproperties", authenticateToken, async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const result = await client.query(`
+      SELECT 
+        p.*,
+        json_agg(DISTINCT jsonb_build_object(
+          'price', po.price,
+          'bedrooms', po.bedrooms,
+          'label', po.label
+        )) as pricing_options,
+        json_agg(DISTINCT pi.image_path) as images,
+        json_agg(DISTINCT fh.highlight) as featured_highlights,
+        json_build_object(
+          'maxGuests', pd.max_guests,
+          'priceRange', pd.price_range,
+          'cautionFee', pd.caution_fee,
+          'cookingAllowed', pd.cooking_allowed,
+          'notes', pd.notes
+        ) as party_details
+      FROM properties p
+      LEFT JOIN pricing_options po ON p.id = po.property_id
+      LEFT JOIN property_images pi ON p.id = pi.property_id
+      LEFT JOIN featured_highlights fh ON p.id = fh.property_id
+      LEFT JOIN party_details pd ON p.id = pd.property_id
+      GROUP BY p.id, pd.max_guests, pd.price_range, pd.caution_fee, 
+               pd.cooking_allowed, pd.notes
+    `);
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error fetching properties:", error);
+    res.status(500).json({ message: "Error fetching properties" });
+  } finally {
+    client.release();
+  }
+});
+
+// Protected Endpoint: Create property
+app.post(
+  "/api/properties",
+  authenticateToken,
+  upload.array("images"),
+  async (req, res) => {
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+      const propertyData = JSON.parse(req.body.data);
+
+      const sanitize = (value, defaultValue = null) =>
+        value === "" ? defaultValue : value;
+
+      const propertyValues = [
+        sanitize(propertyData.title, "Untitled"),
+        sanitize(propertyData.description),
+        sanitize(propertyData.location),
+        sanitize(propertyData.contactPhone),
+        parseInt(sanitize(propertyData.bathrooms, 0)),
+        sanitize(propertyData.type),
+        sanitize(propertyData.superhost, false),
+        parseInt(sanitize(propertyData.size, 0)),
+        sanitize(propertyData.availability, false),
+      ];
+
+      const propertyQuery = `
+      INSERT INTO properties (
+        title, description, location, contact_phone, 
+        bathrooms, type, superhost, size, availability
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      RETURNING id`;
+
+      const propertyResult = await client.query(propertyQuery, propertyValues);
+      const propertyId = propertyResult.rows[0].id;
+
+      for (const option of propertyData.pricingOptions || []) {
+        await client.query(
+          `INSERT INTO pricing_options (property_id, bedrooms, price, label)
+         VALUES ($1, $2, $3, $4)`,
+          [
+            propertyId,
+            parseInt(sanitize(option.bedrooms, 0)),
+            parseFloat(sanitize(option.price, 0.0)),
+            sanitize(option.label),
+          ]
+        );
+      }
+
+      for (const highlight of propertyData.featuredHighlights || []) {
+        await client.query(
+          `INSERT INTO featured_highlights (property_id, highlight)
+         VALUES ($1, $2)`,
+          [propertyId, sanitize(highlight)]
+        );
+      }
+
+      const partyDetails = propertyData.partyDetails || {};
+      await client.query(
+        `INSERT INTO party_details (
+        property_id, max_guests, price_range, caution_fee, 
+        cooking_allowed, notes
+      ) VALUES ($1, $2, $3, $4, $5, $6)`,
+        [
+          propertyId,
+          parseInt(sanitize(partyDetails.maxGuests, 0)),
+          sanitize(partyDetails.priceRange),
+          parseFloat(sanitize(partyDetails.cautionFee, 0.0)),
+          sanitize(partyDetails.cookingAllowed, false),
+          sanitize(partyDetails.notes),
+        ]
+      );
+
+      const imagePaths = req.files.map((file) => `/uploads/${file.filename}`);
+      for (const imagePath of imagePaths) {
+        await client.query(
+          `INSERT INTO property_images (property_id, image_path)
+         VALUES ($1, $2)`,
+          [propertyId, imagePath]
+        );
+      }
+
+      await client.query("COMMIT");
+
+      res.status(201).json({
+        message: "Property created successfully",
+        propertyId: propertyId,
+      });
+    } catch (error) {
+      await client.query("ROLLBACK");
+      console.error("Error creating property:", error);
+      res.status(500).json({ message: error.message });
+    } finally {
+      client.release();
+    }
+  }
+);
+
+// Protected Endpoint: Delete property
+app.delete("/api/properties/:id", authenticateToken, async (req, res) => {
   const client = await pool.connect();
   const propertyId = req.params.id;
 
   try {
     await client.query("BEGIN");
 
-    // First, get the image paths so we can delete the files
     const imageResult = await client.query(
       "SELECT image_path FROM property_images WHERE property_id = $1",
       [propertyId]
     );
 
-    // Delete the actual image files from the uploads folder
     imageResult.rows.forEach(({ image_path }) => {
       const filePath = path.join(
         __dirname,
@@ -203,7 +270,6 @@ app.delete("/api/properties/:id", async (req, res) => {
       });
     });
 
-    // Delete all related data (the order matters due to foreign key constraints)
     await client.query("DELETE FROM pricing_options WHERE property_id = $1", [
       propertyId,
     ]);
@@ -230,19 +296,17 @@ app.delete("/api/properties/:id", async (req, res) => {
   }
 });
 
-// DELETE endpoint to delete all properties
-app.delete("/api/properties", async (req, res) => {
+// Protected Endpoint: Delete all properties
+app.delete("/api/properties", authenticateToken, async (req, res) => {
   const client = await pool.connect();
 
   try {
     await client.query("BEGIN");
 
-    // Get all image paths first
     const imageResult = await client.query(
       "SELECT image_path FROM property_images"
     );
 
-    // Delete all image files from the uploads folder
     imageResult.rows.forEach(({ image_path }) => {
       const filePath = path.join(
         __dirname,
@@ -253,7 +317,6 @@ app.delete("/api/properties", async (req, res) => {
       });
     });
 
-    // Delete all data from all related tables (order matters due to foreign keys)
     await client.query("DELETE FROM pricing_options");
     await client.query("DELETE FROM featured_highlights");
     await client.query("DELETE FROM property_images");
@@ -271,9 +334,8 @@ app.delete("/api/properties", async (req, res) => {
   }
 });
 
-//new endpoints
-// Update property
-app.put("/api/properties/:id", async (req, res) => {
+// Protected Endpoint: Update property
+app.put("/api/properties/:id", authenticateToken, async (req, res) => {
   const client = await pool.connect();
   const propertyId = req.params.id;
 
@@ -282,7 +344,6 @@ app.put("/api/properties/:id", async (req, res) => {
 
     const { title, description, location, availability } = req.body;
 
-    // Update main property details
     const updateQuery = `
       UPDATE properties 
       SET title = $1, description = $2, location = $3, availability = $4
@@ -308,30 +369,37 @@ app.put("/api/properties/:id", async (req, res) => {
   }
 });
 
-// Update property availability
-app.patch("/api/properties/:id/availability", async (req, res) => {
-  const client = await pool.connect();
-  const propertyId = req.params.id;
+// Protected Endpoint: Update property availability
+app.patch(
+  "/api/properties/:id/availability",
+  authenticateToken,
+  async (req, res) => {
+    const client = await pool.connect();
+    const propertyId = req.params.id;
 
-  try {
-    const { availability } = req.body;
+    try {
+      const { availability } = req.body;
 
-    const updateQuery = `
+      const updateQuery = `
       UPDATE properties 
       SET availability = $1
       WHERE id = $2
       RETURNING *`;
 
-    const result = await client.query(updateQuery, [availability, propertyId]);
+      const result = await client.query(updateQuery, [
+        availability,
+        propertyId,
+      ]);
 
-    res.json(result.rows[0]);
-  } catch (error) {
-    console.error("Error updating availability:", error);
-    res.status(500).json({ message: "Error updating availability" });
-  } finally {
-    client.release();
+      res.json(result.rows[0]);
+    } catch (error) {
+      console.error("Error updating availability:", error);
+      res.status(500).json({ message: "Error updating availability" });
+    } finally {
+      client.release();
+    }
   }
-});
+);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => {
