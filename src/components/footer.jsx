@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Facebook,
   Instagram,
@@ -11,6 +12,8 @@ import {
 } from "lucide-react";
 
 const Footer = () => {
+  const navigate = useNavigate();
+
   const quickLinks = [
     { label: "About Us", href: "#" },
     { label: "Properties", href: "#" },
@@ -25,6 +28,30 @@ const Footer = () => {
     { label: "Beachfront Homes", href: "#" },
     { label: "Mountain Retreats", href: "#" },
   ];
+
+  // Hidden admin access - triple-click functionality
+  const handleCopyrightClick = (() => {
+    let clickCount = 0;
+    let lastClickTime = 0;
+
+    return () => {
+      const currentTime = new Date().getTime();
+
+      // Reset count if too much time has passed between clicks
+      if (currentTime - lastClickTime > 500) {
+        clickCount = 0;
+      }
+
+      clickCount++;
+      lastClickTime = currentTime;
+
+      // If triple-clicked, navigate to admin login
+      if (clickCount === 3) {
+        clickCount = 0;
+        navigate("/admin/login");
+      }
+    };
+  })();
 
   return (
     <footer
@@ -216,7 +243,10 @@ const Footer = () => {
         <div className="row align-items-center">
           <div className="col-md-6 text-center text-md-start">
             <p className="mb-0 text-white-50">
-              <small>
+              <small
+                onClick={handleCopyrightClick}
+                style={{ cursor: "default" }}
+              >
                 &copy; {new Date().getFullYear()} Com4thPlus. All rights
                 reserved.
               </small>
