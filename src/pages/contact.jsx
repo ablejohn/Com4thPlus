@@ -19,15 +19,15 @@ const ContactPage = () => {
     {
       icon: "bi-building",
       title: "Office Address",
-      content: "123 Luxury Street, New York, NY 10001",
+      content: "Ultimate Tax Relief NG SO&C House 17, Independence street off akinremi street, anifowose, ikeja, Lagos State.",
       type: "text",
     },
     {
       icon: "bi-telephone-fill",
       title: "Phone Number",
-      content: "+1 (123) 456-7890",
+      content: "0814 318 3494",
       type: "phone",
-      href: "tel:+11234567890",
+      href: "tel:+2348143183494",
     },
     {
       icon: "bi-envelope-fill",

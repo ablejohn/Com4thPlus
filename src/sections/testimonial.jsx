@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback, memo, useRef } from "react";
+import React, { useState, useEffect, useCallback, memo } from "react";
 import { Star, Quote, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Reusable TestimonialCard Component with accessibility improvements
+// Reusable TestimonialCard Component
 const TestimonialCard = memo(({ testimonial, index }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
@@ -27,7 +27,7 @@ const TestimonialCard = memo(({ testimonial, index }) => (
         e.currentTarget.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.08)";
       }}
     >
-      {/* Decorative accent - using #40E0D0 as accent color */}
+      {/* Decorative accent */}
       <div 
         className="position-absolute" 
         style={{ 
@@ -99,8 +99,12 @@ const TestimonialCard = memo(({ testimonial, index }) => (
             </p>
             <div className="d-flex align-items-center gap-2 flex-wrap">
               <small className="text-muted" style={{ fontSize: "0.75rem" }}>{testimonial.location}</small>
-              <span className="text-muted d-none d-sm-inline" aria-hidden="true">•</span>
-              <small className="text-muted" style={{ fontSize: "0.75rem" }}>{testimonial.staying}</small>
+              {testimonial.staying && (
+                <>
+                  <span className="text-muted d-none d-sm-inline" aria-hidden="true">•</span>
+                  <small className="text-muted" style={{ fontSize: "0.75rem" }}>{testimonial.staying}</small>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -109,8 +113,8 @@ const TestimonialCard = memo(({ testimonial, index }) => (
   </motion.div>
 ));
 
-// Enhanced Navigation Button Component - Always visible on mobile
-const NavButton = ({ direction, onClick }) => {
+// Enhanced Navigation Button Component
+const NavButton = ({ direction, onClick, disabled }) => {
   const isLeft = direction === "left";
   
   return (
@@ -118,6 +122,7 @@ const NavButton = ({ direction, onClick }) => {
       className="btn btn-nav shadow p-0 d-flex align-items-center justify-content-center"
       onClick={onClick}
       aria-label={isLeft ? "Previous testimonial" : "Next testimonial"}
+      disabled={disabled}
       style={{
         width: "40px",
         height: "40px",
@@ -131,7 +136,8 @@ const NavButton = ({ direction, onClick }) => {
         border: "none",
         background: "white",
         boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-        opacity: 1,
+        opacity: disabled ? 0.5 : 1,
+        cursor: disabled ? "not-allowed" : "pointer",
         transition: "all 0.2s ease"
       }}
     >
@@ -143,74 +149,39 @@ const NavButton = ({ direction, onClick }) => {
 // Main TestimonialsSection Component
 const TestimonialsSection = () => {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [slidesToShow, setSlidesToShow] = useState(3);
+  const [slidesToShow, setSlidesToShow] = useState(2);
   const [autoplay, setAutoplay] = useState(true);
-  const sliderRef = useRef(null);
-  const autoplayTimerRef = useRef(null);
-  const touchStartX = useRef(null);
-  const touchEndX = useRef(null);
 
+  // Extended testimonial data with more user details
   const testimonials = [
     {
       id: 1,
-      name: "Sarah Johnson",
-      location: "Manhattan, New York",
+      name: "Grace A.",
+      location: "GRA, Port Harcourt",
       rating: 5,
-      text: "The property exceeded all our expectations! From the stunning views to the impeccable service, everything was absolutely perfect. The attention to detail and the luxurious amenities made our stay unforgettable.",
+      text: "Com4th Plus provided the perfect space for our family trip. The extra comfort, clean environment, and great location made all the difference. The amenities were exactly what we needed for our stay.",
       image: "/api/placeholder/60/60",
-      position: "Business Executive",
-      staying: "Luxury Penthouse",
+      position: "Family Vacationer",
+      staying: "3-night stay",
     },
     {
       id: 2,
-      name: "Michael Chen",
-      location: "San Francisco, CA",
+      name: "David O.",
+      location: "GRA, Port Harcourt",
       rating: 5,
-      text: "A truly remarkable experience! The location was prime, and the smart home features were cutting-edge. The property management team went above and beyond to ensure our comfort. Highly recommended!",
+      text: "The security and amenities exceeded my expectations. The workspace in the master bedroom was a great bonus for catching up on emails during my business trip. I'll definitely book again on my next visit.",
       image: "/api/placeholder/60/60",
-      position: "Tech Entrepreneur",
-      staying: "Smart Villa",
-    },
-    {
-      id: 3,
-      name: "Emma Rodriguez",
-      location: "Miami, Florida",
-      rating: 5,
-      text: "We couldn't have chosen a better place for our family vacation. The beachfront property was absolutely stunning, and the concierge service made everything seamless. We're already planning our next stay!",
-      image: "/api/placeholder/60/60",
-      position: "Interior Designer",
-      staying: "Beachfront Estate",
-    },
-    {
-      id: 4,
-      name: "David Smith",
-      location: "Los Angeles, CA",
-      rating: 5,
-      text: "An absolutely amazing experience from start to finish. The rooftop pool was a highlight, and the views of the city were breathtaking. The staff made us feel like royalty!",
-      image: "/api/placeholder/60/60",
-      position: "Film Producer",
-      staying: "Skyline Suite",
-    },
-    {
-      id: 5,
-      name: "Jasmine Patel",
-      location: "Chicago, IL",
-      rating: 5,
-      text: "The attention to detail in this property is extraordinary. From the curated artwork to the premium fixtures, everything speaks luxury. The concierge service anticipated our needs before we even asked.",
-      image: "/api/placeholder/60/60",
-      position: "Art Curator",
-      staying: "Urban Loft",
-    },
+      position: "Business Traveler",
+      staying: "5-night stay",
+    }
   ];
 
-  // Handle responsive layout
+  // Handle responsive layout - optimized for two testimonials
   const handleResize = useCallback(() => {
     if (window.innerWidth < 768) {
       setSlidesToShow(1);
-    } else if (window.innerWidth < 1200) {
-      setSlidesToShow(2);
     } else {
-      setSlidesToShow(3);
+      setSlidesToShow(2); // Always show 2 testimonials on larger screens since we only have 2
     }
   }, []);
 
@@ -221,82 +192,40 @@ const TestimonialsSection = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, [handleResize]);
 
-  // Autoplay functionality
+  // Simplified navigation logic for just two testimonials
+  const nextSlide = useCallback(() => {
+    if (slidesToShow === 1 && activeIndex === 0) {
+      setActiveIndex(1);
+    }
+  }, [activeIndex, slidesToShow]);
+
+  const prevSlide = useCallback(() => {
+    if (slidesToShow === 1 && activeIndex === 1) {
+      setActiveIndex(0);
+    }
+  }, [activeIndex, slidesToShow]);
+
+  // Get the testimonials to display
+  const getVisibleTestimonials = useCallback(() => {
+    if (slidesToShow === 1) {
+      return [testimonials[activeIndex]];
+    }
+    return testimonials; // Show both testimonials when slidesToShow is 2
+  }, [activeIndex, slidesToShow, testimonials]);
+
+  // Simplified autoplay for two testimonials
   useEffect(() => {
-    if (autoplay) {
-      autoplayTimerRef.current = setInterval(() => {
-        nextSlide();
+    let timer;
+    if (autoplay && slidesToShow === 1) {
+      timer = setInterval(() => {
+        setActiveIndex(prev => prev === 0 ? 1 : 0);
       }, 6000);
     }
     
     return () => {
-      if (autoplayTimerRef.current) {
-        clearInterval(autoplayTimerRef.current);
-      }
+      if (timer) clearInterval(timer);
     };
-  }, [autoplay, activeIndex]);
-
-  // Navigation functions
-  const nextSlide = useCallback(() => {
-    setActiveIndex((prev) => (prev + 1) % (testimonials.length - slidesToShow + 1));
-  }, [testimonials.length, slidesToShow]);
-
-  const prevSlide = useCallback(() => {
-    setActiveIndex((prev) => (prev - 1 + (testimonials.length - slidesToShow + 1)) % (testimonials.length - slidesToShow + 1));
-  }, [testimonials.length, slidesToShow]);
-
-  // Get the testimonials to display
-  const getVisibleTestimonials = useCallback(() => {
-    return testimonials.slice(activeIndex, activeIndex + slidesToShow);
-  }, [activeIndex, slidesToShow, testimonials]);
-
-  // Handle keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (sliderRef.current && sliderRef.current.contains(document.activeElement)) {
-        if (e.key === 'ArrowLeft') {
-          prevSlide();
-        } else if (e.key === 'ArrowRight') {
-          nextSlide();
-        }
-      }
-    };
-    
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [prevSlide, nextSlide]);
-
-  // Touch events for mobile swipe functionality
-  const handleTouchStart = (e) => {
-    touchStartX.current = e.touches[0].clientX;
-    setAutoplay(false);
-  };
-
-  const handleTouchMove = (e) => {
-    touchEndX.current = e.touches[0].clientX;
-  };
-
-  const handleTouchEnd = () => {
-    if (!touchStartX.current || !touchEndX.current) return;
-    
-    const diff = touchStartX.current - touchEndX.current;
-    const threshold = 50; // minimum distance to be considered a swipe
-    
-    if (diff > threshold) {
-      // Swiped left, go to next
-      nextSlide();
-    } else if (diff < -threshold) {
-      // Swiped right, go to previous
-      prevSlide();
-    }
-    
-    // Reset touch positions
-    touchStartX.current = null;
-    touchEndX.current = null;
-    
-    // Resume autoplay after a delay
-    setTimeout(() => setAutoplay(true), 3000);
-  };
+  }, [autoplay, slidesToShow]);
 
   return (
     <section
@@ -336,25 +265,34 @@ const TestimonialsSection = () => {
 
         <div 
           className="position-relative testimonial-slider"
-          ref={sliderRef}
           tabIndex="0"
-          aria-label="Testimonials carousel"
+          aria-label="Testimonials showcase"
           role="region"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
           onMouseEnter={() => setAutoplay(false)}
           onMouseLeave={() => setAutoplay(true)}
         >
-          <NavButton direction="left" onClick={prevSlide} />
-          <NavButton direction="right" onClick={nextSlide} />
+          {/* Only show navigation buttons on mobile when we have multiple slides */}
+          {slidesToShow === 1 && (
+            <>
+              <NavButton 
+                direction="left" 
+                onClick={prevSlide} 
+                disabled={activeIndex === 0}
+              />
+              <NavButton 
+                direction="right" 
+                onClick={nextSlide} 
+                disabled={activeIndex === 1}
+              />
+            </>
+          )}
 
-          <div className="row g-4 position-relative px-4 px-md-2">
+          <div className="row g-4 position-relative px-md-2">
             <AnimatePresence mode="wait">
               {getVisibleTestimonials().map((testimonial, idx) => (
                 <div
                   key={testimonial.id}
-                  className={`col-12 col-md-${12 / Math.min(slidesToShow, 2)} col-lg-${12 / slidesToShow}`}
+                  className={`col-12 ${slidesToShow === 2 ? 'col-md-6' : ''}`}
                 >
                   <TestimonialCard testimonial={testimonial} index={idx} />
                 </div>
@@ -362,17 +300,44 @@ const TestimonialsSection = () => {
             </AnimatePresence>
           </div>
 
-          <div className="d-flex justify-content-center mt-4 gap-2">
-            {Array.from({ length: testimonials.length - slidesToShow + 1 }).map((_, index) => (
-              <button
-                key={index}
-                className={`pagination-indicator ${activeIndex === index ? 'active' : ''}`}
-                onClick={() => setActiveIndex(index)}
-                aria-label={`Go to testimonial group ${index + 1}`}
-                aria-current={activeIndex === index ? "true" : "false"}
-              />
-            ))}
-          </div>
+          {/* Show pagination indicators only on mobile */}
+          {slidesToShow === 1 && (
+            <div className="d-flex justify-content-center mt-4 gap-2">
+              {[0, 1].map((index) => (
+                <button
+                  key={index}
+                  className={`pagination-indicator ${activeIndex === index ? 'active' : ''}`}
+                  onClick={() => setActiveIndex(index)}
+                  aria-label={`Go to testimonial ${index + 1}`}
+                  aria-current={activeIndex === index ? "true" : "false"}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+        
+        {/* Add a CTA button for additional social proof */}
+        <div className="text-center mt-5">
+          <a 
+            href="#view-more-reviews" 
+            className="btn btn-outline-primary px-4 py-2"
+            style={{ 
+              borderColor: "#40E0D0", 
+              color: "#40E0D0",
+              borderRadius: "8px",
+              transition: "all 0.3s ease"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "#40E0D0";
+              e.currentTarget.style.color = "white";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "transparent";
+              e.currentTarget.style.color = "#40E0D0";
+            }}
+          >
+            View All Reviews
+          </a>
         </div>
       </div>
 
@@ -432,7 +397,7 @@ const TestimonialsSection = () => {
           transition: all 0.2s ease;
         }
         
-        .btn-nav:hover {
+        .btn-nav:hover:not(:disabled) {
           background: #40E0D0 !important;
           color: white;
           transform: translateY(-50%) scale(1.05) !important;

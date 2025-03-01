@@ -15,18 +15,17 @@ const Footer = () => {
   const navigate = useNavigate();
 
   const quickLinks = [
-    { label: "About Us", href: "#" },
-    { label: "Properties", href: "#" },
-    { label: "Services", href: "#" },
-    { label: "Contact", href: "#" },
-    { label: "Blog", href: "#" },
+    { label: "About Us", href: "" },
+    { label: "Properties", href: "" },
+    { label: "Contact", href: "" },
+    
   ];
 
   const propertyTypes = [
-    { label: "Luxury Villas", href: "#" },
+    
     { label: "Premium Apartments", href: "#" },
-    { label: "Beachfront Homes", href: "#" },
-    { label: "Mountain Retreats", href: "#" },
+    
+    
   ];
 
   // Hidden admin access - triple-click functionality
@@ -78,16 +77,16 @@ const Footer = () => {
               <div className="mb-4">
                 <div className="d-flex align-items-center mb-3">
                   <Mail size={18} className="text-primary me-3" />
-                  <span className="text-white-50">info@Com4thPlus.com</span>
+                  <span className="text-white-50">info@com4thplus.com</span>
                 </div>
                 <div className="d-flex align-items-center mb-3">
                   <Phone size={18} className="text-primary me-3" />
-                  <span className="text-white-50">+1 (555) 123-4567</span>
+                  <span className="text-white-50">0814 318 3494</span>
                 </div>
                 <div className="d-flex align-items-center mb-3">
                   <MapPin size={18} className="text-primary me-3" />
                   <span className="text-white-50">
-                    123 Luxury Avenue, NY 10001
+                  6C Oduduwa Street, Near Bon Hotel, GRA Ikeja, Lagos
                   </span>
                 </div>
                 <div className="d-flex align-items-center">

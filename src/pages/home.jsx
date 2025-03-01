@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Search, Calendar, MapPin, ChevronRight, Star } from "lucide-react";
+import React, { useState, useEffect, useCallback } from "react";
+import { Search, Calendar, Shield, Wifi, Battery, Home } from "lucide-react";
 import Apartment1 from "../assets/appartment1.jpg";
 import Apartment2 from "../assets/appartment2.jpg";
 import Apartment3 from "../assets/appartment3.jpg";
@@ -10,32 +10,11 @@ import TestimonialsSection from "../sections/testimonial";
 import Newsletter from "../sections/newsletter";
 import AboutUs from "../sections/aboutUs";
 
-const LandingPage = () => {
+const HomePage = () => {
   const [currentImage, setCurrentImage] = useState(0);
-  const [scrolled, setScrolled] = useState(false);
   const images = [Apartment1, Apartment2, Apartment3, Apartment4];
-
-  useEffect(() => {
-    // Remove any default margins and padding from body and html
-    document.body.style.margin = '0';
-    document.body.style.padding = '0';
-    document.documentElement.style.margin = '0';
-    document.documentElement.style.padding = '0';
-    
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      // Reset styles when component unmounts
-      document.body.style.margin = '';
-      document.body.style.padding = '';
-      document.documentElement.style.margin = '';
-      document.documentElement.style.padding = '';
-    };
-  }, []);
-
+  
+  // Image carousel effect
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentImage((prev) => (prev + 1) % images.length);
@@ -43,191 +22,208 @@ const LandingPage = () => {
     return () => clearInterval(timer);
   }, [images.length]);
 
+  // Features displayed in quick stats section
+  const quickStats = [
+    { icon: <Shield size={24} />, count: "100%", label: "Secure Premises" },
+    { icon: <Wifi size={24} />, count: "1 Gbps", label: "High-Speed WiFi" },
+    { icon: <Battery size={24} />, count: "24/7", label: "Power Backup" },
+    { icon: <Home size={24} />, count: "15+", label: "Premium Locations" },
+  ];
+
   return (
-    <div className="overflow-hidden m-0 p-0" style={{ display: 'block' }}>
-      {/* Hero Section */}
-      <div className="position-relative vh-100 m-0 p-0" style={{ marginTop: 0, paddingTop: 0 }}>
+    <div className="min-vh-100 overflow-hidden m-0 p-0">
+      {/* Hero Section with Image Carousel */}
+      <section id="home" className="position-relative vh-100">
+        {/* Image Carousel */}
         {images.map((img, index) => (
           <div
             key={index}
             className="position-absolute w-100 h-100 top-0 start-0"
             style={{
               opacity: currentImage === index ? 1 : 0,
-              transition: "opacity 1.5s ease-in-out, transform 1.5s ease-in-out",
-              transform: currentImage === index ? "scale(1)" : "scale(1)",
+              transition: "opacity 1.5s ease-in-out, transform 2s ease-in-out",
+              transform: `scale(${currentImage === index ? 1 : 1})`,
               zIndex: 1,
             }}
           >
             <img
               src={img}
-              alt={`Luxury interior ${index + 1}`}
+              alt={`Luxury apartment ${index + 1}`}
               className="w-100 h-100 object-fit-cover"
-              style={{ 
-                filter: "brightness(0.7)",
-              }}
-            />
-            <div
-              className="position-absolute top-0 start-0 w-100 h-100"
-              style={{
-                background: "linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7))",
-              }}
+              style={{ filter: "brightness(0.6)" }}
             />
           </div>
         ))}
-        <div className="container position-relative h-100 d-flex justify-content-center align-items-center" style={{ zIndex: 2 }}>
-          <div className="text-center text-white">
-            <div className="bg-primary bg-opacity-25 text-warning d-inline-block px-3 py-2 rounded-pill mb-4">
-              <span
-                className="text-uppercase fw-bold small"
-                style={{ color: "#40E0D0" }}
-              >
+        {/* Gradient Overlay */}
+        <div 
+          className="position-absolute top-0 start-0 w-100 h-100"
+          style={{
+            background: "linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7))",
+            zIndex: 2
+          }}
+        ></div>
+
+        {/* Hero Content */}
+        <div className="container position-relative h-100 d-flex flex-column justify-content-center align-items-center" style={{ zIndex: 3 }}>
+          <div className="text-center">
+            <div className="bg-primary bg-opacity-25 text-info d-inline-block px-3 py-2 rounded-pill mb-4 upp">
+              <span className="text-uppercase fw-bold small " style={{ color: "#40E0D0" }}>
                 Welcome to COM4thPLUS
               </span>
             </div>
-            <h1
-              className="display-2 fw-bold mb-4"
-              style={{ letterSpacing: "-1px" }}
-            >
-              Discover Your Perfect
+            
+            <h1 className="display-3 fw-bold text-white mb-4">
+              A Stay That Feels Like Home -
               <br />
-              <span className="gradient-text">
-                Luxury Residence
+              <span style={{ color: "#40E0D0" }}>
+                Extra Comfort
               </span>
             </h1>
-            <p
-              className="lead mb-5 text-white-50"
-              style={{ fontSize: "1.25rem" }}
-            >
-              Experience unparalleled comfort in our exclusive apartments, where
-              luxury meets exceptional service.
+            
+            <p className="lead text-white-50 mb-5 mx-auto" style={{ maxWidth: "800px" }}>
+              Fully furnished apartments with 24/7 electricity, high-speed WiFi, and top-tier security for a hassle-free stay
             </p>
 
+            {/* Quick Stats */}
+            
+
             {/* Search Form */}
-            <div
-              className="bg-white p-4 rounded-4 shadow-lg mx-auto"
-              style={{
-                backdropFilter: "blur(10px)",
-                background: "rgba(255, 255, 255, 0.95)",
-                maxWidth: "800px",
-              }}
-            >
-              <div className="row g-3 align-items-end">
+            <div className="bg-white p-4 rounded-4 shadow-lg mx-auto" style={{ maxWidth: "800px" }}>
+             
+              
+              <div className="row g-3">
                 {/* Check-in Date */}
                 <div className="col-12 col-md-4">
-                  <div className="d-flex flex-column">
-                    <label className="small fw-bold text-dark mb-1">
-                      Check-in
-                    </label>
-                    <div className="input-group border rounded-3 overflow-hidden">
-                      <span className="input-group-text border-0 bg-transparent pe-0">
-                        <Calendar size={20} className="text-primary" />
-                      </span>
-                      <input
-                        type="date"
-                        className="form-control border-0 shadow-none py-3 ps-2"
-                        placeholder="mm/dd/yyyy"
-                        id="checkin-date"
-                      />
-                    </div>
+                  <label className="form-label small fw-bold text-secondary mb-2">Check-in Date</label>
+                  <div className="input-group">
+                    <span className="input-group-text border-0 bg-light">
+                      <Calendar size={18} className="text-primary" />
+                    </span>
+                    <input
+                      type="date"
+                      className="form-control border-0 bg-light"
+                      placeholder="mm/dd/yyyy"
+                    />
                   </div>
                 </div>
+                
                 {/* Check-out Date */}
                 <div className="col-12 col-md-4">
-                  <div className="d-flex flex-column">
-                    <label className="small fw-bold text-dark mb-1">
-                      Check-out
-                    </label>
-                    <div className="input-group border rounded-3 overflow-hidden">
-                      <span className="input-group-text border-0 bg-transparent pe-0">
-                        <Calendar size={20} className="text-primary" />
-                      </span>
-                      <input
-                        type="date"
-                        className="form-control border-0 shadow-none py-3 ps-2"
-                        placeholder="mm/dd/yyyy"
-                        id="checkout-date"
-                      />
-                    </div>
+                  <label className="form-label small fw-bold text-secondary mb-2">Check-out Date</label>
+                  <div className="input-group">
+                    <span className="input-group-text border-0 bg-light">
+                      <Calendar size={18} className="text-primary" />
+                    </span>
+                    <input
+                      type="date"
+                      className="form-control border-0 bg-light"
+                      placeholder="mm/dd/yyyy"
+                    />
                   </div>
                 </div>
+                
                 {/* Search Button */}
                 <div className="col-12 col-md-4">
-                  <div className="d-flex flex-column">
-                    {/* Empty label for spacing alignment */}
-                    <label className="small fw-bold text-dark mb-1 d-none d-md-block">
-                      &nbsp;
-                    </label>
-                    <button
-                      className="btn btn-primary w-100 py-3 d-flex align-items-center justify-content-center gap-2"
-                      style={{
-                        background: "linear-gradient(to right, #003087, #004299)",
-                        border: "none",
-                        transition: "transform 0.3s ease",
-                        height: "56px", // Match input height
-                      }}
-                    >
-                      <Search size={20} />
-                      <span className="fw-semibold">Check Availability</span>
-                    </button>
-                  </div>
+                  <label className="form-label opacity-0 d-none d-md-block small mb-2">Submit</label>
+                  <button
+                    className="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2"
+                    style={{
+                      background: "linear-gradient(to right, #003087, #004299)",
+                      border: "none",
+                      transition: "all 0.3s ease",
+                      height: "40px"
+                    }}
+                  >
+                    <Search size={18} />
+                    <span className="fw-semibold">Check Availability</span>
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      
-      {/* About us Section */}
-      <AboutUs />
+        
+        {/* Scroll Down Indicator */}
+        <div className="position-absolute bottom-0 start-50 translate-middle-x mb-4" style={{ zIndex: 3 }}>
+          <a href="#about" className="text-decoration-none text-white-50 d-flex flex-column align-items-center">
+            <small className="mb-1">Scroll Down</small>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-down animate__animated animate__bounce animate__infinite" viewBox="0 0 16 16">
+              <path fillRule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+            </svg>
+          </a>
+        </div>
+      </section>
+
+      {/* About Us Section */}
+      <section id="about" className=" bg-light">
+        <AboutUs />
+      </section>
 
       {/* Why Choose Us Section */}
-      <WhyChooseUs />
+      <section id="features" className="">
+        <WhyChooseUs />
+      </section>
 
-      {/* Featured Properties Section <FeaturedProperties /> */}
 
       {/* Testimonials Section */}
-      <TestimonialsSection />
+      <section id="testimonials" className="">
+        <TestimonialsSection />
+      </section>
 
       {/* Newsletter Section */}
-      <Newsletter />
+      <section id="contact" className=" text-white">
+        <Newsletter />
+      </section>
 
-      {/* Custom Styles */}
-      <style jsx>{`
-        .gradient-text {
-          color: #40E0D0;
-          background: linear-gradient(to right, #40E0D0, rgb(116, 128, 129));
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-        .input-group:focus-within {
-          border-color: #004299 !important;
-          box-shadow: 0 0 0 0.2rem rgba(0, 66, 153, 0.25);
-        }
-        .btn-primary:hover {
-          transform: translateY(-2px);
-          background: linear-gradient(to right, #004299, #003087) !important;
-        }
-      `}</style>
-
-      {/* Global styles to remove any default spacing */}
+      {/* Global Styles */}
       <style jsx global>{`
-        html, body {
-          margin-top: -30px !important;
-          padding: 0 !important;
-          overflow-x: hidden;
-          box-sizing: border-box;
+        .bg-opacity-10 {
+          --bs-bg-opacity: 0.1;
         }
-        #root, #__next {
-          margin: 0 !important;
-          padding: 0 !important;
+        
+        .bg-opacity-25 {
+          --bs-bg-opacity: 0.25;
         }
-        * {
-          box-sizing: border-box;
+        
+        @keyframes bounce {
+          0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+          40% {transform: translateY(-10px);}
+          60% {transform: translateY(-5px);}
+        }
+        
+        .animate__bounce {
+          animation: bounce 2s infinite;
+        }
+        
+        .btn-primary {
+          background-color: #003087;
+          border-color: #003087;
+        }
+        
+        .btn-primary:hover {
+          background-color: #002366;
+          border-color: #002366;
+          transform: translateY(-2px);
+        }
+        
+        .text-info {
+          color: #40E0D0 !important;
+        }
+        
+        .object-fit-cover {
+          object-fit: cover;
+        }
+           @media (max-width: 767.98px) {
+          
+          
+          /* Add space for fixed mobile navigation */
+          .upp {
+            margin-top: 50px;
+          }
         }
       `}</style>
     </div>
   );
 };
 
-export default LandingPage;
+export default HomePage;

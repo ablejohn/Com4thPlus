@@ -19,48 +19,49 @@ const AboutUs = () => {
   const features = [
     {
       icon: <MapPin size={20} color="#40E0D0" />,
-      title: "Prime GRA Location",
-      description: "7 minutes from Murtala Muhammed Int'l Airport, walking distance to fine dining & upscale shopping"
+      title: "24/7 Electricity",
+      description: "24/7 electricity for an uninterrupted stay.",
     },
     {
       icon: <Home size={20} color="#40E0D0" />,
-      title: "Designer Suites",
-      description: "Italian marble bathrooms, Bang & Olufsen sound systems, bespoke furnishings imported from Milan"
+      title: "Free High-speed WiFi",
+      description: "Free high-speed WiFi for work and entertainment",
     },
     {
       icon: <Shield size={20} color="#40E0D0" />,
       title: "Elite Security",
-      description: "Gated compound with 24/7 armed security, biometric access, and AI-enhanced CCTV surveillance"
+      description: "Maximum security in a gated and well-monitored environment"
     },
     {
       icon: <Zap size={20} color="#40E0D0" />,
-      title: "Premium Amenities",
-      description: "Silent backup generators, 300Mbps fiber internet, Tesla-compatible EV charging stations"
+      title: "Spacious rooms",
+      description: "Spacious rooms designed for relaxation and convenience"
+    },
+    {
+      icon: <Zap size={20} color="#40E0D0" />,
+      title: "Master bedroom",
+      description: "Master bedroom includes an office workspace for business travelers"
     }
   ];
 
   const amenities = [
-    { icon: <Coffee size={14} />, name: "Barista-Grade Coffee" },
-    { icon: <Wifi size={14} />, name: "Gigabit WiFi" },
-    { icon: <Home size={14} />, name: "Smart Home Controls" },
-    { icon: <Star size={14} />, name: "Airport Pickup" }
+    { icon: <Coffee size={14} />, name: "24/7 electriicity" },
+    { icon: <Wifi size={14} />, name: "Free high-speed WiFi" },
+    { icon: <Home size={14} />, name: "Maximum security" },
+    { icon: <Star size={14} />, name: "Spacious rooms" },
+    { icon: <Star size={14} />, name: "Master bedroom with office workspace" }
   ];
   
   const testimonials = [
     {
-      quote: "Absolutely stunning property. The interior design rivals 5-star hotels in Dubai. Perfect for our executive retreat.",
-      name: "Michael Adeyemi",
-      title: "CEO, Fintech Solutions Ltd"
+      quote: "Com4th Plus provided the perfect space for our family trip. The extra comfort, clean environment, and great location made all the difference.",
+      name: "Grace A.",
+      title: "Family Vacationer"
     },
     {
-      quote: "Com4thPLUS redefines luxury living in Lagos. The attention to detail in every suite is exceptional.",
-      name: "Sarah Johnson",
-      title: "Executive Director, Global Investments"
-    },
-    {
-      quote: "My stay at Com4thPLUS exceeded all expectations. The concierge service and personal chef made it unforgettable.",
-      name: "Dr. Oluwaseun Afolabi",
-      title: "Medical Director, Wellness Group"
+      quote: "The security and amenities exceeded my expectations. The workspace in the master bedroom was a great bonus.",
+      name: "David O.",
+      title: " Business Traveler"
     }
   ];
   
@@ -146,16 +147,14 @@ const AboutUs = () => {
           {/* Content Column */}
           <div className="col-md-6">
             <div className="text-center text-md-start">
-              <div className="badge bg-light text-primary mb-3 px-3 py-2">DISCOVER COM4THPLUS</div>
+              <div className="badge bg-light text-primary mb-3 px-3 py-2">About US</div>
               
               <h2 className="fw-bold mb-4">
-                Elevated Lagos Living in GRA Ikeja
+               Where Comfort Meets Practicality
               </h2>
               
               <p className="lead mb-4">
-                Com4thPLUS offers an unrivaled contemporary living experience in Lagos' most prestigious 
-                neighborhood. Our meticulously crafted residences blend minimalist elegance 
-                with cutting-edge technology, creating the ultimate urban sanctuary.
+                Com4thPLUS Apartment, where comfort, security, and convenience seamlessly blend to offer guests a truly satisfying short term apartment rental experience. Located in the serene GRA Ikeja neighborhood, Com4thplus has carefully curated its portfolio of apartments to cater to both business travelers and leisure seekers. Immerse yourself in a world of modern amenities, elegant decor, and unparalleled comfort, making your stay in Lagos a truly memorable one.
               </p>
               
               {/* Highlights */}
@@ -163,8 +162,7 @@ const AboutUs = () => {
                 {[
                   "Signature Design",
                   "Dedicated Concierge",
-                  "Airport VIP Transfer",
-                  "Private Chef Service"
+                  "Airport VIP Transfer"
                 ].map((highlight, index) => (
                   <span key={index} className="badge bg-light text-dark p-2">{highlight}</span>
                 ))}
