@@ -157,7 +157,7 @@ const TestimonialsSection = () => {
     {
       id: 1,
       name: "Grace A.",
-      location: "GRA, Port Harcourt",
+      location: "GRA, Lagos",
       rating: 5,
       text: "Com4th Plus provided the perfect space for our family trip. The extra comfort, clean environment, and great location made all the difference. The amenities were exactly what we needed for our stay.",
       image: "/api/placeholder/60/60",
@@ -167,7 +167,7 @@ const TestimonialsSection = () => {
     {
       id: 2,
       name: "David O.",
-      location: "GRA, Port Harcourt",
+      location: "GRA, Lagos",
       rating: 5,
       text: "The security and amenities exceeded my expectations. The workspace in the master bedroom was a great bonus for catching up on emails during my business trip. I'll definitely book again on my next visit.",
       image: "/api/placeholder/60/60",

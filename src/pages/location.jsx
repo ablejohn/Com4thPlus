@@ -11,7 +11,7 @@ const LOCATION_COORDINATES = {
   lat: 6.576191,
   lng: 3.3586809,
   address: "ODUDUWA STREET, BY BOND HOTEL, NEAR INSIGHT COMMUNICATIONS, GRA, IKEJA LAGOS STATE.",
-  phone: "+234 123 456 7890",
+  phone: "+2348143183494",
   email: "info@com4thplus.com"
 };
 
@@ -899,30 +899,7 @@ const LocationPage = () => {
 
         <div className="section-separator"></div>
         
-        {/* Contact Section */}
-        <AnimatedSection className="mb-5">
-          <div className="row">
-            <div className="col-lg-8 mx-auto">
-              <div className="contact-card text-center">
-                <h2 className="mb-4 fw-bold">Need More Information?</h2>
-                <p className="lead mb-4">
-                  If you have any questions about our location or need assistance with directions, 
-                  our team is ready to help you.
-                </p>
-                <div className="d-flex flex-column flex-sm-row justify-content-center gap-3 mt-4">
-                  <a href="tel:+2341234567890" className="btn-primary">
-                    <i className="bi bi-telephone-fill me-2"></i>
-                    Call Us
-                  </a>
-                  <Link to="/contact" className="btn-outline">
-                    <i className="bi bi-envelope-fill me-2"></i>
-                    Contact Form
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </AnimatedSection>
+        
       </div>
 
     </div>
