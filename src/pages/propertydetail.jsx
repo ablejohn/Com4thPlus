@@ -1,18 +1,188 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { FaBed, FaBath, FaMapMarkerAlt, FaStar, FaHeart, FaWifi, FaCar, FaSwimmingPool, FaDumbbell, FaUserCircle } from "react-icons/fa";
-import { Container, Row, Col, Button, Badge, Card, Carousel, Modal, Spinner } from "react-bootstrap";
-import DatePicker from "react-datepicker"; // Import DatePicker
-import "react-datepicker/dist/react-datepicker.css"; // Import DatePicker CSS
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { 
+  FaBed, 
+  FaBath, 
+  FaMapMarkerAlt, 
+  FaStar, 
+  FaHeart, 
+  FaWifi, 
+  FaCar, 
+  FaUsers,
+  FaUtensils,
+  FaMoneyBillWave,
+  FaUserCircle,
+  FaRegCalendarAlt,
+  FaPhone,
+  FaArrowLeft
+} from "react-icons/fa";
+import { 
+  Container, 
+  Row, 
+  Col, 
+  Button, 
+  Badge, 
+  Card, 
+  Carousel, 
+  Modal, 
+  Spinner,
+  Form 
+} from "react-bootstrap";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { usePaystackPayment } from 'react-paystack';
+
+// Theme configuration to match PropertiesPage
+const theme = {
+  colors: {
+    primary: "#40E0D0",
+    primaryDark: "#20B2AA",
+    primaryLight: "rgba(64, 224, 208, 0.1)",
+    accent: "#40E0D0",
+    dark: "#333333",
+    light: "#f8f9fa",
+    white: "#ffffff",
+    gray: "#6c757d",
+    grayLight: "#e9ecef",
+    success: "#28a745",
+    warning: "#ffc107",
+  },
+  borderRadius: {
+    sm: "8px",
+    md: "16px",
+    lg: "24px",
+    circle: "50%",
+  },
+  boxShadow: {
+    sm: "0 4px 12px rgba(0, 0, 0, 0.05)",
+    md: "0 8px 24px rgba(0, 0, 0, 0.08)",
+    lg: "0 16px 32px rgba(0, 0, 0, 0.1)",
+  },
+  transition: "all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)",
+  spacing: {
+    xs: "0.5rem",
+    sm: "1rem",
+    md: "1.5rem",
+    lg: "2rem",
+    xl: "2.5rem",
+  },
+};
+
+// Paystack public key - replace with your actual key
+const PAYSTACK_PUBLIC_KEY = "YOUR_PAYSTACK_PUBLIC_KEY";
 
 const PropertyDetailPage = () => {
-  const { id } = useParams(); // Get the property ID from the URL
+  const navigate = useNavigate();
+  const { id } = useParams();
   const [property, setProperty] = useState(null);
   const [isFavorite, setIsFavorite] = useState(false);
   const [showGalleryModal, setShowGalleryModal] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
-  const [startDate, setStartDate] = useState(null); // Check-in date
-  const [endDate, setEndDate] = useState(null); // Check-out date
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [apartmentType, setApartmentType] = useState("");
+  const [amount, setAmount] = useState(0);
+  const [email, setEmail] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  // Calculate number of days between dates
+  const getDays = () => {
+    if (startDate && endDate) {
+      const difference = Math.abs(endDate - startDate);
+      return Math.ceil(difference / (1000 * 60 * 60 * 24));
+    }
+    return 1;
+  };
+
+  // Calculate amount based on selection
+  useEffect(() => {
+    if (apartmentType) {
+      let baseAmount = 0;
+      switch (apartmentType) {
+        case "3br":
+          baseAmount = 250000;
+          break;
+        case "4br":
+          baseAmount = 300000;
+          break;
+        case "5br":
+          baseAmount = 350000;
+          break;
+        case "5br-party":
+          baseAmount = 500000;
+          break;
+        default:
+          baseAmount = 0;
+      }
+      
+      // For non-party rentals, multiply by number of days
+      if (apartmentType !== "5br-party") {
+        setAmount(baseAmount * getDays());
+      } else {
+        setAmount(baseAmount); // Party is typically a flat fee
+      }
+    } else {
+      setAmount(0);
+    }
+  }, [apartmentType, startDate, endDate]);
+
+  // Configure Paystack
+  const config = {
+    reference: (new Date()).getTime().toString(),
+    email: email,
+    amount: amount * 100, // Convert to kobo
+    publicKey: PAYSTACK_PUBLIC_KEY,
+    metadata: {
+      custom_fields: [
+        {
+          display_name: "Full Name",
+          variable_name: "full_name",
+          value: fullName
+        },
+        {
+          display_name: "Phone Number",
+          variable_name: "phone_number",
+          value: phone
+        },
+        {
+          display_name: "Apartment Type",
+          variable_name: "apartment_type",
+          value: apartmentType
+        },
+        {
+          display_name: "Check-in Date",
+          variable_name: "check_in",
+          value: startDate ? startDate.toISOString().split('T')[0] : ""
+        },
+        {
+          display_name: "Check-out Date",
+          variable_name: "check_out",
+          value: endDate ? endDate.toISOString().split('T')[0] : ""
+        }
+      ]
+    }
+  };
+
+  const initializePayment = usePaystackPayment(config);
+
+  // Handle successful payment
+  const onSuccess = (reference) => {
+    setIsProcessing(false);
+    setShowPaymentModal(false);
+    
+    // Navigate to success page with reference
+    navigate(`/payment-success?ref=${reference.reference}&amount=${amount}&type=${apartmentType}`);
+  };
+
+  // Handle payment cancellation
+  const onClose = () => {
+    setIsProcessing(false);
+    alert("Payment cancelled. You can try again when ready.");
+  };
 
   // Fetch property data based on the ID
   useEffect(() => {
@@ -20,17 +190,25 @@ const PropertyDetailPage = () => {
     const fetchProperty = async () => {
       const mockData = {
         id: 1,
-        title: "Luxury Apartment with City View",
-        location: "Manhattan, New York",
-        price: 2500,
-        description: "Experience luxury living in this stunning apartment featuring breathtaking city views. This meticulously designed space offers modern amenities and comfortable living in the heart of Manhattan.",
-        bedrooms: 3,
-        bathrooms: 2,
-        size: "1,200 sq ft",
+        title: "COM4TH PLUS LIMITED Luxury Apartments",
+        location: "6c Oduduwa Street, Near bon hotel/ insight communications opposite police special unit, GRA IKEJA",
+        price: {
+          "5bedroom": "350k",
+          "4bedroom": "300k",
+          "3bedroom": "250k",
+          "party5bedroom": "500k-550k"
+        },
+        description: "COM4TH PLUS LIMITED offers luxury apartments in the heart of GRA IKEJA. Our apartments are perfect for both accommodation and small parties or get-togethers. We have 3, 4, and 5-bedroom options available to meet your needs. Enjoy our premium amenities and excellent location.",
+        bedrooms: "3-5",
+        bathrooms: "Multiple",
+        size: "Spacious",
         rating: 4.8,
         reviews: 124,
+        availability: "Available Now",
+        type: "Luxury Apartment",
+        contactPhone: "0814 318 3494",
         host: {
-          name: "Sarah Johnson",
+          name: "COM4TH PLUS LIMITED",
           rating: 4.9,
           reviews: 342,
           response_rate: 99,
@@ -40,8 +218,8 @@ const PropertyDetailPage = () => {
         amenities: [
           { icon: <FaWifi />, name: "High-speed WiFi" },
           { icon: <FaCar />, name: "Free parking" },
-          { icon: <FaSwimmingPool />, name: "Pool access" },
-          { icon: <FaDumbbell />, name: "Fitness center" },
+          { icon: <FaUsers />, name: "Party space (max 30 guests)" },
+          { icon: <FaMoneyBillWave />, name: "Refundable caution fee of 100k" },
         ],
         images: [
           "appartment1.jpg",
@@ -54,21 +232,21 @@ const PropertyDetailPage = () => {
             user: "John D.",
             rating: 5,
             date: "January 2025",
-            comment: "Amazing property with stunning views. The amenities were top-notch and the location couldn't be better.",
+            comment: "Amazing property with great amenities. Perfect location in GRA IKEJA and excellent for our small gathering.",
           },
           {
             user: "Emma S.",
             rating: 4.5,
             date: "December 2024",
-            comment: "Beautiful apartment in a great location. Very clean and well-maintained.",
+            comment: "Beautiful apartment in a great location. Very clean and well-maintained. The staff was very helpful.",
           },
         ],
         rules: [
-          "Check-in: After 3:00 PM",
-          "Checkout: 11:00 AM",
-          "No smoking",
-          "No pets",
-          "No parties or events",
+          "Maximum number of guests is strictly 30 people for parties",
+          "No large cooking is allowed for any get together or party at the apartment",
+          "Refundable caution fee of 100k in all categories",
+          "Check-in: After 2:00 PM",
+          "Checkout: 12:00 PM",
         ],
       };
 
@@ -81,57 +259,177 @@ const PropertyDetailPage = () => {
     fetchProperty();
   }, [id]);
 
+  // Handle Reserve Now click
+  const handleReserveNow = () => {
+    if (!apartmentType) {
+      alert("Please select an apartment type");
+      return;
+    }
+    
+    if (!startDate || !endDate) {
+      alert("Please select check-in and check-out dates");
+      return;
+    }
+    
+    setShowPaymentModal(true);
+  };
+
+  // Handle final payment submission
+  const handlePaymentSubmit = (e) => {
+    e.preventDefault();
+    
+    if (!email || !fullName || !phone) {
+      alert("Please fill in all required fields");
+      return;
+    }
+    
+    setIsProcessing(true);
+    initializePayment(onSuccess, onClose);
+  };
+
   if (!property) {
     return (
       <Container className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
-        <Spinner animation="border" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </Spinner>
+        <div className="text-center">
+          <Spinner 
+            animation="border" 
+            role="status" 
+            style={{ color: theme.colors.primary, width: "3rem", height: "3rem" }}
+          >
+            <span className="visually-hidden">Loading...</span>
+          </Spinner>
+          <p className="mt-3" style={{ color: theme.colors.gray }}>Loading property details...</p>
+        </div>
       </Container>
     );
   }
 
   return (
-    <div className="bg-light min-vh-100" style={{ marginTop: "150px" }}>
+    <div className="bg-light min-vh-100" style={{ 
+      marginTop: "",
+      background: "linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%)",
+      position: "relative",
+      overflow: "hidden"
+    }}>
+      {/* Decorative elements */}
+      <div 
+        className="position-absolute" 
+        style={{ 
+          width: "400px", 
+          height: "400px", 
+          background: "radial-gradient(circle, rgba(64, 224, 208, 0.08) 0%, rgba(255,255,255,0) 70%)",
+          top: "5%",
+          left: "-200px",
+          borderRadius: "50%",
+          zIndex: 0
+        }}
+      />
+      
+      <div 
+        className="position-absolute" 
+        style={{ 
+          width: "450px", 
+          height: "450px", 
+          background: "radial-gradient(circle, rgba(64, 224, 208, 0.05) 0%, rgba(255,255,255,0) 70%)",
+          bottom: "10%",
+          right: "-200px",
+          borderRadius: "50%",
+          zIndex: 0
+        }}
+      />
+
+      {/* Back button */}
+      <Container className="py-3 position-relative">
+        <Link to="/" className="text-decoration-none">
+          <Button
+            variant="light"
+            className="rounded-pill mb-4 d-flex align-items-center"
+            style={{ 
+              boxShadow: theme.boxShadow.sm,
+              border: "none",
+              padding: "0.6rem 1.2rem",
+              transition: theme.transition
+            }}
+          >
+            <FaArrowLeft className="me-2" style={{ color: theme.colors.primary }} />
+            <span style={{ color: theme.colors.dark }}>Back to Properties</span>
+          </Button>
+        </Link>
+      </Container>
+
       {/* Image Gallery */}
-      <div className="position-relative">
-        <Row className="g-2 mx-0">
-          <Col md={6}>
-            <div
-              className="position-relative"
-              style={{ cursor: "pointer" }}
-              onClick={() => setShowGalleryModal(true)}
-            >
-              <img
-                src={property.images[activeImage]}
-                alt="Main property view"
-                className="img-fluid w-100 h-100 object-fit-cover"
-                style={{ maxHeight: "600px", borderRadius: "16px" }}
-              />
-            </div>
-          </Col>
-          <Col md={6}>
-            <Row className="g-2">
-              {property.images.slice(1, 5).map((image, index) => (
-                <Col md={6} key={index}>
-                  <div
-                    className="position-relative"
-                    style={{ cursor: "pointer" }}
-                    onClick={() => setShowGalleryModal(true)}
+      <Container>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <Row className="g-3">
+            <Col md={6}>
+              <div
+                className="position-relative"
+                style={{ cursor: "pointer" }}
+                onClick={() => setShowGalleryModal(true)}
+              >
+                <img
+                  src={property.images[0]}
+                  alt="Main property view"
+                  className="img-fluid w-100 h-100 object-fit-cover shadow"
+                  style={{ 
+                    borderRadius: theme.borderRadius.md,
+                    maxHeight: "600px"
+                  }}
+                />
+                {property.host.superhost && (
+                  <Badge
+                    bg="primary"
+                    className="position-absolute"
+                    style={{
+                      top: "20px",
+                      left: "20px",
+                      zIndex: 1,
+                      backgroundColor: theme.colors.primaryDark,
+                      padding: "8px 12px",
+                      fontSize: "0.75rem",
+                      fontWeight: "600",
+                      letterSpacing: "0.5px",
+                    }}
                   >
-                    <img
-                      src={image}
-                      alt={`Property view ${index + 2}`}
-                      className="img-fluid w-100 h-100 object-fit-cover"
-                      style={{ maxHeight: "295px", borderRadius: "16px" }}
-                    />
-                  </div>
-                </Col>
-              ))}
-            </Row>
-          </Col>
-        </Row>
-      </div>
+                    PREMIUM
+                  </Badge>
+                )}
+              </div>
+            </Col>
+            <Col md={6}>
+              <Row className="g-3">
+                {property.images.slice(1, 5).map((image, index) => (
+                  <Col md={6} key={index}>
+                    <div
+                      className="position-relative"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => {
+                        setActiveImage(index + 1);
+                        setShowGalleryModal(true);
+                      }}
+                    >
+                      <img
+                        src={image}
+                        alt={`Property view ${index + 2}`}
+                        className="img-fluid w-100 h-100 object-fit-cover shadow"
+                        style={{ 
+                          borderRadius: theme.borderRadius.md,
+                          maxHeight: "295px",
+                          transition: theme.transition
+                        }}
+                      />
+                    </div>
+                  </Col>
+                ))}
+              </Row>
+            </Col>
+          </Row>
+        </motion.div>
+      </Container>
 
       {/* Gallery Modal */}
       <Modal
@@ -140,15 +438,29 @@ const PropertyDetailPage = () => {
         size="lg"
         centered
       >
+        <Modal.Header closeButton style={{ border: "none" }}>
+          <Modal.Title style={{ color: theme.colors.primaryDark }}>Property Gallery</Modal.Title>
+        </Modal.Header>
         <Modal.Body className="p-0">
-          <Carousel activeIndex={activeImage} onSelect={setActiveImage} interval={null}>
+          <Carousel 
+            activeIndex={activeImage} 
+            onSelect={setActiveImage} 
+            interval={null}
+            indicators={true}
+            prevIcon={<span aria-hidden="true" className="carousel-control-prev-icon" style={{ filter: "invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(103%) contrast(103%)" }} />}
+            nextIcon={<span aria-hidden="true" className="carousel-control-next-icon" style={{ filter: "invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(103%) contrast(103%)" }} />}
+          >
             {property.images.map((image, index) => (
               <Carousel.Item key={index}>
                 <img
                   src={image}
                   alt={`Property view ${index + 1}`}
                   className="d-block w-100"
-                  style={{ maxHeight: "80vh", objectFit: "cover", borderRadius: "16px" }}
+                  style={{ 
+                    maxHeight: "80vh", 
+                    objectFit: "contain",
+                    borderRadius: theme.borderRadius.md 
+                  }}
                 />
               </Carousel.Item>
             ))}
@@ -156,158 +468,602 @@ const PropertyDetailPage = () => {
         </Modal.Body>
       </Modal>
 
-      <Container className="py-5">
+      {/* Payment Details Modal */}
+      <Modal
+        show={showPaymentModal}
+        onHide={() => !isProcessing && setShowPaymentModal(false)}
+        centered
+        backdrop="static"
+      >
+        <Modal.Header closeButton={!isProcessing} style={{ border: "none" }}>
+          <Modal.Title style={{ color: theme.colors.primaryDark }}>Complete Your Reservation</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={handlePaymentSubmit}>
+            <div className="mb-4 p-3 rounded" style={{ backgroundColor: theme.colors.primaryLight }}>
+              <h5 className="mb-3 fw-bold">Reservation Summary</h5>
+              <div className="d-flex justify-content-between mb-2">
+                <span>Property:</span>
+                <span className="fw-bold">{property.title}</span>
+              </div>
+              <div className="d-flex justify-content-between mb-2">
+                <span>Type:</span>
+                <span className="fw-bold">
+                  {apartmentType === "3br" ? "3 Bedroom" : 
+                   apartmentType === "4br" ? "4 Bedroom" : 
+                   apartmentType === "5br" ? "5 Bedroom" : 
+                   apartmentType === "5br-party" ? "5 Bedroom (Party)" : ""}
+                </span>
+              </div>
+              {startDate && (
+                <div className="d-flex justify-content-between mb-2">
+                  <span>Check-in:</span>
+                  <span className="fw-bold">{startDate.toLocaleDateString()}</span>
+                </div>
+              )}
+              {endDate && (
+                <div className="d-flex justify-content-between mb-2">
+                  <span>Check-out:</span>
+                  <span className="fw-bold">{endDate.toLocaleDateString()}</span>
+                </div>
+              )}
+              <div className="d-flex justify-content-between mt-3">
+                <span className="fw-bold">Total Amount:</span>
+                <span className="fw-bold">₦{amount.toLocaleString()}</span>
+              </div>
+              {apartmentType === "5br-party" && (
+                <div className="d-flex justify-content-between mt-2">
+                  <span className="fw-bold text-danger">Caution Fee:</span>
+                  <span className="fw-bold text-danger">₦100,000 (To be paid at arrival)</span>
+                </div>
+              )}
+            </div>
+
+            <h5 className="mb-3 fw-bold" style={{ color: theme.colors.primaryDark }}>Contact Information</h5>
+            <Form.Group className="mb-3">
+              <Form.Label>Full Name</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter your full name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+                disabled={isProcessing}
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Email Address</Form.Label>
+              <Form.Control
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={isProcessing}
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-4">
+              <Form.Label>Phone Number</Form.Label>
+              <Form.Control
+                type="tel"
+                placeholder="Enter your phone number"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                required
+                disabled={isProcessing}
+              />
+            </Form.Group>
+
+            <Button
+              variant="primary"
+              type="submit"
+              className="w-100 mb-3 p-3 fw-bold"
+              disabled={isProcessing}
+              style={{
+                backgroundColor: theme.colors.primary,
+                borderColor: theme.colors.primary,
+                borderRadius: theme.borderRadius.sm,
+                transition: theme.transition
+              }}
+            >
+              {isProcessing ? (
+                <>
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                    className="me-2"
+                  />
+                  Processing...
+                </>
+              ) : (
+                `Pay ₦${amount.toLocaleString()} Now`
+              )}
+            </Button>
+            <p className="text-center text-muted small mb-0">Secure payment powered by Paystack</p>
+          </Form>
+        </Modal.Body>
+      </Modal>
+
+      <Container className="py-5 position-relative">
         <Row>
           <Col lg={8}>
             {/* Property Header */}
-            <div className="d-flex justify-content-between align-items-start mb-4">
-              <div>
-                <h1 className="mb-2 fw-bold">{property.title}</h1>
-                <p className="text-muted">
-                  <FaMapMarkerAlt className="me-2" />
-                  {property.location}
-                </p>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+            >
+              <div className="d-flex justify-content-between align-items-start mb-4">
+                <div>
+                  <div 
+                    className="d-inline-block px-3 py-2 rounded-pill mb-3" 
+                    style={{ background: "rgba(64, 224, 208, 0.1)", color: "#40E0D0" }}
+                  >
+                    <span className="fw-semibold" style={{ fontSize: "0.85rem", letterSpacing: "0.05em" }}>
+                      {property.type.toUpperCase()}
+                    </span>
+                  </div>
+                  <h1 className="mb-2 fw-bold" style={{ color: theme.colors.dark }}>{property.title}</h1>
+                  <p className="text-muted d-flex align-items-center">
+                    <FaMapMarkerAlt className="me-2" style={{ color: theme.colors.primary }}/>
+                    {property.location}
+                  </p>
+                </div>
+                <Button
+                  variant={isFavorite ? "danger" : "outline-danger"}
+                  className="rounded-circle p-2"
+                  style={{ 
+                    backgroundColor: isFavorite ? theme.colors.primary : "white",
+                    borderColor: theme.colors.primary,
+                    width: "50px",
+                    height: "50px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    boxShadow: theme.boxShadow.sm,
+                    border: "none"
+                  }}
+                  onClick={() => setIsFavorite(!isFavorite)}
+                >
+                  <FaHeart 
+                    size={24} 
+                    color={isFavorite ? "white" : theme.colors.primary} 
+                  />
+                </Button>
               </div>
-              <Button
-                variant={isFavorite ? "danger" : "outline-danger"}
-                className="rounded-circle p-2"
-                onClick={() => setIsFavorite(!isFavorite)}
-              >
-                <FaHeart size={20} />
-              </Button>
-            </div>
+            </motion.div>
 
             {/* Key Features */}
-            <div className="d-flex gap-4 mb-4 text-muted">
-              <div>
-                <FaBed className="me-2" />
-                {property.bedrooms} Bedrooms
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.2 }}
+            >
+              <div 
+                className="d-flex flex-wrap gap-4 mb-4 p-3 rounded"
+                style={{ backgroundColor: theme.colors.primaryLight }}
+              >
+                <div className="d-flex align-items-center">
+                  <FaBed className="me-2" style={{ color: theme.colors.primary }} size={20} />
+                  <span>{property.bedrooms} Bedrooms</span>
+                </div>
+                <div className="d-flex align-items-center">
+                  <FaRegCalendarAlt className="me-2" style={{ color: theme.colors.primary }} size={18} />
+                  <span>{property.availability}</span>
+                </div>
+                <div className="d-flex align-items-center">
+                  <FaPhone className="me-2" style={{ color: theme.colors.primary }} size={18} />
+                  <span>{property.contactPhone}</span>
+                </div>
               </div>
-              <div>
-                <FaBath className="me-2" />
-                {property.bathrooms} Bathrooms
-              </div>
-              <div>{property.size}</div>
-            </div>
+            </motion.div>
 
             {/* Description */}
-            <Card className="border-0 shadow-sm mb-4">
-              <Card.Body>
-                <h4 className="mb-3 fw-bold">About this place</h4>
-                <p className="text-muted">{property.description}</p>
-              </Card.Body>
-            </Card>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.3 }}
+            >
+              <Card className="border-0 shadow-sm mb-4" style={{ borderRadius: theme.borderRadius.md }}>
+                <div className="position-absolute" style={{ 
+                  top: 0, 
+                  left: 0, 
+                  right: 0, 
+                  height: "6px", 
+                  background: "linear-gradient(90deg, #40E0D0, #20B2AA)",
+                  borderRadius: `${theme.borderRadius.md} ${theme.borderRadius.md} 0 0`
+                }} />
+                <Card.Body className="p-4">
+                  <h4 className="mb-3 fw-bold" style={{ color: theme.colors.primaryDark }}>About this place</h4>
+                  <p className="text-muted" style={{ lineHeight: "1.7", fontSize: "1rem" }}>{property.description}</p>
+                </Card.Body>
+              </Card>
+            </motion.div>
 
-            {/* Amenities */}
-            <Card className="border-0 shadow-sm mb-4">
-              <Card.Body>
-                <h4 className="mb-3 fw-bold">What this place offers</h4>
-                <Row className="g-4">
-                  {property.amenities.map((amenity, index) => (
-                    <Col md={6} key={index}>
-                      <div className="d-flex align-items-center text-muted">
-                        <span className="me-3">{amenity.icon}</span>
-                        {amenity.name}
+            {/* Pricing Options */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.35 }}
+            >
+              <Card className="border-0 shadow-sm mb-4" style={{ borderRadius: theme.borderRadius.md }}>
+                <div className="position-absolute" style={{ 
+                  top: 0, 
+                  left: 0, 
+                  right: 0, 
+                  height: "6px", 
+                  background: "linear-gradient(90deg, #40E0D0, #20B2AA)",
+                  borderRadius: `${theme.borderRadius.md} ${theme.borderRadius.md} 0 0`
+                }} />
+                <Card.Body className="p-4">
+                  <h4 className="mb-3 fw-bold" style={{ color: theme.colors.primaryDark }}>Pricing Options</h4>
+                  <Row className="g-3">
+                    <Col md={6}>
+                      <div className="p-3 rounded h-100" style={{ backgroundColor: theme.colors.primaryLight }}>
+                        <h5 className="fw-bold mb-3">Accommodation</h5>
+                        <ul className="list-unstyled mb-0">
+                          <li className="mb-2 d-flex justify-content-between">
+                            <span>5 Bedrooms:</span> 
+                            <span className="fw-bold">₦350,000</span>
+                          </li>
+                          <li className="mb-2 d-flex justify-content-between">
+                            <span>4 Bedrooms:</span> 
+                            <span className="fw-bold">₦300,000</span>
+                          </li>
+                          <li className="d-flex justify-content-between">
+                            <span>3 Bedrooms:</span> 
+                            <span className="fw-bold">₦250,000</span>
+                          </li>
+                        </ul>
                       </div>
                     </Col>
-                  ))}
-                </Row>
-              </Card.Body>
-            </Card>
+                    <Col md={6}>
+                      <div className="p-3 rounded h-100" style={{ backgroundColor: theme.colors.grayLight }}>
+                        <h5 className="fw-bold mb-3">Get Together/Party</h5>
+                        <ul className="list-unstyled mb-0">
+                          <li className="mb-2 d-flex justify-content-between">
+                            <span>5 Bedrooms:</span> 
+                            <span className="fw-bold">₦500,000 - ₦550,000</span>
+                          </li>
+                          <li className="mb-2">
+                            <span className="fw-bold text-danger">Note:</span> Maximum 30 guests allowed
+                          </li>
+                          <li>
+                            <span className="fw-bold">Caution Fee:</span> ₦100,000 (Refundable)
+                          </li>
+                        </ul>
+                      </div>
+                    </Col>
+                  </Row>
+                </Card.Body>
+              </Card>
+            </motion.div>
+
+            {/* Amenities */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.4 }}
+            >
+              <Card className="border-0 shadow-sm mb-4" style={{ borderRadius: theme.borderRadius.md }}>
+                <div className="position-absolute" style={{ 
+                  top: 0, 
+                  left: 0, 
+                  right: 0, 
+                  height: "6px", 
+                  background: "linear-gradient(90deg, #40E0D0, #20B2AA)",
+                  borderRadius: `${theme.borderRadius.md} ${theme.borderRadius.md} 0 0`
+                }} />
+                <Card.Body className="p-4">
+                  <h4 className="mb-3 fw-bold" style={{ color: theme.colors.primaryDark }}>What this place offers</h4>
+                  <Row className="g-4">
+                    {property.amenities.map((amenity, index) => (
+                      <Col md={6} key={index}>
+                        <div 
+                          className="d-flex align-items-center p-3 rounded"
+                          style={{ 
+                            backgroundColor: index % 2 === 0 ? theme.colors.primaryLight : theme.colors.grayLight,
+                            transition: theme.transition
+                          }}
+                        >
+                          <span className="me-3" style={{ color: theme.colors.primary }}>{amenity.icon}</span>
+                          {amenity.name}
+                        </div>
+                      </Col>
+                    ))}
+                  </Row>
+                </Card.Body>
+              </Card>
+            </motion.div>
+
+            {/* House Rules */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.5 }}
+            >
+              <Card className="border-0 shadow-sm mb-4" style={{ borderRadius: theme.borderRadius.md }}>
+              <div className="position-absolute" style={{ 
+                  top: 0, 
+                  left: 0, 
+                  right: 0, 
+                  height: "6px", 
+                  background: "linear-gradient(90deg, #40E0D0, #20B2AA)",
+                  borderRadius: `${theme.borderRadius.md} ${theme.borderRadius.md} 0 0`
+                }} />
+                <Card.Body className="p-4">
+                  <h4 className="mb-3 fw-bold" style={{ color: theme.colors.primaryDark }}>House Rules</h4>
+                  <ul className="mb-0 ps-3">
+                    {property.rules.map((rule, index) => (
+                      <li key={index} className="mb-2 text-muted">{rule}</li>
+                    ))}
+                  </ul>
+                </Card.Body>
+              </Card>
+            </motion.div>
 
             {/* Reviews */}
-            <Card className="border-0 shadow-sm mb-4">
-              <Card.Body>
-                <div className="d-flex align-items-center mb-4">
-                  <FaStar className="text-warning me-2" size={24} />
-                  <h4 className="mb-0 fw-bold">{property.rating} · {property.reviews} reviews</h4>
-                </div>
-                {property.reviews_list.map((review, index) => (
-                  <div key={index} className="mb-4">
-                    <div className="d-flex align-items-center mb-2">
-                      <FaUserCircle size={40} className="me-3 text-muted" />
-                      <div>
-                        <h6 className="mb-0 fw-bold">{review.user}</h6>
-                        <small className="text-muted">{review.date}</small>
-                      </div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.6 }}
+            >
+              <Card className="border-0 shadow-sm mb-4" style={{ borderRadius: theme.borderRadius.md }}>
+                <div className="position-absolute" style={{ 
+                  top: 0, 
+                  left: 0, 
+                  right: 0, 
+                  height: "6px", 
+                  background: "linear-gradient(90deg, #40E0D0, #20B2AA)",
+                  borderRadius: `${theme.borderRadius.md} ${theme.borderRadius.md} 0 0`
+                }} />
+                <Card.Body className="p-4">
+                  <div className="d-flex justify-content-between align-items-center mb-4">
+                    <h4 className="mb-0 fw-bold" style={{ color: theme.colors.primaryDark }}>
+                      Guest Reviews
+                    </h4>
+                    <div className="d-flex align-items-center">
+                      <FaStar className="me-2" style={{ color: theme.colors.warning }} />
+                      <span className="fw-bold">{property.rating}</span>
+                      <span className="text-muted ms-1">({property.reviews} reviews)</span>
                     </div>
-                    <p className="mb-0 text-muted">{review.comment}</p>
                   </div>
-                ))}
-              </Card.Body>
-            </Card>
+                  
+                  {property.reviews_list.map((review, index) => (
+                    <div 
+                      key={index} 
+                      className={`${index < property.reviews_list.length - 1 ? 'mb-4 pb-4 border-bottom' : ''}`}
+                    >
+                      <div className="d-flex justify-content-between mb-2">
+                        <div className="d-flex align-items-center">
+                          <FaUserCircle size={28} className="me-2" style={{ color: theme.colors.primaryDark }} />
+                          <div>
+                            <p className="fw-bold mb-0">{review.user}</p>
+                            <p className="text-muted small mb-0">{review.date}</p>
+                          </div>
+                        </div>
+                        <div className="d-flex align-items-center">
+                          <FaStar className="me-1" style={{ color: theme.colors.warning }} />
+                          <span>{review.rating}</span>
+                        </div>
+                      </div>
+                      <p className="text-muted mb-0">{review.comment}</p>
+                    </div>
+                  ))}
+                  
+                  <Button 
+                    variant="outline-primary" 
+                    className="mt-3"
+                    style={{ 
+                      borderColor: theme.colors.primary,
+                      color: theme.colors.primary,
+                      borderRadius: theme.borderRadius.sm,
+                    }}
+                  >
+                    View All Reviews
+                  </Button>
+                </Card.Body>
+              </Card>
+            </motion.div>
+
+            {/* Host */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.7 }}
+            >
+              <Card className="border-0 shadow-sm mb-4" style={{ borderRadius: theme.borderRadius.md }}>
+                <div className="position-absolute" style={{ 
+                  top: 0, 
+                  left: 0, 
+                  right: 0, 
+                  height: "6px", 
+                  background: "linear-gradient(90deg, #40E0D0, #20B2AA)",
+                  borderRadius: `${theme.borderRadius.md} ${theme.borderRadius.md} 0 0`
+                }} />
+                <Card.Body className="p-4">
+                  <h4 className="mb-3 fw-bold" style={{ color: theme.colors.primaryDark }}>Your Host</h4>
+                  <div className="d-flex align-items-center">
+                    <div 
+                      className="rounded-circle me-3 d-flex justify-content-center align-items-center"
+                      style={{ 
+                        backgroundColor: theme.colors.primaryLight,
+                        width: "60px",
+                        height: "60px",
+                        color: theme.colors.primary
+                      }}
+                    >
+                      <FaUserCircle size={30} />
+                    </div>
+                    <div>
+                      <h5 className="mb-1 fw-bold">{property.host.name}</h5>
+                      <div className="d-flex align-items-center">
+                        <FaStar className="me-1" style={{ color: theme.colors.warning }} />
+                        <span className="fw-bold">{property.host.rating}</span>
+                        <span className="text-muted ms-1">({property.host.reviews} reviews)</span>
+                      </div>
+                      <p className="text-muted mb-0 small">Response rate: {property.host.response_rate}%</p>
+                    </div>
+                  </div>
+                </Card.Body>
+              </Card>
+            </motion.div>
           </Col>
 
           <Col lg={4}>
             {/* Booking Card */}
-            <Card className="border-0 shadow-sm sticky-top" style={{ top: "10rem" }}>
-              <Card.Body>
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                  <div>
-                    <span className="h3 fw-bold">${property.price}</span>
-                    <span className="text-muted">/night</span>
-                  </div>
-                  <div>
-                    <FaStar className="text-warning me-1" />
-                    <span>{property.rating}</span>
-                    <span className="text-muted">({property.reviews})</span>
-                  </div>
-                </div>
-
-                {/* Date Picker */}
-                <div className="mb-4">
-                  <label className="form-label fw-bold">Check-in</label>
-                  <DatePicker
-                    selected={startDate}
-                    onChange={(date) => setStartDate(date)}
-                    selectsStart
-                    startDate={startDate}
-                    endDate={endDate}
-                    placeholderText="Select check-in date"
-                    className="form-control"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="form-label fw-bold">Check-out</label>
-                  <DatePicker
-                    selected={endDate}
-                    onChange={(date) => setEndDate(date)}
-                    selectsEnd
-                    startDate={startDate}
-                    endDate={endDate}
-                    minDate={startDate}
-                    placeholderText="Select check-out date"
-                    className="form-control"
-                  />
-                </div>
-
-                <Button
-                  variant="primary"
-                  className="w-100 mb-3 fw-bold"
-                  style={{
-                    backgroundColor: "#0044cc",
-                    borderColor: "#0044cc",
-                  }}
-                >
-                  Reserve now
-                </Button>
-
-                {/* Host Information */}
-                <div className="border-top pt-4 mt-4">
-                  <div className="d-flex align-items-center mb-3">
-                    <FaUserCircle size={48} className="me-3 text-muted" />
-                    <div>
-                      <h5 className="mb-0 fw-bold">Hosted by {property.host.name}</h5>
-                      {property.host.superhost && <Badge bg="dark">Superhost</Badge>}
+            <div style={{ position: "sticky", top: "20px" }}>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.2 }}
+              >
+                <Card className="shadow border-0 mb-4" style={{ borderRadius: theme.borderRadius.md }}>
+                  <Card.Body className="p-4">
+                    <h4 className="fw-bold mb-4" style={{ color: theme.colors.primaryDark }}>Make a Reservation</h4>
+                    
+                    {/* Apartment Type */}
+                    <Form.Group className="mb-4">
+                      <Form.Label className="fw-semibold">Select Apartment Type</Form.Label>
+                      <Form.Select 
+                        value={apartmentType}
+                        onChange={(e) => setApartmentType(e.target.value)}
+                        style={{ padding: "0.75rem", borderRadius: theme.borderRadius.sm }}
+                      >
+                        <option value="">Choose an option</option>
+                        <option value="3br">3 Bedroom</option>
+                        <option value="4br">4 Bedroom</option>
+                        <option value="5br">5 Bedroom</option>
+                        <option value="5br-party">5 Bedroom (Party)</option>
+                      </Form.Select>
+                    </Form.Group>
+                    
+                    {/* Date Selection */}
+                    <Form.Group className="mb-4">
+                      <Form.Label className="fw-semibold">Check-in</Form.Label>
+                      <DatePicker
+                        selected={startDate}
+                        onChange={(date) => setStartDate(date)}
+                        selectsStart
+                        startDate={startDate}
+                        endDate={endDate}
+                        minDate={new Date()}
+                        className="form-control"
+                        placeholderText="Select check-in date"
+                        style={{ padding: "0.75rem", borderRadius: theme.borderRadius.sm }}
+                      />
+                    </Form.Group>
+                    
+                    <Form.Group className="mb-4">
+                      <Form.Label className="fw-semibold">Check-out</Form.Label>
+                      <DatePicker
+                        selected={endDate}
+                        onChange={(date) => setEndDate(date)}
+                        selectsEnd
+                        startDate={startDate}
+                        endDate={endDate}
+                        minDate={startDate || new Date()}
+                        className="form-control"
+                        placeholderText="Select check-out date"
+                        style={{ padding: "0.75rem", borderRadius: theme.borderRadius.sm }}
+                      />
+                    </Form.Group>
+                    
+                    {/* Pricing */}
+                    <div className="mb-4 p-3 rounded" style={{ backgroundColor: theme.colors.primaryLight }}>
+                      <h5 className="fw-bold mb-3">Price Breakdown</h5>
+                      
+                      {amount > 0 ? (
+                        <>
+                          <div className="d-flex justify-content-between mb-2">
+                            <span>
+                              {apartmentType === "3br" ? "3 Bedroom" : 
+                              apartmentType === "4br" ? "4 Bedroom" : 
+                              apartmentType === "5br" ? "5 Bedroom" : 
+                              apartmentType === "5br-party" ? "5 Bedroom (Party)" : ""}
+                            </span>
+                            <span className="fw-bold">₦{amount.toLocaleString()}</span>
+                          </div>
+                          
+                          {apartmentType !== "5br-party" && (
+                            <div className="d-flex justify-content-between text-muted small mb-2">
+                              <span>
+                                {getDays()} {getDays() === 1 ? 'day' : 'days'}
+                                {startDate && endDate && ` (${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()})`}
+                              </span>
+                            </div>
+                          )}
+                          
+                          <hr className="my-3" />
+                          
+                          <div className="d-flex justify-content-between fw-bold">
+                            <span>Total</span>
+                            <span style={{ color: theme.colors.primaryDark }}>₦{amount.toLocaleString()}</span>
+                          </div>
+                          
+                          {apartmentType === "5br-party" && (
+                            <div className="d-flex justify-content-between mt-2 text-danger">
+                              <span className="fw-bold">Caution Fee</span>
+                              <span className="fw-bold">₦100,000</span>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <p className="text-muted mb-0">Select apartment type and dates to see pricing</p>
+                      )}
                     </div>
-                  </div>
-                  <div className="text-muted mb-2">
-                    <div>Response rate: {property.host.response_rate}%</div>
-                    <div>Response time: {property.host.response_time}</div>
-                  </div>
-                </div>
-              </Card.Body>
-            </Card>
+                    
+                    <Button
+                      variant="primary"
+                      className="w-100 py-3 fw-bold"
+                      onClick={handleReserveNow}
+                      disabled={!apartmentType || !startDate || !endDate}
+                      style={{
+                        backgroundColor: theme.colors.primary,
+                        borderColor: theme.colors.primary,
+                        borderRadius: theme.borderRadius.sm,
+                        transition: theme.transition
+                      }}
+                    >
+                      Reserve Now
+                    </Button>
+                  </Card.Body>
+                </Card>
+              </motion.div>
+
+              {/* Contact Card */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.3 }}
+              >
+                <Card className="border-0 shadow-sm" style={{ borderRadius: theme.borderRadius.md }}>
+                  <Card.Body className="p-4">
+                    <h5 className="mb-3 fw-bold">Have questions?</h5>
+                    <p className="text-muted mb-3">Contact us directly for quick assistance</p>
+                    <Button
+                      variant="outline-primary"
+                      className="w-100 d-flex align-items-center justify-content-center py-2"
+                      href={`tel:${property.contactPhone.replace(/\s/g, '')}`}
+                      style={{
+                        borderColor: theme.colors.primary,
+                        color: theme.colors.primary,
+                        borderRadius: theme.borderRadius.sm,
+                        transition: theme.transition
+                      }}
+                    >
+                      <FaPhone className="me-2" />
+                      Call {property.contactPhone}
+                    </Button>
+                  </Card.Body>
+                </Card>
+              </motion.div>
+            </div>
           </Col>
         </Row>
       </Container>
