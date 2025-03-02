@@ -18,7 +18,7 @@ import PrivateRoute from "./components/privateRoute"; // Default import
 import "./styling/styles.css";
 
 const Home = lazy(() => import("./pages/home"));
-const PropertyPage = lazy(() => import("./pages/newProperties"));
+const PropertyPage = lazy(() => import("./pages/property"));
 const PropertyDetailPage = lazy(() => import("./pages/propertydetail"));
 const LocationPage = lazy(() => import("./pages/location"));
 const ContactPage = lazy(() => import("./pages/contact"));
