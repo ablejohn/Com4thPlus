@@ -310,7 +310,7 @@ const AdminPropertyPage = () => {
                 >
                   <option value="Available Now">Available Now</option>
                   <option value="Coming Soon">Coming Soon</option>
-                  <option value="Sold Out">Sold Out</option>
+                  <option value="Not Available">Not Available</option>
                 </Form.Select>
               </Form.Group>
               <Form.Group className="mb-3">

@@ -20,7 +20,7 @@ const PropertyListingPage = () => {
         return "success";
       case "Coming Soon":
         return "danger";
-      case "Sold Out":
+      case "Not Available":
         return "warning";
       default:
         return "primary";
