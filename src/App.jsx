@@ -1,3 +1,4 @@
+// App.jsx
 import React, { lazy, Suspense } from "react";
 import {
   BrowserRouter as Router,
@@ -14,17 +15,16 @@ import Navigation from "./components/navigation";
 import Footer from "./components/footer";
 import AutoScrollToTop from "./components/autoscrolltoTop";
 import ScrollToTopButton from "./components/scrolltoTop";
-import PrivateRoute from "./components/privateRoute"; // Default import
+
+import { PropertyProvider } from "./services/propertyContext"; // Import PropertyProvider
 import "./styling/styles.css";
 
 const Home = lazy(() => import("./pages/home"));
-const PropertyPage = lazy(() => import("./pages/property"));
+const PropertyPage = lazy(() => import("./pages/newProperties"));
 const PropertyDetailPage = lazy(() => import("./pages/propertydetail"));
 const LocationPage = lazy(() => import("./pages/location"));
 const ContactPage = lazy(() => import("./pages/contact"));
-const AdminPropertyForm = lazy(() => import("./services/property"));
-const ViewAllProperties = lazy(() => import("./services/viewallproperties"));
-const AdminLogin = lazy(() => import("./components/adminlogin"));
+const AdminPropertyForm = lazy(() => import("./services/property")); // This is AdminPropertyPage
 
 const App = () => {
   const location = useLocation();
@@ -34,7 +34,9 @@ const App = () => {
     location.pathname === "/viewallproperties";
 
   return (
-    <>
+    <PropertyProvider>
+      {" "}
+      {/* Wrap everything in PropertyProvider */}
       <ToastContainer position="top-right" autoClose={3000} />
       <AutoScrollToTop />
       {!isAdminRoute && <Navigation />}
@@ -58,25 +60,7 @@ const App = () => {
             <Route path="/propertydetail" element={<PropertyDetailPage />} />
             <Route path="/location" element={<LocationPage />} />
             <Route path="/contact" element={<ContactPage />} />
-            <Route path="/admin/login" element={<AdminLogin />} />
-
-            {/* Protected Admin Routes */}
-            <Route
-              path="/admin/add-property"
-              element={
-                <PrivateRoute>
-                  <AdminPropertyForm />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/viewallproperties"
-              element={
-                <PrivateRoute>
-                  <ViewAllProperties />
-                </PrivateRoute>
-              }
-            />
+            <Route path="/admin/add-property" element={<AdminPropertyForm />} />
 
             {/* Catch-all Route */}
             <Route path="*" element={<Navigate to="/" />} />
@@ -91,7 +75,7 @@ const App = () => {
           padding-bottom: 2rem;
         }
       `}</style>
-    </>
+    </PropertyProvider>
   );
 };
 

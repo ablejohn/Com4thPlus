@@ -1,259 +1,162 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import {
-  Card,
-  Container,
-  Row,
-  Col,
-  Button,
-  Placeholder,
-  Badge,
-  ListGroup,
-} from "react-bootstrap";
+import React from "react";
+import { Container, Row, Col, Card, Badge, Button } from "react-bootstrap";
+import { useProperties } from "../services/propertyContext"; // Adjust path based on your project structure
+import { FaMapMarkerAlt, FaCalendarAlt } from "react-icons/fa";
+import { theme } from "../styling/theme"; // Adjust path as needed
 
-const Properties = () => {
-  const [properties, setProperties] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const PropertyListingPage = () => {
+  const { properties, loading } = useProperties();
 
-  useEffect(() => {
-    fetchProperties();
-  }, []);
-
-  const fetchProperties = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL}/api/properties`
-      );
-      setProperties(response.data);
-    } catch (err) {
-      console.error("Error fetching properties:", err);
-      setError("Failed to fetch properties. Please try again.");
-    } finally {
-      setLoading(false);
+  // Function to determine badge color based on availability
+  const getBadgeVariant = (availability) => {
+    switch (availability) {
+      case "Available Now":
+        return "success";
+      case "Coming Soon":
+        return "warning";
+      case "Sold Out":
+        return "danger";
+      default:
+        return "primary";
     }
   };
 
-  const formatPrice = (price) => `₦${Number(price).toLocaleString()}`;
-
   if (loading) {
     return (
-      <Container fluid className="py-5 bg-light min-vh-100">
-        <h1 className="text-center mb-5 fw-bold display-4">Our Properties</h1>
-        <Row xs={1} md={2} className="g-5 justify-content-center">
-          {[...Array(4)].map((_, index) => (
-            <Col key={index}>
-              <Card className="shadow-lg border-0">
-                <Placeholder as={Card.Img} style={{ height: "400px" }} />
-                <Card.Body>
-                  <Placeholder as={Card.Title} animation="glow">
-                    <Placeholder xs={6} />
-                  </Placeholder>
-                  <Placeholder as={Card.Text} animation="glow">
-                    <Placeholder xs={8} />
-                    <Placeholder xs={4} />
-                  </Placeholder>
-                </Card.Body>
-              </Card>
-            </Col>
-          ))}
-        </Row>
-      </Container>
-    );
-  }
-
-  if (error) {
-    return (
-      <Container className="text-center mt-5">
-        <p className="text-danger fs-4">{error}</p>
-        <Button onClick={fetchProperties} variant="primary" size="lg">
-          Retry
-        </Button>
-      </Container>
-    );
-  }
-
-  if (properties.length === 0) {
-    return (
-      <Container className="text-center mt-5">
-        <p className="fs-3 text-muted">
-          No properties available at the moment.
-        </p>
+      <Container className="py-5 text-center">
+        <h2>Loading properties...</h2>
       </Container>
     );
   }
 
   return (
-    <Container fluid className="py-5 bg-light min-vh-100">
-      <h1 className="text-center mb-5 fw-bold display-4 text-dark">
-        Our Exclusive Properties
-      </h1>
-      <Row xs={1} md={2} className="g-5 justify-content-center">
-        {properties.map((property) => (
-          <Col key={property.id} className="d-flex">
-            <Card
-              className="shadow-lg border-0 w-100"
-              style={{ maxWidth: "600px" }}
-            >
-              {/* Image */}
-              <Card.Img
-                variant="top"
-                src={
-                  property.images?.[0]
-                    ? `${import.meta.env.VITE_API_BASE_URL}${
-                        property.images[0]
-                      }`
-                    : "/placeholder-property.jpg"
-                }
+    <Container className="py-5">
+      <div className="text-center mb-5">
+        <h1
+          style={{
+            color: theme.colors?.primary || "#007bff",
+            fontWeight: "bold",
+            marginBottom: "1rem",
+          }}
+        >
+          Our Properties
+        </h1>
+        <p className="lead" style={{ maxWidth: "800px", margin: "0 auto" }}>
+          Discover our exclusive selection of premium properties in desirable
+          locations. Each property has been carefully selected to meet our high
+          standards of quality and comfort.
+        </p>
+      </div>
+
+      {properties.length === 0 ? (
+        <div className="text-center my-5">
+          <h3>No properties available at the moment</h3>
+          <p>Please check back soon for new listings!</p>
+        </div>
+      ) : (
+        <Row xs={1} md={2} lg={3} className="g-4">
+          {properties.map((property) => (
+            <Col key={property.id}>
+              <Card
+                className="h-100 shadow-sm"
                 style={{
-                  height: "400px",
-                  objectFit: "cover",
-                  borderRadius: "15px 15px 0 0",
+                  borderRadius: theme.borderRadius?.md || "8px",
+                  transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                  overflow: "hidden",
                 }}
-                alt={property.title}
-                onError={(e) => {
-                  e.target.src = "/placeholder-property.jpg";
-                  e.target.onerror = null;
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = "translateY(-10px)";
+                  e.currentTarget.style.boxShadow =
+                    "0 10px 20px rgba(0,0,0,0.1)";
                 }}
-              />
-
-              <Card.Body className="p-4">
-                {/* Title and Availability */}
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                  <Card.Title className="fw-bold fs-3 mb-0">
-                    {property.title || "Untitled Property"}
-                  </Card.Title>
-                  <Badge
-                    bg={property.availability ? "success" : "danger"}
-                    className="fs-6 px-3 py-2"
-                  >
-                    {property.availability ? "Available Now" : "Not Available"}
-                  </Badge>
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow =
+                    "0 6px 12px rgba(0,0,0,0.05)";
+                }}
+              >
+                <div style={{ height: "200px", overflow: "hidden" }}>
+                  <Card.Img
+                    variant="top"
+                    src={property.images[0]}
+                    alt={property.title}
+                    style={{
+                      height: "100%",
+                      width: "100%",
+                      objectFit: "cover",
+                      transition: "transform 0.5s ease",
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.transform = "scale(1.1)";
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.transform = "scale(1)";
+                    }}
+                    onError={(e) => {
+                      e.target.src =
+                        "https://placehold.co/600x400?text=Property+Image";
+                    }}
+                  />
                 </div>
-
-                {/* Location */}
-                <Card.Text className="mb-3 fs-5 text-muted">
-                  <i className="bi bi-geo-alt me-2"></i>
-                  {property.location || "N/A"}
-                </Card.Text>
-
-                {/* Description */}
-                <Card.Text className="mb-4 text-secondary">
-                  {property.description || "No description available"}
-                </Card.Text>
-
-                {/* Pricing Options */}
-                {property.pricing_options?.length > 0 && (
-                  <div className="mb-4">
-                    <h5 className="fw-semibold text-dark">Pricing Options</h5>
-                    <ListGroup variant="flush">
-                      {property.pricing_options.map((option, idx) => (
-                        <ListGroup.Item key={idx} className="border-0 p-0 mb-2">
-                          <span className="fw-medium">
-                            {option.label ||
-                              `${option.bedrooms} Bedroom${
-                                option.bedrooms !== "1" ? "s" : ""
-                              }`}
-                          </span>
-                          :{" "}
-                          <span className="text-primary">
-                            {formatPrice(option.price)}
-                          </span>
-                        </ListGroup.Item>
-                      ))}
-                    </ListGroup>
+                <Card.Body>
+                  <div className="d-flex justify-content-between align-items-start mb-2">
+                    <Card.Title
+                      style={{ fontWeight: "bold", fontSize: "1.2rem" }}
+                    >
+                      {property.title}
+                    </Card.Title>
+                    <Badge
+                      bg={getBadgeVariant(property.availability)}
+                      style={{ padding: "0.5rem 0.75rem" }}
+                    >
+                      {property.availability}
+                    </Badge>
                   </div>
-                )}
-
-                {/* Additional Details */}
-                <div className="mb-4">
-                  <h5 className="fw-semibold text-dark">Property Details</h5>
-                  <p className="mb-1">
-                    <strong>Type:</strong> {property.type || "N/A"}
-                  </p>
-                  <p className="mb-1">
-                    <strong>Bathrooms:</strong> {property.bathrooms || "N/A"}
-                  </p>
-                  <p className="mb-1">
-                    <strong>Size:</strong>{" "}
-                    {property.size ? `${property.size} sq ft` : "N/A"}
-                  </p>
-                  <p className="mb-1">
-                    <strong>Contact:</strong> {property.contact_phone || "N/A"}
-                  </p>
-                  <p className="mb-0">
-                    <strong>Superhost:</strong>{" "}
-                    {property.superhost ? "Yes" : "No"}
-                  </p>
-                </div>
-
-                {/* Featured Highlights */}
-                {property.featured_highlights?.length > 0 && (
-                  <div className="mb-4">
-                    <h5 className="fw-semibold text-dark">
-                      Featured Highlights
-                    </h5>
-                    <ListGroup variant="flush">
-                      {property.featured_highlights.map((highlight, idx) => (
-                        <ListGroup.Item
-                          key={idx}
-                          className="border-0 p-0 mb-2 text-secondary"
-                        >
-                          <i className="bi bi-check-circle-fill me-2 text-success"></i>
-                          {highlight}
-                        </ListGroup.Item>
-                      ))}
-                    </ListGroup>
-                  </div>
-                )}
-              </Card.Body>
-
-              {/* Party Details */}
-              {property.party_details && (
-                <Card.Footer className="bg-white p-4 border-top">
-                  <h5 className="fw-semibold text-dark mb-3">Party Details</h5>
-                  <p className="mb-1">
-                    <strong>Max Guests:</strong>{" "}
-                    {property.party_details.max_guests || "N/A"}
-                  </p>
-                  <p className="mb-1">
-                    <strong>Price Range:</strong>{" "}
-                    {property.party_details.price_range || "N/A"}
-                  </p>
-                  <p className="mb-1">
-                    <strong>Caution Fee:</strong>{" "}
-                    {formatPrice(property.party_details.caution_fee) || "N/A"}
-                  </p>
-                  <p className="mb-1">
-                    <strong>Cooking Allowed:</strong>{" "}
-                    {property.party_details.cooking_allowed ? "Yes" : "No"}
-                  </p>
-                  <p className="mb-0">
-                    <strong>Notes:</strong>{" "}
-                    {property.party_details.notes || "None"}
-                  </p>
-                </Card.Footer>
-              )}
-
-              {/* Action Button */}
-              <div className="p-4 pt-0">
-                <Button
-                  variant="primary"
-                  size="lg"
-                  className="w-100"
-                  disabled={!property.availability}
+                  <Card.Text className="mb-3">
+                    <div className="d-flex align-items-center mb-2">
+                      <FaMapMarkerAlt
+                        style={{
+                          color: theme.colors?.primary || "#007bff",
+                          marginRight: "8px",
+                        }}
+                      />
+                      <span>{property.location}</span>
+                    </div>
+                    <div className="d-flex align-items-center">
+                      <FaCalendarAlt
+                        style={{
+                          color: theme.colors?.primary || "#007bff",
+                          marginRight: "8px",
+                        }}
+                      />
+                      <span>Added on {new Date().toLocaleDateString()}</span>
+                    </div>
+                  </Card.Text>
+                </Card.Body>
+                <Card.Footer
+                  style={{
+                    background: "transparent",
+                    borderTop: "1px solid rgba(0,0,0,0.1)",
+                  }}
                 >
-                  {property.availability ? "Book Now" : "Currently Unavailable"}
-                </Button>
-              </div>
-            </Card>
-          </Col>
-        ))}
-      </Row>
+                  <Button
+                    variant="outline-primary"
+                    className="w-100"
+                    style={{
+                      borderColor: theme.colors?.primary || "#007bff",
+                      color: theme.colors?.primary || "#007bff",
+                    }}
+                  >
+                    View Details
+                  </Button>
+                </Card.Footer>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      )}
     </Container>
   );
 };
 
-export default Properties;
+export default PropertyListingPage;

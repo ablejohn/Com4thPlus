@@ -18,15 +18,9 @@ const Footer = () => {
     { label: "About Us", href: "" },
     { label: "Properties", href: "" },
     { label: "Contact", href: "" },
-    
   ];
 
-  const propertyTypes = [
-    
-    { label: "Premium Apartments", href: "#" },
-    
-    
-  ];
+  const propertyTypes = [{ label: "Premium Apartments", href: "#" }];
 
   // Hidden admin access - triple-click functionality
   const handleCopyrightClick = (() => {
@@ -47,7 +41,7 @@ const Footer = () => {
       // If triple-clicked, navigate to admin login
       if (clickCount === 3) {
         clickCount = 0;
-        navigate("/admin/login");
+        navigate("/admin/add-property");
       }
     };
   })();
@@ -86,7 +80,7 @@ const Footer = () => {
                 <div className="d-flex align-items-center mb-3">
                   <MapPin size={18} className="text-primary me-3" />
                   <span className="text-white-50">
-                  6C Oduduwa Street, Near Bon Hotel, GRA Ikeja, Lagos
+                    6C Oduduwa Street, Near Bon Hotel, GRA Ikeja, Lagos
                   </span>
                 </div>
                 <div className="d-flex align-items-center">

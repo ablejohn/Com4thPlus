@@ -1,16 +1,20 @@
+// vite.config.js
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-export default {
+export default defineConfig({
   plugins: [react()],
-  css: {
-    preprocessorOptions: {
-      scss: {
-        additionalData: `@import "~bootstrap/scss/bootstrap";`,
+  server: {
+    proxy: {
+      "/v0/b/propertyapp-d6591.firebasestorage.app": {
+        target: "https://firebasestorage.googleapis.com",
+        changeOrigin: true,
+        rewrite: (path) =>
+          path.replace(
+            /^\/v0\/b\/propertyapp-d6591\.firebasestorage\.app/,
+            "/v0/b/propertyapp-d6591.firebasestorage.app"
+          ),
       },
     },
   },
-  optimizeDeps: {
-    include: ["react-datepicker"],
-  },
-};
+});
