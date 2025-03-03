@@ -9,16 +9,10 @@ import {
   FaWifi,
   FaCar,
   FaSwimmingPool,
-  FaDumbbell,
-  FaImages,
   FaRegCalendarAlt,
-  FaStopwatch,
-  FaUsers,
   FaPhone,
-  FaMoneyBillWave,
-  FaUtensils,
-  FaHome,
 } from "react-icons/fa";
+import { motion } from "framer-motion";
 import {
   Container,
   Row,
@@ -26,20 +20,16 @@ import {
   Button,
   Badge,
   Placeholder,
-  Modal,
-  Carousel,
   Card,
-  Tab,
-  Nav,
 } from "react-bootstrap";
 
-// Theme configuration
+// Theme configuration with testimonial-inspired colors
 const theme = {
   colors: {
-    primary: "#0044cc",
-    primaryDark: "#003399",
-    primaryLight: "#e6eeff",
-    accent: "#FF385C",
+    primary: "#40E0D0",
+    primaryDark: "#20B2AA",
+    primaryLight: "rgba(64, 224, 208, 0.1)",
+    accent: "#40E0D0",
     dark: "#333333",
     light: "#f8f9fa",
     white: "#ffffff",
@@ -59,7 +49,7 @@ const theme = {
     md: "0 8px 24px rgba(0, 0, 0, 0.08)",
     lg: "0 16px 32px rgba(0, 0, 0, 0.1)",
   },
-  transition: "all 0.3s ease",
+  transition: "all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)",
   spacing: {
     xs: "0.5rem",
     sm: "1rem",
@@ -70,69 +60,31 @@ const theme = {
 };
 
 const PropertiesPage = () => {
-  // Enhanced property data
-  const property = {
-    id: 1,
-    images: [
-      "appartment1.jpg",
-      "appartment5.jpeg",
-      "appartment6.jpeg",
-      "appartment7.jpeg",
-      "appartment8.jpg",
-    ],
-    title: "COM4TH PLUS LIMITED Apartment",
-    description:
-      "Experience modern living in this stylish apartment located at 6c Oduduwa Street, Near bon hotel/ insight communications opposite police special unit, GRA IKEJA. Perfect for both short and long stays, with flexible options for regular stays or social gatherings.",
-    location: "6c Oduduwa Street, GRA IKEJA",
-    contactPhone: "0814 318 3494",
-    pricingOptions: [
-      { bedrooms: 5, price: 350000, label: "5 Bedrooms" },
-      { bedrooms: 4, price: 300000, label: "4 Bedrooms" },
-      { bedrooms: 3, price: 250000, label: "3 Bedrooms" },
-    ],
-    defaultBedrooms: 5,
-    bathrooms: 4,
-    rating: 4.8,
-    reviews: 124,
-    type: "Apartment",
-    amenities: [
-      "Free Parking",
-      "Fitness Center",
-      "Swimming Pool",
-      "High-Speed WiFi",
-      "Air Conditioning",
-      "24/7 Security",
-      "Smart Home Features",
-      "Elevator Access",
-    ],
-    superhost: true,
-    size: "1,200 sq ft",
-    availability: "Available Now",
-    featuredHighlights: [
-      "Spacious living areas with modern furnishings",
-      "Fully equipped kitchen with premium appliances",
-      "24/7 security service with CCTV monitoring",
-      "Exclusive rooftop terrace with panoramic views",
-      "Central location with easy access to major attractions",
-    ],
-    partyDetails: {
-      maxGuests: 30,
-      priceRange: "500k to 550k",
-      cautionFee: 100000,
-      cookingAllowed: false,
-      notes: "All rooms included. Strictly enforced guest limit.",
+  // Enhanced property data - now with two properties
+  const properties = [
+    {
+      id: 1,
+      images: ["appartment1.jpg"],
+      title: "COM4TH PLUS LIMITED Apartment",
+      description:
+        "Experience modern living in this stylish apartment located at 6c Oduduwa Street, GRA IKEJA. Perfect for both short and long stays.",
+      location: "6c Oduduwa Street, GRA IKEJA",
+      contactPhone: "0814 318 3494",
+      price: 350000,
+      bedrooms: 5,
+      bathrooms: 4,
+      rating: 4.8,
+      reviews: 124,
+      type: "Apartment",
+      amenities: ["Free Parking", "Fitness Center", "Swimming Pool", "High-Speed WiFi"],
+      superhost: true,
+      availability: "Available Now",
     },
-  };
+  ];
 
   // States
   const [isLoading, setIsLoading] = useState(true);
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [showGallery, setShowGallery] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [selectedBedrooms, setSelectedBedrooms] = useState(
-    property.defaultBedrooms
-  );
-  const [activeTab, setActiveTab] = useState("details");
+  const [favorites, setFavorites] = useState({});
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -141,31 +93,20 @@ const PropertiesPage = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Get current price based on selected bedrooms
-  const getCurrentPrice = () => {
-    const option = property.pricingOptions.find(
-      (opt) => opt.bedrooms === selectedBedrooms
-    );
-    return option ? option.price : property.pricingOptions[0].price;
-  };
-
-  const toggleFavorite = (event) => {
+  const toggleFavorite = (event, propertyId) => {
     event.preventDefault();
     event.stopPropagation();
-    setIsFavorite(!isFavorite);
-  };
-
-  const openGallery = (event, index = 0) => {
-    event.preventDefault();
-    setActiveIndex(index);
-    setShowGallery(true);
+    setFavorites((prev) => ({
+      ...prev,
+      [propertyId]: !prev[propertyId],
+    }));
   };
 
   const PropertyCard = ({ property, isLoading }) => {
     if (isLoading) {
       return (
         <Card
-          className="property-card border-0 h-100"
+          className="property-card border-0 h-100 mb-4"
           style={{
             boxShadow: theme.boxShadow.md,
             borderRadius: theme.borderRadius.md,
@@ -175,7 +116,7 @@ const PropertiesPage = () => {
             <Placeholder
               xs={12}
               style={{
-                height: "400px",
+                height: "250px",
                 borderRadius: `${theme.borderRadius.md} ${theme.borderRadius.md} 0 0`,
               }}
             />
@@ -192,11 +133,10 @@ const PropertiesPage = () => {
               animation="glow"
               className="d-flex gap-2 mb-3"
             >
-              <Placeholder xs={2} /> <Placeholder xs={2} />{" "}
-              <Placeholder xs={2} />
+              <Placeholder xs={2} /> <Placeholder xs={2} />
             </Placeholder>
             <Placeholder as="p" animation="glow">
-              <Placeholder xs={12} /> <Placeholder xs={10} />
+              <Placeholder xs={12} />
             </Placeholder>
           </Card.Body>
         </Card>
@@ -204,581 +144,311 @@ const PropertiesPage = () => {
     }
 
     return (
-      <Card
-        className="property-card border-0 h-100"
-        style={{
-          transition: theme.transition,
-          borderRadius: theme.borderRadius.md,
-          boxShadow: theme.boxShadow.md,
-        }}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
       >
-        <div className="position-relative">
-          {property.superhost && (
-            <Badge
-              bg="primary"
-              className="position-absolute"
+        <Card
+          className="property-card border-0 h-100 mb-4 position-relative overflow-hidden"
+          style={{
+            transition: theme.transition,
+            borderRadius: theme.borderRadius.md,
+            boxShadow: theme.boxShadow.md,
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "translateY(-10px)";
+            e.currentTarget.style.boxShadow = "0 15px 30px rgba(64, 224, 208, 0.15)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "translateY(0)";
+            e.currentTarget.style.boxShadow = theme.boxShadow.md;
+          }}
+        >
+          {/* Decorative accent - inspired by testimonial cards */}
+          <div 
+            className="position-absolute" 
+            style={{ 
+              top: 0, 
+              left: 0, 
+              right: 0, 
+              height: "6px", 
+              background: "linear-gradient(90deg, #40E0D0, #20B2AA)" 
+            }} 
+          />
+          
+          <div className="position-relative">
+            {property.superhost && (
+              <Badge
+                bg="primary"
+                className="position-absolute"
+                style={{
+                  top: "20px",
+                  left: "20px",
+                  zIndex: 1,
+                  backgroundColor: theme.colors.primaryDark,
+                  padding: "8px 12px",
+                  fontSize: "0.75rem",
+                  fontWeight: "600",
+                  letterSpacing: "0.5px",
+                }}
+              >
+                SUPERHOST
+              </Badge>
+            )}
+            <Button
+              variant="light"
+              className="position-absolute rounded-circle p-2"
               style={{
                 top: "20px",
-                left: "20px",
+                right: "20px",
                 zIndex: 1,
-                backgroundColor: theme.colors.primary,
-                padding: "8px 12px",
-                fontSize: "0.75rem",
-                fontWeight: "600",
-                letterSpacing: "0.5px",
+                width: "40px",
+                height: "40px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: theme.boxShadow.sm,
               }}
+              onClick={(e) => toggleFavorite(e, property.id)}
+              aria-label={
+                favorites[property.id] ? "Remove from favorites" : "Add to favorites"
+              }
             >
-              SUPERHOST
-            </Badge>
-          )}
-          <Button
-            variant="light"
-            className="position-absolute rounded-circle p-2"
-            style={{
-              top: "20px",
-              right: "20px",
-              zIndex: 1,
-              width: "40px",
-              height: "40px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              boxShadow: theme.boxShadow.sm,
-            }}
-            onClick={toggleFavorite}
-            aria-label={
-              isFavorite ? "Remove from favorites" : "Add to favorites"
-            }
-          >
-            <FaHeart
-              size={20}
-              color={isFavorite ? theme.colors.accent : theme.colors.gray}
-            />
-          </Button>
-          <Button
-            variant="primary"
-            className="position-absolute rounded-pill px-3 py-2"
-            style={{
-              bottom: "20px",
-              right: "20px",
-              zIndex: 1,
-              backgroundColor: theme.colors.primary,
-              borderColor: theme.colors.primary,
-              boxShadow: theme.boxShadow.sm,
-            }}
-            onClick={(e) => openGallery(e)}
-          >
-            <FaImages className="me-2" />
-            <span className="d-none d-sm-inline">View All Photos</span>
-          </Button>
-          <div
-            className="image-container"
-            style={{ cursor: "pointer" }}
-            onClick={(e) => openGallery(e)}
-            role="button"
-            aria-label="Open photo gallery"
-          >
-            <img
-              src={property.images[0]}
-              alt={property.title}
-              className="card-img-top"
-              style={{
-                height: "400px",
-                objectFit: "cover",
-                borderRadius: `${theme.borderRadius.md} ${theme.borderRadius.md} 0 0`,
-              }}
-            />
-            <div className="image-overlay"></div>
-          </div>
-        </div>
-        <Card.Body className="p-4">
-          <div className="d-flex flex-wrap justify-content-between align-items-start mb-3">
-            <h2 className="card-title mb-2 mb-md-0 fw-bold h3">
-              {property.title}
-            </h2>
-            <div className="d-flex align-items-center">
-              <FaStar className="text-warning me-1" />
-              <span className="fw-bold">{property.rating}</span>
-              <span className="text-muted ms-1">
-                ({property.reviews} reviews)
-              </span>
+              <FaHeart
+                size={20}
+                color={favorites[property.id] ? theme.colors.accent : theme.colors.gray}
+              />
+            </Button>
+            <div
+              className="image-container"
+              style={{ cursor: "pointer" }}
+              role="button"
+              aria-label="Property image"
+            >
+              <img
+                src={property.images[0]}
+                alt={property.title}
+                className="card-img-top"
+                style={{
+                  height: "250px",
+                  objectFit: "cover",
+                  borderRadius: `${theme.borderRadius.md} ${theme.borderRadius.md} 0 0`,
+                }}
+              />
             </div>
           </div>
+          <Card.Body className="p-4">
+            <div className="d-flex flex-wrap justify-content-between align-items-start mb-3">
+              <h2 className="card-title mb-2 mb-md-0 fw-bold h5">
+                {property.title}
+              </h2>
+              <div className="d-flex align-items-center">
+                <FaStar style={{ color: theme.colors.primary }} className="me-1" />
+                <span className="fw-bold">{property.rating}</span>
+                <span className="text-muted ms-1">
+                  ({property.reviews})
+                </span>
+              </div>
+            </div>
 
-          <div className="d-flex flex-wrap align-items-center mb-3">
-            <p
-              className="card-text me-4 mb-2 mb-md-0"
-              style={{ color: theme.colors.primary }}
-            >
-              <FaMapMarkerAlt className="me-2" />
-              {property.location}
+            <div className="d-flex flex-wrap align-items-center mb-3">
+              <p
+                className="card-text me-4 mb-2 mb-md-0"
+                style={{ color: theme.colors.primaryDark }}
+              >
+                <FaMapMarkerAlt className="me-2" />
+                {property.location}
+              </p>
+            </div>
+
+            <p className="text-muted mb-3" style={{ lineHeight: "1.7", fontSize: "1rem", color: "#495057" }}>
+              {property.description}
             </p>
-            <p
-              className="card-text mb-2 mb-md-0"
-              style={{ color: theme.colors.dark }}
+
+            <div
+              className="d-flex flex-wrap text-muted mb-3 p-3 rounded"
+              style={{ backgroundColor: theme.colors.primaryLight }}
             >
-              <FaPhone
-                className="me-2"
-                style={{ color: theme.colors.accent }}
-              />
-              {property.contactPhone}
-            </p>
-          </div>
-
-          {/* Tab Navigation - FIXED IMPLEMENTATION */}
-          <Tab.Container 
-            id="property-tabs" 
-            activeKey={activeTab} 
-            onSelect={(k) => setActiveTab(k)}
-          >
-            <Nav variant="tabs" className="mb-4 flex-nowrap custom-tabs">
-              <Nav.Item>
-                <Nav.Link
-                  eventKey="details"
-                  className={`px-3 py-2 ${activeTab === "details" ? "active-tab" : ""}`}
-                >
-                  Property Details
-                </Nav.Link>
-              </Nav.Item>
-              <Nav.Item>
-                <Nav.Link
-                  eventKey="party"
-                  className={`px-3 py-2 ${activeTab === "party" ? "active-tab" : ""}`}
-                >
-                  Party/Get-Together
-                </Nav.Link>
-              </Nav.Item>
-              <Nav.Item>
-                <Nav.Link
-                  eventKey="amenities"
-                  className={`px-3 py-2 ${activeTab === "amenities" ? "active-tab" : ""}`}
-                >
-                  Amenities
-                </Nav.Link>
-              </Nav.Item>
-            </Nav>
-
-            <Tab.Content className="mb-4">
-              {/* Property Details Tab */}
-              <Tab.Pane eventKey="details">
-                <p className="mb-4 text-muted">{property.description}</p>
-
-                <div className="status-badge d-flex flex-wrap gap-2 mb-4">
-                  <span
-                    className="badge rounded-pill px-3 py-2"
-                    style={{
-                      backgroundColor: theme.colors.primaryLight,
-                      color: theme.colors.primary,
-                    }}
-                  >
-                    <FaRegCalendarAlt className="me-2" />
-                    {property.availability}
-                  </span>
-                  <span
-                    className="badge rounded-pill px-3 py-2"
-                    style={{
-                      backgroundColor: theme.colors.grayLight,
-                      color: theme.colors.dark,
-                    }}
-                  >
-                    <FaHome className="me-2" />
-                    {property.type}
-                  </span>
-                </div>
-
-                <div
-                  className="d-flex flex-wrap text-muted mb-4 p-3 rounded"
-                  style={{ backgroundColor: theme.colors.light }}
-                >
-                  <div className="me-4 mb-2 mb-md-0 d-flex align-items-center">
-                    <FaBed
-                      className="me-2"
-                      style={{ color: theme.colors.primary }}
-                      size={20}
-                    />
-                    <span>{selectedBedrooms} Bedrooms</span>
-                  </div>
-                  <div className="me-4 mb-2 mb-md-0 d-flex align-items-center">
-                    <FaBath
-                      className="me-2"
-                      style={{ color: theme.colors.primary }}
-                      size={18}
-                    />
-                    <span>{property.bathrooms} Bathrooms</span>
-                  </div>
-                  <div className="d-flex align-items-center">
-                    <FaStopwatch
-                      className="me-2"
-                      style={{ color: theme.colors.primary }}
-                      size={18}
-                    />
-                    <span>{property.size}</span>
-                  </div>
-                </div>
-
-                <div className="mb-4">
-                  <h5 className="mb-3 fw-bold">Select Bedroom Option:</h5>
-                  <div className="d-flex flex-wrap gap-2">
-                    {property.pricingOptions.map((option) => (
-                      <Badge
-                        key={option.bedrooms}
-                        bg={selectedBedrooms === option.bedrooms ? "primary" : "light"}
-                        text={selectedBedrooms === option.bedrooms ? "white" : "dark"}
-                        className="py-2 px-3 pricing-option"
-                        onClick={() => setSelectedBedrooms(option.bedrooms)}
-                        style={{
-                          borderRadius: "20px",
-                          backgroundColor: selectedBedrooms === option.bedrooms
-                            ? theme.colors.primary
-                            : theme.colors.grayLight,
-                          cursor: "pointer",
-                          transition: theme.transition,
-                        }}
-                      >
-                        {option.label}: ₦{option.price.toLocaleString()}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-
-                <div
-                  className="featured-section p-4 mb-4 rounded"
-                  style={{ backgroundColor: theme.colors.primaryLight }}
-                >
-                  <h5
-                    className="mb-3 fw-bold"
-                    style={{ color: theme.colors.primaryDark }}
-                  >
-                    Featured Highlights
-                  </h5>
-                  <ul className="mb-0 feature-list">
-                    {property.featuredHighlights.map((highlight, index) => (
-                      <li key={index} className="mb-2">
-                        {highlight}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </Tab.Pane>
-
-              {/* Party/Get-Together Tab */}
-              <Tab.Pane eventKey="party">
-                <div
-                  className="party-details p-4 mb-4 rounded"
-                  style={{ backgroundColor: theme.colors.primaryLight }}
-                >
-                  <h5
-                    className="mb-3 fw-bold"
-                    style={{ color: theme.colors.primaryDark }}
-                  >
-                    Party/Get-Together Details
-                  </h5>
-                  <ul className="mb-0 feature-list">
-                    <li className="mb-3 d-flex align-items-start">
-                      <FaUsers
-                        className="me-3 mt-1"
-                        style={{ color: theme.colors.primary }}
-                      />
-                      <div>
-                        <strong>Maximum Guests:</strong>
-                        <p className="mb-0">
-                          Strictly limited to {property.partyDetails.maxGuests}{" "}
-                          people
-                        </p>
-                      </div>
-                    </li>
-                    <li className="mb-3 d-flex align-items-start">
-                      <FaMoneyBillWave
-                        className="me-3 mt-1"
-                        style={{ color: theme.colors.primary }}
-                      />
-                      <div>
-                        <strong>Pricing:</strong>
-                        <p className="mb-0">
-                          ₦{property.partyDetails.priceRange} for all rooms
-                        </p>
-                      </div>
-                    </li>
-                    <li className="mb-3 d-flex align-items-start">
-                      <FaMoneyBillWave
-                        className="me-3 mt-1"
-                        style={{ color: theme.colors.success }}
-                      />
-                      <div>
-                        <strong>Refundable Caution Fee:</strong>
-                        <p className="mb-0">
-                          ₦{property.partyDetails.cautionFee.toLocaleString()} for
-                          all categories
-                        </p>
-                      </div>
-                    </li>
-                    <li className="mb-3 d-flex align-items-start">
-                      <FaUtensils
-                        className="me-3 mt-1"
-                        style={{ color: theme.colors.accent }}
-                      />
-                      <div>
-                        <strong>Cooking Policy:</strong>
-                        <p
-                          className="mb-0"
-                          style={{
-                            color: property.partyDetails.cookingAllowed
-                              ? theme.colors.success
-                              : theme.colors.accent,
-                          }}
-                        >
-                          {property.partyDetails.cookingAllowed
-                            ? "Large cooking allowed"
-                            : "No large cooking is allowed for any get together or party"}
-                        </p>
-                      </div>
-                    </li>
-                  </ul>
-
-                  <div
-                    className="mt-4 p-3 rounded"
-                    style={{ backgroundColor: "rgba(255, 255, 255, 0.5)" }}
-                  >
-                    <p
-                      className="mb-0 text-center fw-bold"
-                      style={{ color: theme.colors.primaryDark }}
-                    >
-                      {property.partyDetails.notes}
-                    </p>
-                  </div>
-                </div>
-              </Tab.Pane>
-
-              {/* Amenities Tab */}
-              <Tab.Pane eventKey="amenities">
-                <h5 className="mb-3 fw-bold">Property Amenities</h5>
-                <Row className="row-cols-1 row-cols-md-2 g-4 mb-4">
-                  {property.amenities.map((amenity, index) => (
-                    <Col key={index}>
-                      <div
-                        className="d-flex align-items-center p-3 rounded"
-                        style={{ backgroundColor: theme.colors.grayLight }}
-                      >
-                        {amenity.includes("WiFi") && (
-                          <FaWifi
-                            className="me-3"
-                            style={{ color: theme.colors.primary }}
-                          />
-                        )}
-                        {amenity.includes("Parking") && (
-                          <FaCar
-                            className="me-3"
-                            style={{ color: theme.colors.primary }}
-                          />
-                        )}
-                        {amenity.includes("Pool") && (
-                          <FaSwimmingPool
-                            className="me-3"
-                            style={{ color: theme.colors.primary }}
-                          />
-                        )}
-                        {amenity.includes("Fitness") && (
-                          <FaDumbbell
-                            className="me-3"
-                            style={{ color: theme.colors.primary }}
-                          />
-                        )}
-                        <span>{amenity}</span>
-                      </div>
-                    </Col>
-                  ))}
-                </Row>
-              </Tab.Pane>
-            </Tab.Content>
-          </Tab.Container>
-
-          <div
-            className="price-section p-4 rounded"
-            style={{ backgroundColor: theme.colors.light }}
-          >
-            <div className="d-flex flex-wrap justify-content-between align-items-center">
-              <div className="mb-3 mb-md-0">
-                <span
-                  className="h3 fw-bold"
+              <div className="me-4 mb-2 mb-md-0 d-flex align-items-center">
+                <FaBed
+                  className="me-2"
                   style={{ color: theme.colors.primary }}
+                  size={18}
+                />
+                <span>{property.bedrooms} Bedrooms</span>
+              </div>
+              <div className="me-4 mb-2 mb-md-0 d-flex align-items-center">
+                <FaBath
+                  className="me-2"
+                  style={{ color: theme.colors.primary }}
+                  size={16}
+                />
+                <span>{property.bathrooms} Bathrooms</span>
+              </div>
+            </div>
+
+            <div className="mb-3">
+              <span
+                className="badge rounded-pill px-3 py-2 me-2"
+                style={{
+                  backgroundColor: theme.colors.primaryLight,
+                  color: theme.colors.primaryDark,
+                }}
+              >
+                <FaRegCalendarAlt className="me-2" />
+                {property.availability}
+              </span>
+              {property.amenities.slice(0, 2).map((amenity, index) => (
+                <span
+                  key={index}
+                  className="badge rounded-pill px-3 py-2 me-2 mb-2"
+                  style={{
+                    backgroundColor: theme.colors.grayLight,
+                    color: theme.colors.dark,
+                  }}
                 >
-                  ₦{getCurrentPrice().toLocaleString()}
+                  {amenity.includes("WiFi") && <FaWifi className="me-1" />}
+                  {amenity.includes("Parking") && <FaCar className="me-1" />}
+                  {amenity.includes("Pool") && <FaSwimmingPool className="me-1" />}
+                  {amenity}
+                </span>
+              ))}
+            </div>
+
+            <div
+              className="price-section p-3 rounded d-flex justify-content-between align-items-center"
+              style={{ backgroundColor: theme.colors.primaryLight }}
+            >
+              <div>
+                <span
+                  className="h4 fw-bold"
+                  style={{ color: theme.colors.primaryDark }}
+                >
+                  ₦{property.price.toLocaleString()}
                 </span>
                 <span className="text-muted">/month</span>
               </div>
-              <div className="d-flex flex-wrap gap-3">
-                <Button
-                  variant="outline-primary"
-                  as={Link}
-                  to="/propertydetail"
-                  style={{
-                    borderRadius: theme.borderRadius.sm,
-                    borderColor: theme.colors.primary,
-                    color: theme.colors.primary,
-                  }}
-                >
-                  View Details
-                </Button>
+              <div>
                 <Link
-                  to="/propertydetail"
+                  to={`/propertydetail`}
                   style={{
                     display: "inline-block",
-                    padding: "10px 20px",
+                    padding: "8px 16px",
                     color: "#fff",
                     textDecoration: "none",
                     backgroundColor: theme.colors.primary,
-                    borderColor: theme.colors.primary,
                     borderRadius: theme.borderRadius.sm,
-                    borderWidth: "1px",
-                    borderStyle: "solid",
                     textAlign: "center",
+                    transition: "all 0.3s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = theme.colors.primaryDark;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = theme.colors.primary;
                   }}
                 >
-                  Book Now
+                  View Details
                 </Link>
               </div>
             </div>
-          </div>
-        </Card.Body>
-      </Card>
+          </Card.Body>
+        </Card>
+      </motion.div>
     );
   };
 
   return (
     <div
-      className="min-vh-40 property-container"
+      className="property-container"
       style={{ backgroundColor: theme.colors.light }}
     >
-      {/* Header with clean background */}
+      {/* Header with gradients and decorative elements inspired by the testimonial section */}
       <div
         style={{
-          backgroundColor: theme.colors.light,
+          
           color: theme.colors.primaryDark,
-          marginTop: "-120px",
+          marginTop: "",
           marginBottom: "10px",
           position: "relative",
+          overflow: "hidden",
         }}
       >
-        <Container className="py-5">
-          <h1 className="display-4 fw-bold text-center mb-2">
-            Our Featured Property
-          </h1>
-          <p className="text-center mb-0 opacity-75">
-            Experience luxury and comfort in our exceptional property
-          </p>
+        {/* Decorative elements from testimonial section */}
+        <div 
+          className="position-absolute" 
+          style={{ 
+            width: "300px", 
+            height: "300px", 
+            background: "radial-gradient(circle, rgba(64, 224, 208, 0.08) 0%, rgba(255,255,255,0) 70%)",
+            top: "",
+            left: "-100px",
+            borderRadius: "50%",
+            zIndex: 0
+          }}
+        />
+        
+        <div 
+          className="position-absolute" 
+          style={{ 
+            width: "350px", 
+            height: "350px", 
+            background: "radial-gradient(circle, rgba(64, 224, 208, 0.05) 0%, rgba(255,255,255,0) 70%)",
+            bottom: "5%",
+            right: "-150px",
+            borderRadius: "50%",
+            zIndex: 0
+          }}
+        />
+        
+        <Container className="py-5 position-relative">
+          <div className="text-center">
+            <div 
+              className="d-inline-block px-3 py-2 rounded-pill mb-3" 
+              style={{ background: "rgba(64, 224, 208, 0.1)", color: "#40E0D0" }}
+            >
+              <span className="fw-semibold" style={{ fontSize: "0.85rem", letterSpacing: "0.05em" }}>
+                FEATURED PROPERTIES
+              </span>
+            </div>
+            <h1 className="display-5 fw-bold mb-3">
+              Our Exceptional Properties
+            </h1>
+            <div
+              className="d-flex justify-content-center align-items-center gap-2 mb-3"
+              aria-label="5 out of 5 star average rating"
+            >
+              {[1, 2, 3, 4, 5].map((star) => (
+                <FaStar
+                  key={star}
+                  size={24}
+                  color="#40E0D0"
+                />
+              ))}
+            </div>
+            <p className="text-muted" style={{ fontSize: "1.1rem", maxWidth: "80%", margin: "0 auto" }}>
+              Experience luxury and comfort in our carefully curated selection of premium accommodations
+            </p>
+          </div>
         </Container>
       </div>
 
-      <Container className="py-3 py-md-5">
-        {/* Property Card */}
-        <Row className="justify-content-center">
-          <Col xl={10} lg={12}>
-            <PropertyCard property={property} isLoading={isLoading} />
-          </Col>
+      <Container className="py-3 py-md-4">
+        {/* Property Cards */}
+        <Row>
+          {properties.map((property) => (
+            <Col lg={6} key={property.id}>
+              <PropertyCard property={property} isLoading={isLoading} />
+            </Col>
+          ))}
         </Row>
-      </Container>
-
-      {/* Photo Gallery Modal */}
-      <Modal
-        show={showGallery}
-        onHide={() => setShowGallery(false)}
-        centered
-        size="xl"
-        className="gallery-modal"
-      >
-        <Modal.Header
-          closeButton
-          style={{
-            backgroundColor: theme.colors.primary,
-            color: theme.colors.white,
-          }}
-        >
-          <Modal.Title>{property.title} - Photo Gallery</Modal.Title>
-        </Modal.Header>
-        <Modal.Body className="p-0">
-          <Carousel
-            activeIndex={activeIndex}
-            onSelect={(selectedIndex) => setActiveIndex(selectedIndex)}
-            interval={null}
-            indicators={true}
-            style={{ backgroundColor: theme.colors.dark }}
-          >
-            {property.images.map((image, index) => (
-              <Carousel.Item key={index}>
-                <div
-                  style={{
-                    height: "70vh",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backgroundColor: theme.colors.dark,
-                  }}
-                >
-                  <img
-                    src={image}
-                    alt={`${property.title} - Image ${index + 1}`}
-                    style={{
-                      maxHeight: "100%",
-                      maxWidth: "100%",
-                      objectFit: "contain",
-                    }}
-                  />
-                </div>
-              </Carousel.Item>
-            ))}
-          </Carousel>
-        </Modal.Body>
-        <Modal.Footer style={{ backgroundColor: theme.colors.primaryLight }}>
-          <div className="text-muted">
-            Image {activeIndex + 1} of {property.images.length}
-          </div>
-        </Modal.Footer>
-      </Modal>
-
-      {/* More Properties Coming Soon Section */}
-      <Container className="py-5">
-        <div
-          className="rounded-4 shadow p-4 p-md-5 text-center mb-5"
-          style={{ backgroundColor: theme.colors.white }}
-        >
-          <div className="mb-4">
-            <span
-              className="d-inline-block p-3 rounded-circle mb-3"
-              style={{ backgroundColor: theme.colors.primaryLight }}
-            >
-              <FaRegCalendarAlt
-                size={32}
-                style={{ color: theme.colors.primary }}
-              />
-            </span>
-          </div>
-          <h2 className="mb-3" style={{ color: theme.colors.primary }}>
-            More Properties Coming Soon!
-          </h2>
-          <p className="text-muted mb-4 mx-auto" style={{ maxWidth: "700px" }}>
-            We're expanding our portfolio with new exceptional properties. Sign
-            up for our newsletter to be the first to know when new listings
-            become available.
-          </p>
-          <Button
-            variant="primary"
-            href="#newsletter"
-            className="px-4 py-2"
-            style={{
-              backgroundColor: theme.colors.primary,
-              borderColor: theme.colors.primary,
-              borderRadius: theme.borderRadius.sm,
-            }}
-          >
-            Subscribe for Updates
-          </Button>
-        </div>
       </Container>
 
       {/* Custom CSS */}
       <style jsx>{`
         .property-container {
-          margin-top: 150px;
+          margin-top: ;
         }
 
         .property-card {
@@ -788,127 +458,19 @@ const PropertiesPage = () => {
           box-shadow: ${theme.boxShadow.md};
         }
 
-        .property-card:hover {
-          transform: translateY(-8px);
-          box-shadow: ${theme.boxShadow.lg};
-        }
-
-        .btn-primary:hover {
-          background-color: ${theme.colors.primaryDark} !important;
-          border-color: ${theme.colors.primaryDark} !important;
-        }
-
-        .form-control:focus,
-        .form-select:focus {
-          box-shadow: 0 0 0 2px rgba(0, 68, 204, 0.25);
-          border-color: ${theme.colors.primary};
-        }
-
-        .gallery-modal .carousel-control-prev,
-        .gallery-modal .carousel-control-next {
-          width: 10%;
-          background: rgba(0, 0, 0, 0.2);
-          height: 100px;
-          top: 50%;
-          transform: translateY(-50%);
-          border-radius: 8px;
-        }
-
-        .gallery-modal .carousel-indicators {
-          bottom: 20px;
-        }
-
-        .feature-list {
-          list-style-type: none;
-          padding-left: 0;
-        }
-
-        .feature-list li {
-          position: relative;
-          padding-left: 24px;
-        }
-
-        .feature-list li:before {
-          content: "✓";
-          position: absolute;
-          left: 0;
-          color: ${theme.colors.primary};
-          font-weight: bold;
-        }
-
         .image-container {
           position: relative;
         }
 
-        .image-overlay {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: linear-gradient(
-            0deg,
-            rgba(0, 0, 0, 0.3) 0%,
-            rgba(0, 0, 0, 0) 50%
-          );
-          border-radius: ${theme.borderRadius.md} ${theme.borderRadius.md} 0 0;
-        }
-
-        .pricing-option:hover {
-          transform: translateY(-2px);
-          box-shadow: ${theme.boxShadow.sm};
-        }
-
-        /* Custom tab styling - FIXED IMPLEMENTATION */
-        .nav-tabs {
-          border-bottom: 1px solid ${theme.colors.grayLight};
-        }
-        
-        /* Force dark color for tabs */
-        .custom-tabs .nav-link {
-          color: #333333 !important;
-          border: none;
-          position: relative;
-          transition: ${theme.transition};
-          font-weight: 400;
-        }
-        
-        .custom-tabs .nav-link.active-tab {
-          color: ${theme.colors.primary} !important;
-          font-weight: 600;
-          border-bottom: 2px solid ${theme.colors.primary};
-        }
-        
-        .custom-tabs .nav-link:hover {
-          background-color: ${theme.colors.grayLight};
-          border-color: transparent;
-        }
-
         @media (max-width: 768px) {
           .property-container {
-            margin-top: 120px;
-          }
-
-          .card-title {
-            font-size: 1.5rem;
-          }
-
-          .image-container img {
-            height: 300px !important;
+            margin-top: ;
           }
         }
 
         @media (max-width: 576px) {
           .image-container img {
-            height: 250px !important;
-          }
-
-          .price-section {
-            text-align: center;
-          }
-
-          .price-section .d-flex {
-            justify-content: center !important;
+            height: 200px !important;
           }
         }
       `}</style>
