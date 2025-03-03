@@ -31,6 +31,10 @@ const AdminPropertyPage = () => {
     availability: "Available Now",
     imageUrl: "",
     images: [""],
+    beds: "",
+    baths: "",
+    sqft: "",
+    priceNaira: "",
   };
 
   const [formData, setFormData] = useState({ ...initialFormData });
@@ -42,7 +46,15 @@ const AdminPropertyPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.title || !formData.location || !formData.imageUrl) {
+    if (
+      !formData.title ||
+      !formData.location ||
+      !formData.imageUrl ||
+      !formData.beds ||
+      !formData.baths ||
+      !formData.sqft ||
+      !formData.priceNaira
+    ) {
       setMessage({
         show: true,
         text: "All fields are required",
@@ -51,9 +63,8 @@ const AdminPropertyPage = () => {
       return;
     }
 
-    // Add URL validation
     try {
-      new URL(formData.imageUrl); // This will throw an error if not a valid URL
+      new URL(formData.imageUrl);
     } catch (error) {
       setMessage({
         show: true,
@@ -63,10 +74,28 @@ const AdminPropertyPage = () => {
       return;
     }
 
+    if (
+      isNaN(formData.beds) ||
+      isNaN(formData.baths) ||
+      isNaN(formData.sqft) ||
+      isNaN(formData.priceNaira)
+    ) {
+      setMessage({
+        show: true,
+        text: "Beds, baths, square footage, and price must be valid numbers",
+        type: "danger",
+      });
+      return;
+    }
+
     const propertyData = {
       ...formData,
       id: formMode === "add" ? Date.now().toString() : currentProperty.id,
-      images: [formData.imageUrl], // Use the URL directly
+      images: [formData.imageUrl],
+      beds: Number(formData.beds),
+      baths: Number(formData.baths),
+      sqft: Number(formData.sqft),
+      priceNaira: Number(formData.priceNaira),
     };
 
     const updatedProperties =
@@ -95,7 +124,7 @@ const AdminPropertyPage = () => {
     setCurrentProperty(property);
     setFormData({
       ...property,
-      imageUrl: property.images[0] || "", // Set imageUrl from the first image
+      imageUrl: property.images[0] || "",
     });
     setShowForm(true);
   };
@@ -162,7 +191,10 @@ const AdminPropertyPage = () => {
                     >
                       <div>
                         {property.title} - {property.location} (
-                        {property.availability})
+                        {property.availability}) - {property.beds ?? "N/A"}{" "}
+                        Beds, {property.baths ?? "N/A"} Baths,{" "}
+                        {(property.sqft ?? 0).toLocaleString()} sqft, ₦
+                        {(property.priceNaira ?? 0).toLocaleString()}
                       </div>
                       <div>
                         <Button
@@ -209,6 +241,62 @@ const AdminPropertyPage = () => {
                       value={formData.location}
                       onChange={handleInputChange}
                       required
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+              <Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Beds</Form.Label>
+                    <Form.Control
+                      type="number"
+                      name="beds"
+                      value={formData.beds}
+                      onChange={handleInputChange}
+                      required
+                      min="0"
+                    />
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Baths</Form.Label>
+                    <Form.Control
+                      type="number"
+                      name="baths"
+                      value={formData.baths}
+                      onChange={handleInputChange}
+                      required
+                      min="0"
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+              <Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Square Footage (sqft)</Form.Label>
+                    <Form.Control
+                      type="number"
+                      name="sqft"
+                      value={formData.sqft}
+                      onChange={handleInputChange}
+                      required
+                      min="0"
+                    />
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Price (₦)</Form.Label>
+                    <Form.Control
+                      type="number"
+                      name="priceNaira"
+                      value={formData.priceNaira}
+                      onChange={handleInputChange}
+                      required
+                      min="0"
                     />
                   </Form.Group>
                 </Col>
