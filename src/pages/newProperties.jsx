@@ -1,6 +1,7 @@
 import React from "react";
 import { Container, Row, Col, Card, Badge, Button } from "react-bootstrap";
 import { useProperties } from "../services/propertyContext";
+import { Link } from "react-router-dom";
 import {
   FaMapMarkerAlt,
   FaCalendarAlt,
@@ -256,27 +257,32 @@ const PropertyListingPage = () => {
                             ₦{(property.priceNaira ?? 0).toLocaleString()}
                           </p>
                         </div>
-                        <Button
-                          variant="outline-primary"
-                          style={{
-                            borderColor: "#40E0D0",
-                            color: "#40E0D0",
-                            borderRadius: "8px",
-                            transition: "all 0.3s ease",
-                            padding: "0.5rem 1.25rem",
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = "#40E0D0";
-                            e.currentTarget.style.color = "white";
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor =
-                              "transparent";
-                            e.currentTarget.style.color = "#40E0D0";
-                          }}
+                        <Link 
+                          to={`/propertydetail`}
+                          style={{ textDecoration: 'none' }}
                         >
-                          View Details
-                        </Button>
+                          <Button
+                            variant="outline-primary"
+                            style={{
+                              borderColor: "#40E0D0",
+                              color: "#40E0D0",
+                              borderRadius: "8px",
+                              transition: "all 0.3s ease",
+                              padding: "0.5rem 1.25rem",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = "#40E0D0";
+                              e.currentTarget.style.color = "white";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor =
+                                "transparent";
+                              e.currentTarget.style.color = "#40E0D0";
+                            }}
+                          >
+                            View Details
+                          </Button>
+                        </Link>
                       </div>
                     </div>
                   </Card>
@@ -287,26 +293,28 @@ const PropertyListingPage = () => {
         )}
 
         <div className="text-center mt-5">
-          <Button
-            variant="outline-primary"
-            className="px-4 py-2"
-            style={{
-              borderColor: "#40E0D0",
-              color: "#40E0D0",
-              borderRadius: "8px",
-              transition: "all 0.3s ease",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "#40E0D0";
-              e.currentTarget.style.color = "white";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "transparent";
-              e.currentTarget.style.color = "#40E0D0";
-            }}
-          >
-            View All Properties
-          </Button>
+          <Link to="/properties" style={{ textDecoration: 'none' }}>
+            <Button
+              variant="outline-primary"
+              className="px-4 py-2"
+              style={{
+                borderColor: "#40E0D0",
+                color: "#40E0D0",
+                borderRadius: "8px",
+                transition: "all 0.3s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "#40E0D0";
+                e.currentTarget.style.color = "white";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+                e.currentTarget.style.color = "#40E0D0";
+              }}
+            >
+              View All Properties
+            </Button>
+          </Link>
         </div>
       </Container>
 
