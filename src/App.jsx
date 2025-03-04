@@ -1,4 +1,3 @@
-// App.jsx
 import React, { lazy, Suspense } from "react";
 import {
   BrowserRouter as Router,
@@ -15,8 +14,7 @@ import Navigation from "./components/navigation";
 import Footer from "./components/footer";
 import AutoScrollToTop from "./components/autoscrolltoTop";
 import ScrollToTopButton from "./components/scrolltoTop";
-
-import { PropertyProvider } from "./services/propertyContext"; // Import PropertyProvider
+import { PropertyProvider } from "./services/propertyContext";
 import "./styling/styles.css";
 
 const Home = lazy(() => import("./pages/home"));
@@ -24,19 +22,14 @@ const PropertyPage = lazy(() => import("./pages/newProperties"));
 const PropertyDetailPage = lazy(() => import("./pages/propertydetail"));
 const LocationPage = lazy(() => import("./pages/location"));
 const ContactPage = lazy(() => import("./pages/contact"));
-const AdminPropertyForm = lazy(() => import("./services/property")); // This is AdminPropertyPage
+const AdminPropertyForm = lazy(() => import("./services/property"));
 
 const App = () => {
   const location = useLocation();
-
-  const isAdminRoute =
-    location.pathname.startsWith("/admin") ||
-    location.pathname === "/viewallproperties";
+  const isAdminRoute = location.pathname.startsWith("/admin");
 
   return (
     <PropertyProvider>
-      {" "}
-      {/* Wrap everything in PropertyProvider */}
       <ToastContainer position="top-right" autoClose={3000} />
       <AutoScrollToTop />
       {!isAdminRoute && <Navigation />}
@@ -54,15 +47,12 @@ const App = () => {
       >
         <div className="main-content">
           <Routes>
-            {/* Public Routes */}
             <Route path="/" element={<Home />} />
             <Route path="/properties" element={<PropertyPage />} />
-            <Route path="/propertydetail" element={<PropertyDetailPage />} />
+            <Route path="/property/:id" element={<PropertyDetailPage />} />
             <Route path="/location" element={<LocationPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/admin/add-property" element={<AdminPropertyForm />} />
-
-            {/* Catch-all Route */}
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>

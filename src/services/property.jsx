@@ -10,9 +10,9 @@ import {
   Modal,
   Alert,
 } from "react-bootstrap";
-import { FaPlus, FaEdit, FaTrash, FaSave } from "react-icons/fa";
-import { useProperties } from "./propertyContext"; // Adjust path
-import { api } from "../../api"; // Adjust path
+import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes } from "react-icons/fa";
+import { useProperties } from "../services/propertyContext";
+import { api } from "../../api";
 import { theme } from "../styling/theme";
 
 const AdminPropertyPage = () => {
@@ -29,12 +29,13 @@ const AdminPropertyPage = () => {
     title: "",
     location: "",
     availability: "Available Now",
-    imageUrl: "",
-    images: [""],
+    images: [""], // Changed to an array for multiple images
     beds: "",
     baths: "",
     sqft: "",
     priceNaira: "",
+    description: "", // Added for consistency with PropertyDetailPage
+    contactPhone: "",
   };
 
   const [formData, setFormData] = useState({ ...initialFormData });
@@ -44,12 +45,28 @@ const AdminPropertyPage = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleImageChange = (index, value) => {
+    const newImages = [...formData.images];
+    newImages[index] = value;
+    setFormData((prev) => ({ ...prev, images: newImages }));
+  };
+
+  const addImageField = () => {
+    setFormData((prev) => ({ ...prev, images: [...prev.images, ""] }));
+  };
+
+  const removeImageField = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index),
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (
       !formData.title ||
       !formData.location ||
-      !formData.imageUrl ||
       !formData.beds ||
       !formData.baths ||
       !formData.sqft ||
@@ -57,18 +74,27 @@ const AdminPropertyPage = () => {
     ) {
       setMessage({
         show: true,
-        text: "All fields are required",
+        text: "All fields except images are required",
         type: "danger",
       });
       return;
     }
 
-    try {
-      new URL(formData.imageUrl);
-    } catch (error) {
+    // Validate image URLs
+    const validImages = formData.images.filter((url) => {
+      if (!url) return false;
+      try {
+        new URL(url);
+        return true;
+      } catch {
+        return false;
+      }
+    });
+
+    if (validImages.length === 0) {
       setMessage({
         show: true,
-        text: "Please enter a valid image URL",
+        text: "Please provide at least one valid image URL",
         type: "danger",
       });
       return;
@@ -91,7 +117,7 @@ const AdminPropertyPage = () => {
     const propertyData = {
       ...formData,
       id: formMode === "add" ? Date.now().toString() : currentProperty.id,
-      images: [formData.imageUrl],
+      images: validImages,
       beds: Number(formData.beds),
       baths: Number(formData.baths),
       sqft: Number(formData.sqft),
@@ -124,7 +150,7 @@ const AdminPropertyPage = () => {
     setCurrentProperty(property);
     setFormData({
       ...property,
-      imageUrl: property.images[0] || "",
+      images: property.images.length > 0 ? [...property.images] : [""],
     });
     setShowForm(true);
   };
@@ -314,29 +340,54 @@ const AdminPropertyPage = () => {
                 </Form.Select>
               </Form.Group>
               <Form.Group className="mb-3">
-                <Form.Label>Property Image URL</Form.Label>
+                <Form.Label>Description</Form.Label>
                 <Form.Control
-                  type="url"
-                  name="imageUrl"
-                  placeholder="https://example.com/your-image.jpg"
-                  value={formData.imageUrl || ""}
+                  as="textarea"
+                  name="description"
+                  value={formData.description}
                   onChange={handleInputChange}
-                  required={formMode === "add"}
                 />
-                {formMode === "edit" && formData.images[0] && (
-                  <div className="mt-2">
-                    <small>
-                      Current Image:{" "}
-                      <a
-                        href={formData.images[0]}
-                        target="_blank"
-                        rel="noopener noreferrer"
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Contact Phone</Form.Label>
+                <Form.Control
+                  type="tel"
+                  name="contactPhone"
+                  value={formData.contactPhone}
+                  onChange={handleInputChange}
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Property Images (Add URLs)</Form.Label>
+                {formData.images.map((img, index) => (
+                  <div key={index} className="d-flex align-items-center mb-2">
+                    <Form.Control
+                      type="url"
+                      placeholder="https://example.com/image.jpg"
+                      value={img}
+                      onChange={(e) => handleImageChange(index, e.target.value)}
+                      required={index === 0} // Only first image is required
+                      className="me-2"
+                    />
+                    {formData.images.length > 1 && (
+                      <Button
+                        variant="outline-danger"
+                        size="sm"
+                        onClick={() => removeImageField(index)}
                       >
-                        View
-                      </a>
-                    </small>
+                        <FaTimes />
+                      </Button>
+                    )}
                   </div>
-                )}
+                ))}
+                <Button
+                  variant="outline-primary"
+                  size="sm"
+                  onClick={addImageField}
+                  className="mt-2"
+                >
+                  <FaPlus /> Add Another Image
+                </Button>
               </Form.Group>
               <Button
                 type="submit"

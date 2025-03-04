@@ -257,9 +257,9 @@ const PropertyListingPage = () => {
                             ₦{(property.priceNaira ?? 0).toLocaleString()}
                           </p>
                         </div>
-                        <Link 
-                          to={`/propertydetail`}
-                          style={{ textDecoration: 'none' }}
+                        <Link
+                          to={`/property/${property.id}`}
+                          style={{ textDecoration: "none" }}
                         >
                           <Button
                             variant="outline-primary"
@@ -293,7 +293,7 @@ const PropertyListingPage = () => {
         )}
 
         <div className="text-center mt-5">
-          <Link to="/properties" style={{ textDecoration: 'none' }}>
+          <Link to="/properties" style={{ textDecoration: "none" }}>
             <Button
               variant="outline-primary"
               className="px-4 py-2"

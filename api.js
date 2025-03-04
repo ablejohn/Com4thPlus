@@ -1,4 +1,4 @@
-import { db } from "./firebase"; // Adjust path if needed
+import { db } from "./firebase";
 import {
   collection,
   getDocs,
@@ -11,18 +11,22 @@ import {
 export const api = {
   async getProperties() {
     try {
-      // Get the propertyList document which contains all properties
       const docRef = doc(db, "properties", "propertyList");
       const docSnap = await getDoc(docRef);
 
-      if (docSnap.exists() && docSnap.data().list) {
-        // Return the list of properties from the document
-        return docSnap.data().list.map((property) => ({
-          ...property,
-          // Ensure images is always an array
-          images: property.images || [],
-        }));
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        console.log("Fetched Firestore data:", data); // Debug log
+        if (data.list) {
+          return data.list.map((property) => ({
+            ...property,
+            images: property.images || [],
+          }));
+        }
+        console.log("No 'list' field in document");
+        return [];
       }
+      console.log("Document does not exist");
       return [];
     } catch (error) {
       console.error("Error fetching properties:", error);
@@ -32,12 +36,11 @@ export const api = {
 
   async saveProperties(properties) {
     try {
-      // Ensure each property has an images array
       const updatedProperties = properties.map((property) => ({
         ...property,
         images: property.images || [],
       }));
-
+      console.log("Saving properties:", updatedProperties); // Debug log
       await setDoc(doc(db, "properties", "propertyList"), {
         list: updatedProperties,
       });
@@ -52,6 +55,7 @@ export const api = {
     try {
       const currentProperties = await api.getProperties();
       const updatedProperties = currentProperties.filter((p) => p.id !== id);
+      console.log("Deleting property ID:", id, "New list:", updatedProperties); // Debug log
       await setDoc(doc(db, "properties", "propertyList"), {
         list: updatedProperties,
       });

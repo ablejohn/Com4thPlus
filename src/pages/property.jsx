@@ -76,7 +76,12 @@ const PropertiesPage = () => {
       rating: 4.8,
       reviews: 124,
       type: "Apartment",
-      amenities: ["Free Parking", "Fitness Center", "Swimming Pool", "High-Speed WiFi"],
+      amenities: [
+        "Free Parking",
+        "Fitness Center",
+        "Swimming Pool",
+        "High-Speed WiFi",
+      ],
       superhost: true,
       availability: "Available Now",
     },
@@ -158,7 +163,8 @@ const PropertiesPage = () => {
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = "translateY(-10px)";
-            e.currentTarget.style.boxShadow = "0 15px 30px rgba(64, 224, 208, 0.15)";
+            e.currentTarget.style.boxShadow =
+              "0 15px 30px rgba(64, 224, 208, 0.15)";
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.transform = "translateY(0)";
@@ -166,17 +172,17 @@ const PropertiesPage = () => {
           }}
         >
           {/* Decorative accent - inspired by testimonial cards */}
-          <div 
-            className="position-absolute" 
-            style={{ 
-              top: 0, 
-              left: 0, 
-              right: 0, 
-              height: "6px", 
-              background: "linear-gradient(90deg, #40E0D0, #20B2AA)" 
-            }} 
+          <div
+            className="position-absolute"
+            style={{
+              top: 0,
+              left: 0,
+              right: 0,
+              height: "6px",
+              background: "linear-gradient(90deg, #40E0D0, #20B2AA)",
+            }}
           />
-          
+
           <div className="position-relative">
             {property.superhost && (
               <Badge
@@ -212,12 +218,18 @@ const PropertiesPage = () => {
               }}
               onClick={(e) => toggleFavorite(e, property.id)}
               aria-label={
-                favorites[property.id] ? "Remove from favorites" : "Add to favorites"
+                favorites[property.id]
+                  ? "Remove from favorites"
+                  : "Add to favorites"
               }
             >
               <FaHeart
                 size={20}
-                color={favorites[property.id] ? theme.colors.accent : theme.colors.gray}
+                color={
+                  favorites[property.id]
+                    ? theme.colors.accent
+                    : theme.colors.gray
+                }
               />
             </Button>
             <div
@@ -244,11 +256,12 @@ const PropertiesPage = () => {
                 {property.title}
               </h2>
               <div className="d-flex align-items-center">
-                <FaStar style={{ color: theme.colors.primary }} className="me-1" />
+                <FaStar
+                  style={{ color: theme.colors.primary }}
+                  className="me-1"
+                />
                 <span className="fw-bold">{property.rating}</span>
-                <span className="text-muted ms-1">
-                  ({property.reviews})
-                </span>
+                <span className="text-muted ms-1">({property.reviews})</span>
               </div>
             </div>
 
@@ -262,7 +275,10 @@ const PropertiesPage = () => {
               </p>
             </div>
 
-            <p className="text-muted mb-3" style={{ lineHeight: "1.7", fontSize: "1rem", color: "#495057" }}>
+            <p
+              className="text-muted mb-3"
+              style={{ lineHeight: "1.7", fontSize: "1rem", color: "#495057" }}
+            >
               {property.description}
             </p>
 
@@ -310,7 +326,9 @@ const PropertiesPage = () => {
                 >
                   {amenity.includes("WiFi") && <FaWifi className="me-1" />}
                   {amenity.includes("Parking") && <FaCar className="me-1" />}
-                  {amenity.includes("Pool") && <FaSwimmingPool className="me-1" />}
+                  {amenity.includes("Pool") && (
+                    <FaSwimmingPool className="me-1" />
+                  )}
                   {amenity}
                 </span>
               ))}
@@ -331,7 +349,7 @@ const PropertiesPage = () => {
               </div>
               <div>
                 <Link
-                  to={`/propertydetail`}
+                  to={`/property/${property.id}`}
                   style={{
                     display: "inline-block",
                     padding: "8px 16px",
@@ -343,10 +361,12 @@ const PropertiesPage = () => {
                     transition: "all 0.3s ease",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = theme.colors.primaryDark;
+                    e.currentTarget.style.backgroundColor =
+                      theme.colors.primaryDark;
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = theme.colors.primary;
+                    e.currentTarget.style.backgroundColor =
+                      theme.colors.primary;
                   }}
                 >
                   View Details
@@ -367,7 +387,6 @@ const PropertiesPage = () => {
       {/* Header with gradients and decorative elements inspired by the testimonial section */}
       <div
         style={{
-          
           color: theme.colors.primaryDark,
           marginTop: "",
           marginBottom: "10px",
@@ -376,39 +395,47 @@ const PropertiesPage = () => {
         }}
       >
         {/* Decorative elements from testimonial section */}
-        <div 
-          className="position-absolute" 
-          style={{ 
-            width: "300px", 
-            height: "300px", 
-            background: "radial-gradient(circle, rgba(64, 224, 208, 0.08) 0%, rgba(255,255,255,0) 70%)",
+        <div
+          className="position-absolute"
+          style={{
+            width: "300px",
+            height: "300px",
+            background:
+              "radial-gradient(circle, rgba(64, 224, 208, 0.08) 0%, rgba(255,255,255,0) 70%)",
             top: "",
             left: "-100px",
             borderRadius: "50%",
-            zIndex: 0
+            zIndex: 0,
           }}
         />
-        
-        <div 
-          className="position-absolute" 
-          style={{ 
-            width: "350px", 
-            height: "350px", 
-            background: "radial-gradient(circle, rgba(64, 224, 208, 0.05) 0%, rgba(255,255,255,0) 70%)",
+
+        <div
+          className="position-absolute"
+          style={{
+            width: "350px",
+            height: "350px",
+            background:
+              "radial-gradient(circle, rgba(64, 224, 208, 0.05) 0%, rgba(255,255,255,0) 70%)",
             bottom: "5%",
             right: "-150px",
             borderRadius: "50%",
-            zIndex: 0
+            zIndex: 0,
           }}
         />
-        
+
         <Container className="py-5 position-relative">
           <div className="text-center">
-            <div 
-              className="d-inline-block px-3 py-2 rounded-pill mb-3" 
-              style={{ background: "rgba(64, 224, 208, 0.1)", color: "#40E0D0" }}
+            <div
+              className="d-inline-block px-3 py-2 rounded-pill mb-3"
+              style={{
+                background: "rgba(64, 224, 208, 0.1)",
+                color: "#40E0D0",
+              }}
             >
-              <span className="fw-semibold" style={{ fontSize: "0.85rem", letterSpacing: "0.05em" }}>
+              <span
+                className="fw-semibold"
+                style={{ fontSize: "0.85rem", letterSpacing: "0.05em" }}
+              >
                 FEATURED PROPERTIES
               </span>
             </div>
@@ -420,15 +447,15 @@ const PropertiesPage = () => {
               aria-label="5 out of 5 star average rating"
             >
               {[1, 2, 3, 4, 5].map((star) => (
-                <FaStar
-                  key={star}
-                  size={24}
-                  color="#40E0D0"
-                />
+                <FaStar key={star} size={24} color="#40E0D0" />
               ))}
             </div>
-            <p className="text-muted" style={{ fontSize: "1.1rem", maxWidth: "80%", margin: "0 auto" }}>
-              Experience luxury and comfort in our carefully curated selection of premium accommodations
+            <p
+              className="text-muted"
+              style={{ fontSize: "1.1rem", maxWidth: "80%", margin: "0 auto" }}
+            >
+              Experience luxury and comfort in our carefully curated selection
+              of premium accommodations
             </p>
           </div>
         </Container>
