@@ -316,29 +316,6 @@ const TestimonialsSection = () => {
           )}
         </div>
         
-        {/* Add a CTA button for additional social proof */}
-        <div className="text-center mt-5">
-          <a 
-            href="#view-more-reviews" 
-            className="btn btn-outline-primary px-4 py-2"
-            style={{ 
-              borderColor: "#40E0D0", 
-              color: "#40E0D0",
-              borderRadius: "8px",
-              transition: "all 0.3s ease"
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "#40E0D0";
-              e.currentTarget.style.color = "white";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "transparent";
-              e.currentTarget.style.color = "#40E0D0";
-            }}
-          >
-            View All Reviews
-          </a>
-        </div>
       </div>
 
       {/* Enhanced styles */}

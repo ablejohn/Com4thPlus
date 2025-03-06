@@ -22,7 +22,7 @@ const PropertyPage = lazy(() => import("./pages/newProperties"));
 const PropertyDetailPage = lazy(() => import("./pages/propertydetail"));
 const LocationPage = lazy(() => import("./pages/location"));
 const ContactPage = lazy(() => import("./pages/contact"));
-const AdminPropertyForm = lazy(() => import("./services/property"));
+const AdminPropertyForm = lazy(() => import("./services/Dashboard"));
 
 const App = () => {
   const location = useLocation();

@@ -246,10 +246,7 @@ const AboutUs = () => {
         </div>
       </div>
       
-      {/* Booking Modal */}
-      {isModalOpen && (
-        <BookingModal onClose={() => setIsModalOpen(false)} />
-      )}
+      
     </section>
   );
 };

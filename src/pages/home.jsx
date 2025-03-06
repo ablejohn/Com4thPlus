@@ -144,14 +144,7 @@ const HomePage = () => {
         </div>
         
         {/* Scroll Down Indicator */}
-        <div className="position-absolute bottom-0 start-50 translate-middle-x mb-4" style={{ zIndex: 3 }}>
-          <a href="#about" className="text-decoration-none text-white-50 d-flex flex-column align-items-center">
-            <small className="mb-1">Scroll Down</small>
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-down animate__animated animate__bounce animate__infinite" viewBox="0 0 16 16">
-              <path fillRule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
-            </svg>
-          </a>
-        </div>
+       
       </section>
 
       {/* About Us Section */}

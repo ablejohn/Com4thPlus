@@ -77,23 +77,33 @@ const PropertyDetailPage = () => {
     return 1;
   };
 
-  // Calculate amount based on selection (constant pricing)
+  // Find property first
+  const property = properties.find((p) => p.id === id);
+
+  // Calculate amount based on selection (using the property's price)
   useEffect(() => {
-    if (apartmentType) {
-      const baseAmounts = {
-        "3br": 250000,
-        "4br": 300000,
-        "5br": 350000,
-        "5br-party": 500000,
+    if (apartmentType && property) {
+      // Use the property's price instead of hardcoded values
+      let baseAmount = property.priceNaira || 0;
+      
+      // Adjust price based on apartment type if needed
+      const priceMultipliers = {
+        "3br": 1,
+        "4br": 1.2,
+        "5br": 1.4,
+        "5br-party": 2
       };
-      const baseAmount = baseAmounts[apartmentType] || 0;
+      
+      baseAmount = baseAmount * (priceMultipliers[apartmentType] || 1);
+      
+      // For party, it's a flat fee. For others, multiply by days
       setAmount(
         apartmentType === "5br-party" ? baseAmount : baseAmount * getDays()
       );
     } else {
       setAmount(0);
     }
-  }, [apartmentType, startDate, endDate]);
+  }, [apartmentType, startDate, endDate, property]);
 
   // Paystack config
   const config = {
@@ -182,8 +192,6 @@ const PropertyDetailPage = () => {
     );
   }
 
-  const property = properties.find((p) => p.id === id);
-
   // Not found state
   if (!property) {
     return (
@@ -203,6 +211,17 @@ const PropertyDetailPage = () => {
       </Container>
     );
   }
+
+  // Get prices for different apartment types
+  const getTypePrice = (type) => {
+    const priceMultipliers = {
+      "3br": 1,
+      "4br": 1.2,
+      "5br": 1.4,
+      "5br-party": 2
+    };
+    return property.priceNaira * (priceMultipliers[type] || 1);
+  };
 
   return (
     <Container className="py-5">
@@ -372,6 +391,63 @@ const PropertyDetailPage = () => {
                   </li>
                 ))}
               </ul>
+            </Card.Body>
+          </Card>
+
+          {/* Pricing Table - NEW ADDITION */}
+          <Card
+            className="border-0 shadow-sm mt-4"
+            style={{ borderRadius: theme.borderRadius.md }}
+          >
+            <div
+              className="position-absolute"
+              style={{
+                top: 0,
+                left: 0,
+                right: 0,
+                height: "6px",
+                background: `linear-gradient(90deg, ${theme.colors.primary}, ${theme.colors.primaryDark})`,
+                borderRadius: `${theme.borderRadius.md} ${theme.borderRadius.md} 0 0`,
+              }}
+            />
+            <Card.Body className="p-4">
+              <h5
+                className="mb-3 fw-bold"
+                style={{ color: theme.colors.primaryDark }}
+              >
+                Pricing Information
+              </h5>
+              <div className="table-responsive">
+                <table className="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Apartment Type</th>
+                      <th>Daily Rate</th>
+                      <th>Party Rate (Flat Fee)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>3 Bedroom</td>
+                      <td>₦{getTypePrice("3br").toLocaleString()}/day</td>
+                      <td>N/A</td>
+                    </tr>
+                    <tr>
+                      <td>4 Bedroom</td>
+                      <td>₦{getTypePrice("4br").toLocaleString()}/day</td>
+                      <td>N/A</td>
+                    </tr>
+                    <tr>
+                      <td>5 Bedroom</td>
+                      <td>₦{getTypePrice("5br").toLocaleString()}/day</td>
+                      <td>₦{getTypePrice("5br-party").toLocaleString()} (flat fee)</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p className="text-muted mt-3 mb-0 small">
+                * The 5 Bedroom Party option includes a refundable caution fee of ₦100,000 to be paid upon arrival.
+              </p>
             </Card.Body>
           </Card>
         </Col>

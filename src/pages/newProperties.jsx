@@ -229,17 +229,7 @@ const PropertyListingPage = () => {
                         </div>
                       </div>
 
-                      <div className="d-flex align-items-center">
-                        <FaCalendarAlt
-                          style={{
-                            color: "#40E0D0",
-                            marginRight: "8px",
-                          }}
-                        />
-                        <span style={{ fontSize: "0.85rem", color: "#6c757d" }}>
-                          Added on {new Date().toLocaleDateString()}
-                        </span>
-                      </div>
+                     
                     </Card.Body>
 
                     <div className="p-4 pt-0">
