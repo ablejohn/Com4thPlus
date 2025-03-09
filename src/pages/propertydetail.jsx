@@ -310,13 +310,7 @@ const PropertyDetailPage = () => {
                   {(property.sqft ?? 0).toLocaleString()} sqft
                 </span>
               </div>
-              <p>
-                <FaCalendarAlt
-                  className="me-2"
-                  style={{ color: theme.colors.primary }}
-                />{" "}
-                Added on {new Date().toLocaleDateString()}
-              </p>
+             
               <p>
                 <FaPhone
                   className="me-2"

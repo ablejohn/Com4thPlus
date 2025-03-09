@@ -122,22 +122,24 @@ const HomePage = () => {
                   </div>
                 </div>
                 
-                {/* Search Button */}
-                <div className="col-12 col-md-4">
-                  <label className="form-label opacity-0 d-none d-md-block small mb-2">Submit</label>
-                  <button
-                    className="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2"
-                    style={{
-                      background: "linear-gradient(to right, #003087, #004299)",
-                      border: "none",
-                      transition: "all 0.3s ease",
-                      height: "40px"
-                    }}
-                  >
-                    <Search size={18} />
-                    <span className="fw-semibold">Check Availability</span>
-                  </button>
-                </div>
+               {/* Search Button */}
+<div className="col-12 col-md-4">
+  <label className="form-label opacity-0 d-none d-md-block small mb-2">Submit</label>
+  <a href="/properties" className="text-decoration-none">
+    <button
+      className="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2"
+      style={{
+        background: "linear-gradient(to right, #003087, #004299)",
+        border: "none",
+        transition: "all 0.3s ease",
+        height: "40px"
+      }}
+    >
+      <Search size={18} />
+      <span className="fw-semibold">Check Availability</span>
+    </button>
+  </a>
+</div>
               </div>
             </div>
           </div>
