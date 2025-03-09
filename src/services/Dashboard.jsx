@@ -6,11 +6,14 @@ import {
   Col,
   Card,
   Alert,
-  Dropdown
+  Dropdown,
+  Nav
 } from "react-bootstrap";
 import { 
   FaBuilding, 
-  FaUserCog 
+  FaUserCog, 
+  FaCalendarAlt,
+  FaBook 
 } from "react-icons/fa";
 import { useProperties } from "../services/propertyContext";
 import { theme } from "../styling/theme";
@@ -21,12 +24,15 @@ import PropertyManagement from "./PropertyManagement";
 import LeadsManagement from "./LeadsManagement";
 import AffiliatesManagement from "./AffiliatesManagement";
 import AnalyticsTab from "./AnalyticsTab";
+import CalendarManagement from "./CalenderManagement";
+import ManualBooking from "./ManualBooking";
 
 const AdminPropertyPage = () => {
   // Core state
   const { properties, setProperties, loading } = useProperties();
   const [message, setMessage] = useState({ show: false, text: "", type: "" });
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [selectedProperty, setSelectedProperty] = useState(null);
 
   // Dashboard summary calculations
   const dashboardSummary = {
@@ -37,13 +43,20 @@ const AdminPropertyPage = () => {
     totalLeads: 15, // Example data (would be calculated from actual leads)
     totalBookings: 8,
     conversionRate: "53%",
-    totalAffiliates: 6
+    totalAffiliates: 6,
+    blockedDates: 12 // Example data (would be calculated from actual blocked dates)
   };
 
   // Show message function (can be passed to child components)
   const showMessage = (text, type = "success") => {
     setMessage({ show: true, text, type });
     setTimeout(() => setMessage({ show: false }), 3000);
+  };
+
+  // Property selection handler
+  const handlePropertySelect = (propertyId) => {
+    const property = properties.find(p => p.id === propertyId);
+    setSelectedProperty(property);
   };
 
   return (
@@ -99,6 +112,30 @@ const AdminPropertyPage = () => {
                 </Col>
                 
                 <Col md={9} lg={10}>
+                  {/* Secondary tab navigation for calendar functions */}
+                  {(activeTab === "calendar" || activeTab === "booking") && (
+                    <div className="mb-4">
+                      <Nav variant="tabs">
+                        <Nav.Item>
+                          <Nav.Link 
+                            active={activeTab === "calendar"} 
+                            onClick={() => setActiveTab("calendar")}
+                          >
+                            <FaCalendarAlt className="me-2" /> Block Dates
+                          </Nav.Link>
+                        </Nav.Item>
+                        <Nav.Item>
+                          <Nav.Link 
+                            active={activeTab === "booking"} 
+                            onClick={() => setActiveTab("booking")}
+                          >
+                            <FaBook className="me-2" /> Manual Booking
+                          </Nav.Link>
+                        </Nav.Item>
+                      </Nav>
+                    </div>
+                  )}
+
                   {activeTab === "dashboard" && (
                     <AnalyticsTab dashboardSummary={dashboardSummary} />
                   )}
@@ -109,6 +146,7 @@ const AdminPropertyPage = () => {
                       setProperties={setProperties}
                       loading={loading}
                       showMessage={showMessage}
+                      onPropertySelect={handlePropertySelect}
                     />
                   )}
                   
@@ -118,6 +156,24 @@ const AdminPropertyPage = () => {
                   
                   {activeTab === "affiliates" && (
                     <AffiliatesManagement />
+                  )}
+
+                  {activeTab === "calendar" && (
+                    <CalendarManagement 
+                      properties={properties}
+                      selectedProperty={selectedProperty}
+                      onPropertySelect={handlePropertySelect}
+                      showMessage={showMessage}
+                    />
+                  )}
+
+                  {activeTab === "booking" && (
+                    <ManualBooking 
+                      properties={properties}
+                      selectedProperty={selectedProperty}
+                      onPropertySelect={handlePropertySelect}
+                      showMessage={showMessage}
+                    />
                   )}
                 </Col>
               </Row>
