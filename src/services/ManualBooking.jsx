@@ -1,62 +1,71 @@
 // ManualBooking.jsx
 import React, { useState, useEffect } from "react";
-import { 
-  Card, 
-  Form, 
-  Button, 
-  Row, 
+import {
+  Card,
+  Form,
+  Button,
+  Row,
   Col,
   InputGroup,
-  ListGroup, 
+  ListGroup,
   Badge,
-  Spinner
+  Spinner,
+  Modal,
 } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { FaCalendarAlt, FaUser, FaEnvelope, FaPhone, FaCreditCard, FaCheck } from "react-icons/fa";
+import {
+  FaCalendarAlt,
+  FaUser,
+  FaEnvelope,
+  FaPhone,
+  FaCheck,
+} from "react-icons/fa";
+import { usePaystackPayment } from "react-paystack";
 
-const ManualBooking = ({ 
-  properties, 
-  selectedProperty, 
-  onPropertySelect, 
-  showMessage 
+// Paystack config
+const PAYSTACK_PUBLIC_KEY = "YOUR_PAYSTACK_PUBLIC_KEY"; // Replace with your actual key
+
+const ManualBooking = ({
+  properties,
+  selectedProperty,
+  onPropertySelect,
+  showMessage,
 }) => {
   // Form state
   const [checkInDate, setCheckInDate] = useState(new Date());
-  const [checkOutDate, setCheckOutDate] = useState(new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)); // 3 days later
+  const [checkOutDate, setCheckOutDate] = useState(
+    new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)
+  ); // 3 days later
   const [guestInfo, setGuestInfo] = useState({
     firstName: "",
     lastName: "",
     email: "",
     phone: "",
     adults: 1,
-    children: 0
-  });
-  const [paymentInfo, setPaymentInfo] = useState({
-    amount: "",
-    method: "credit_card",
-    reference: "",
-    notes: ""
+    children: 0,
   });
 
   // UI state
   const [loading, setLoading] = useState(false);
   const [blockedDates, setBlockedDates] = useState([]);
   const [recentBookings, setRecentBookings] = useState([]);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [apartmentType, setApartmentType] = useState("");
 
-  // Load blocked dates and update price when property changes
+  // Load blocked dates when property changes
   useEffect(() => {
     if (selectedProperty) {
       fetchBlockedDates(selectedProperty.id);
-      fetchRecentBookings(selectedProperty.id);
-      
-      // Set default price if property has a nightly rate
+
+      // Calculate default price
       if (selectedProperty.price) {
-        const nights = Math.ceil((checkOutDate - checkInDate) / (24 * 60 * 60 * 1000));
-        setPaymentInfo({
-          ...paymentInfo,
-          amount: (selectedProperty.price * nights).toString()
-        });
+        const nights = Math.ceil(
+          (checkOutDate - checkInDate) / (24 * 60 * 60 * 1000)
+        );
+        setTotalAmount(selectedProperty.price * nights);
       }
     }
   }, [selectedProperty]);
@@ -64,11 +73,10 @@ const ManualBooking = ({
   // Update price when dates change
   useEffect(() => {
     if (selectedProperty && selectedProperty.price) {
-      const nights = Math.ceil((checkOutDate - checkInDate) / (24 * 60 * 60 * 1000));
-      setPaymentInfo({
-        ...paymentInfo,
-        amount: (selectedProperty.price * nights).toString()
-      });
+      const nights = Math.ceil(
+        (checkOutDate - checkInDate) / (24 * 60 * 60 * 1000)
+      );
+      setTotalAmount(selectedProperty.price * nights);
     }
   }, [checkInDate, checkOutDate]);
 
@@ -79,20 +87,20 @@ const ManualBooking = ({
       // Replace with actual API call
       // const response = await api.getBlockedDates(propertyId);
       // setBlockedDates(response.data);
-      
+
       // Simulated data for demonstration
       setTimeout(() => {
         const mockBlockedDates = [
-          { 
-            id: 1, 
-            startDate: new Date(2025, 2, 15), 
-            endDate: new Date(2025, 2, 20)
+          {
+            id: 1,
+            startDate: new Date(2025, 2, 15),
+            endDate: new Date(2025, 2, 20),
           },
-          { 
-            id: 2, 
-            startDate: new Date(2025, 3, 10), 
-            endDate: new Date(2025, 3, 15)
-          }
+          {
+            id: 2,
+            startDate: new Date(2025, 3, 10),
+            endDate: new Date(2025, 3, 15),
+          },
         ];
         setBlockedDates(mockBlockedDates);
         setLoading(false);
@@ -103,35 +111,16 @@ const ManualBooking = ({
     }
   };
 
-  // Fetch recent bookings
+  // Fetch recent bookings (will be called after successful payment)
   const fetchRecentBookings = async (propertyId) => {
     try {
       // Replace with actual API call
       // const response = await api.getRecentBookings(propertyId);
       // setRecentBookings(response.data);
-      
-      // Simulated data for demonstration
-      setTimeout(() => {
-        const mockBookings = [
-          {
-            id: 'B12345',
-            guestName: 'John Smith',
-            checkIn: new Date(2025, 2, 5),
-            checkOut: new Date(2025, 2, 10),
-            totalAmount: 850,
-            status: 'confirmed'
-          },
-          {
-            id: 'B12346',
-            guestName: 'Sarah Johnson',
-            checkIn: new Date(2025, 2, 22),
-            checkOut: new Date(2025, 2, 27),
-            totalAmount: 925,
-            status: 'confirmed'
-          }
-        ];
-        setRecentBookings(mockBookings);
-      }, 800);
+
+      // In a real implementation, this would fetch from your database
+      // For demo purposes, we'll use the bookingData that was just created
+      setRecentBookings((prevBookings) => [...prevBookings]);
     } catch (error) {
       console.error("Failed to fetch recent bookings", error);
     }
@@ -142,29 +131,23 @@ const ManualBooking = ({
     const { name, value } = e.target;
     setGuestInfo({
       ...guestInfo,
-      [name]: value
-    });
-  };
-
-  // Handle payment info changes
-  const handlePaymentInfoChange = (e) => {
-    const { name, value } = e.target;
-    setPaymentInfo({
-      ...paymentInfo,
-      [name]: value
+      [name]: value,
     });
   };
 
   // Check if selected dates overlap with blocked dates
   const checkDateAvailability = () => {
     if (!blockedDates.length) return true;
-    
+
     for (const blockedPeriod of blockedDates) {
       // Check if the selected date range overlaps with any blocked period
       if (
-        (checkInDate >= blockedPeriod.startDate && checkInDate <= blockedPeriod.endDate) ||
-        (checkOutDate >= blockedPeriod.startDate && checkOutDate <= blockedPeriod.endDate) ||
-        (checkInDate <= blockedPeriod.startDate && checkOutDate >= blockedPeriod.endDate)
+        (checkInDate >= blockedPeriod.startDate &&
+          checkInDate <= blockedPeriod.endDate) ||
+        (checkOutDate >= blockedPeriod.startDate &&
+          checkOutDate <= blockedPeriod.endDate) ||
+        (checkInDate <= blockedPeriod.startDate &&
+          checkOutDate >= blockedPeriod.endDate)
       ) {
         return false;
       }
@@ -172,8 +155,8 @@ const ManualBooking = ({
     return true;
   };
 
-  // Handle booking submission
-  const handleSubmitBooking = async () => {
+  // Proceed to payment
+  const handleProceedToPayment = () => {
     if (!selectedProperty) {
       showMessage("Please select a property first", "warning");
       return;
@@ -195,82 +178,145 @@ const ManualBooking = ({
       return;
     }
 
-    if (!paymentInfo.amount || isNaN(paymentInfo.amount) || Number(paymentInfo.amount) <= 0) {
-      showMessage("Please enter a valid payment amount", "warning");
+    if (!apartmentType) {
+      showMessage("Please select an apartment type", "warning");
       return;
     }
 
-    try {
-      setLoading(true);
-      
-      // Prepare booking data
-      const bookingData = {
-        propertyId: selectedProperty.id,
-        checkInDate,
-        checkOutDate,
-        guest: guestInfo,
-        payment: {
-          ...paymentInfo,
-          amount: Number(paymentInfo.amount)
+    // Show payment modal
+    setShowPaymentModal(true);
+  };
+
+  // Paystack config
+  const config = {
+    reference: new Date().getTime().toString(),
+    email: guestInfo.email,
+    amount: totalAmount * 100, // Convert to kobo
+    publicKey: PAYSTACK_PUBLIC_KEY,
+    metadata: {
+      custom_fields: [
+        {
+          display_name: "Full Name",
+          variable_name: "full_name",
+          value: `${guestInfo.firstName} ${guestInfo.lastName}`,
         },
-        status: "confirmed",
-        createdAt: new Date(),
-        bookingId: `B${Math.floor(10000 + Math.random() * 90000)}`
-      };
-      
-      // Replace with actual API call
-      // await api.createBooking(bookingData);
-      
-      // Simulate API call
-      setTimeout(() => {
-        // Add to recent bookings
-        setRecentBookings([
-          {
-            id: bookingData.bookingId,
-            guestName: `${guestInfo.firstName} ${guestInfo.lastName}`,
-            checkIn: checkInDate,
-            checkOut: checkOutDate,
-            totalAmount: Number(paymentInfo.amount),
-            status: 'confirmed'
-          },
-          ...recentBookings
-        ]);
-        
-        // Show success message
-        showMessage("Booking created successfully!", "success");
-        
-        // Reset form
-        setGuestInfo({
-          firstName: "",
-          lastName: "",
-          email: "",
-          phone: "",
-          adults: 1,
-          children: 0
-        });
-        
-        setPaymentInfo({
-          amount: selectedProperty.price ? selectedProperty.price.toString() : "",
-          method: "credit_card",
-          reference: "",
-          notes: ""
-        });
-        
-        setLoading(false);
-      }, 1000);
-    } catch (error) {
-      showMessage("Failed to create booking", "danger");
-      setLoading(false);
-    }
+        {
+          display_name: "Phone Number",
+          variable_name: "phone_number",
+          value: guestInfo.phone,
+        },
+        {
+          display_name: "Apartment Type",
+          variable_name: "apartment_type",
+          value: apartmentType,
+        },
+        {
+          display_name: "Check-in Date",
+          variable_name: "check_in",
+          value: checkInDate.toISOString().split("T")[0],
+        },
+        {
+          display_name: "Check-out Date",
+          variable_name: "check_out",
+          value: checkOutDate.toISOString().split("T")[0],
+        },
+        {
+          display_name: "Property ID",
+          variable_name: "property_id",
+          value: selectedProperty?.id || "",
+        },
+      ],
+    },
+  };
+
+  const initializePayment = usePaystackPayment(config);
+
+  const onPaymentSuccess = (reference) => {
+    setIsProcessing(false);
+    setShowPaymentModal(false);
+
+    // Create booking
+    const bookingData = {
+      id: `B${Math.floor(10000 + Math.random() * 90000)}`,
+      guestName: `${guestInfo.firstName} ${guestInfo.lastName}`,
+      checkIn: checkInDate,
+      checkOut: checkOutDate,
+      totalAmount: totalAmount,
+      status: "confirmed",
+      reference: reference.reference,
+    };
+
+    // Add to recent bookings
+    setRecentBookings([bookingData, ...recentBookings]);
+
+    // Show success message
+    showMessage("Booking created successfully!", "success");
+
+    // Reset form
+    setGuestInfo({
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      adults: 1,
+      children: 0,
+    });
+
+    setApartmentType("");
+  };
+
+  const onPaymentClose = () => {
+    setIsProcessing(false);
+    setShowPaymentModal(false);
+    showMessage("Payment cancelled. You can try again when ready.", "warning");
+  };
+
+  const handlePaymentSubmit = (e) => {
+    e.preventDefault();
+    setIsProcessing(true);
+    initializePayment(onPaymentSuccess, onPaymentClose);
   };
 
   // Format date for display
   const formatDate = (date) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    return new Date(date).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
+  };
+
+  // Get prices for different apartment types (similar to PropertyDetailPage)
+  const getTypePrice = (type) => {
+    if (!selectedProperty || !selectedProperty.priceNaira) return 0;
+
+    const priceMultipliers = {
+      "3br": 1,
+      "4br": 1.2,
+      "5br": 1.4,
+      "5br-party": 2,
+    };
+
+    const basePrice = selectedProperty.priceNaira;
+    return basePrice * (priceMultipliers[type] || 1);
+  };
+
+  // Update total amount when apartment type changes
+  const handleApartmentTypeChange = (e) => {
+    const type = e.target.value;
+    setApartmentType(type);
+
+    if (type && selectedProperty) {
+      const baseAmount = getTypePrice(type);
+
+      // For party, it's a flat fee. For others, multiply by days
+      const nights = Math.ceil(
+        (checkOutDate - checkInDate) / (24 * 60 * 60 * 1000)
+      );
+      setTotalAmount(type === "5br-party" ? baseAmount : baseAmount * nights);
+    } else {
+      setTotalAmount(0);
+    }
   };
 
   return (
@@ -289,20 +335,43 @@ const ManualBooking = ({
                 <Col>
                   <Form.Group>
                     <Form.Label>Select Property</Form.Label>
-                    <Form.Select 
-                      value={selectedProperty?.id || ''}
+                    <Form.Select
+                      value={selectedProperty?.id || ""}
                       onChange={(e) => onPropertySelect(e.target.value)}
                     >
                       <option value="">-- Select Property --</option>
-                      {properties.map(property => (
+                      {properties.map((property) => (
                         <option key={property.id} value={property.id}>
-                          {property.name || property.title || `Property #${property.id}`}
+                          {property.name ||
+                            property.title ||
+                            `Property #${property.id}`}
                         </option>
                       ))}
                     </Form.Select>
                   </Form.Group>
                 </Col>
               </Row>
+
+              {/* Apartment Type Selection */}
+              {selectedProperty && (
+                <Row className="mb-3">
+                  <Col>
+                    <Form.Group>
+                      <Form.Label>Select Apartment Type</Form.Label>
+                      <Form.Select
+                        value={apartmentType}
+                        onChange={handleApartmentTypeChange}
+                      >
+                        <option value="">Choose an option</option>
+                        <option value="3br">3 Bedroom</option>
+                        <option value="4br">4 Bedroom</option>
+                        <option value="5br">5 Bedroom</option>
+                        <option value="5br-party">5 Bedroom (Party)</option>
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
+                </Row>
+              )}
 
               {/* Date Selection */}
               <Row className="mb-3">
@@ -311,7 +380,7 @@ const ManualBooking = ({
                     <Form.Label>Check-In Date</Form.Label>
                     <DatePicker
                       selected={checkInDate}
-                      onChange={date => setCheckInDate(date)}
+                      onChange={(date) => setCheckInDate(date)}
                       selectsStart
                       startDate={checkInDate}
                       endDate={checkOutDate}
@@ -326,7 +395,7 @@ const ManualBooking = ({
                     <Form.Label>Check-Out Date</Form.Label>
                     <DatePicker
                       selected={checkOutDate}
-                      onChange={date => setCheckOutDate(date)}
+                      onChange={(date) => setCheckOutDate(date)}
                       selectsEnd
                       startDate={checkInDate}
                       endDate={checkOutDate}
@@ -435,82 +504,59 @@ const ManualBooking = ({
                 </Col>
               </Row>
 
-              <hr className="my-4" />
-
-              <h6 className="mb-3">
-                <FaCreditCard className="me-2" /> Payment Information
-              </h6>
-
-              {/* Payment Information */}
-              <Row className="mb-3">
-                <Col md={6}>
-                  <Form.Group>
-                    <Form.Label>Amount*</Form.Label>
-                    <InputGroup>
-                      <InputGroup.Text>$</InputGroup.Text>
-                      <Form.Control
-                        type="number"
-                        name="amount"
-                        value={paymentInfo.amount}
-                        onChange={handlePaymentInfoChange}
-                        required
-                        min="0"
-                        step="0.01"
-                      />
-                    </InputGroup>
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group>
-                    <Form.Label>Payment Method</Form.Label>
-                    <Form.Select
-                      name="method"
-                      value={paymentInfo.method}
-                      onChange={handlePaymentInfoChange}
-                    >
-                      <option value="credit_card">Credit Card</option>
-                      <option value="bank_transfer">Bank Transfer</option>
-                      <option value="cash">Cash</option>
-                      <option value="paypal">PayPal</option>
-                      <option value="other">Other</option>
-                    </Form.Select>
-                  </Form.Group>
-                </Col>
-              </Row>
-
-              <Row className="mb-3">
-                <Col md={6}>
-                  <Form.Group>
-                    <Form.Label>Reference/Transaction ID</Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="reference"
-                      value={paymentInfo.reference}
-                      onChange={handlePaymentInfoChange}
-                      placeholder="Optional reference number"
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group>
-                    <Form.Label>Notes</Form.Label>
-                    <Form.Control
-                      as="textarea"
-                      rows={2}
-                      name="notes"
-                      value={paymentInfo.notes}
-                      onChange={handlePaymentInfoChange}
-                      placeholder="Any additional notes"
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
+              {/* Price Display */}
+              {apartmentType && selectedProperty && (
+                <div
+                  className="mb-4 p-3 rounded"
+                  style={{ backgroundColor: "rgba(64, 224, 208, 0.1)" }}
+                >
+                  <h6 className="fw-bold mb-3">Price Breakdown</h6>
+                  <div className="d-flex justify-content-between mb-2">
+                    <span>
+                      {apartmentType === "3br"
+                        ? "3 Bedroom"
+                        : apartmentType === "4br"
+                        ? "4 Bedroom"
+                        : apartmentType === "5br"
+                        ? "5 Bedroom"
+                        : "5 Bedroom (Party)"}
+                    </span>
+                    <span className="fw-bold">
+                      ₦{totalAmount.toLocaleString()}
+                    </span>
+                  </div>
+                  {apartmentType !== "5br-party" && (
+                    <div className="d-flex justify-content-between text-muted small mb-2">
+                      <span>
+                        {Math.ceil(
+                          (checkOutDate - checkInDate) / (24 * 60 * 60 * 1000)
+                        )}{" "}
+                        days
+                        {` (${checkInDate.toLocaleDateString()} - ${checkOutDate.toLocaleDateString()})`}
+                      </span>
+                    </div>
+                  )}
+                  <hr className="my-3" />
+                  <div className="d-flex justify-content-between fw-bold">
+                    <span>Total</span>
+                    <span style={{ color: "#20B2AA" }}>
+                      ₦{totalAmount.toLocaleString()}
+                    </span>
+                  </div>
+                  {apartmentType === "5br-party" && (
+                    <div className="d-flex justify-content-between mt-2 text-danger">
+                      <span className="fw-bold">Caution Fee</span>
+                      <span className="fw-bold">₦100,000</span>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="d-grid mt-4">
-                <Button 
-                  variant="success" 
-                  onClick={handleSubmitBooking}
-                  disabled={loading || !selectedProperty}
+                <Button
+                  variant="success"
+                  onClick={handleProceedToPayment}
+                  disabled={loading || !selectedProperty || !apartmentType}
                 >
                   {loading ? (
                     <>
@@ -526,7 +572,7 @@ const ManualBooking = ({
                     </>
                   ) : (
                     <>
-                      <FaCheck className="me-2" /> Create Booking
+                      <FaCheck className="me-2" /> Proceed to Payment
                     </>
                   )}
                 </Button>
@@ -544,30 +590,25 @@ const ManualBooking = ({
             </h5>
           </Card.Header>
           <Card.Body>
-            {!selectedProperty ? (
+            {recentBookings.length === 0 ? (
               <div className="text-center py-5">
-                <h6 className="text-muted">Select a property to view bookings</h6>
-              </div>
-            ) : loading ? (
-              <div className="text-center py-5">
-                <Spinner animation="border" role="status" variant="primary">
-                  <span className="visually-hidden">Loading...</span>
-                </Spinner>
-              </div>
-            ) : recentBookings.length === 0 ? (
-              <div className="text-center py-5">
-                <h6 className="text-muted">No bookings for this property</h6>
+                <h6 className="text-muted">No bookings to display</h6>
+                <p className="text-muted small">
+                  Bookings will appear here after successful payment
+                </p>
               </div>
             ) : (
               <ListGroup>
-                {recentBookings.map(booking => (
-                  <ListGroup.Item 
+                {recentBookings.map((booking) => (
+                  <ListGroup.Item
                     key={booking.id}
                     className="d-flex flex-column"
                   >
                     <div className="d-flex justify-content-between align-items-center mb-2">
                       <div>
-                        <Badge bg="success" className="me-2">{booking.status}</Badge>
+                        <Badge bg="success" className="me-2">
+                          {booking.status}
+                        </Badge>
                         <span className="fw-bold">{booking.guestName}</span>
                       </div>
                       <small className="text-muted">ID: {booking.id}</small>
@@ -575,11 +616,14 @@ const ManualBooking = ({
                     <div className="d-flex justify-content-between align-items-center">
                       <div>
                         <small>
-                          {formatDate(booking.checkIn)} - {formatDate(booking.checkOut)}
+                          {formatDate(booking.checkIn)} -{" "}
+                          {formatDate(booking.checkOut)}
                         </small>
                       </div>
                       <div>
-                        <Badge bg="info">${booking.totalAmount}</Badge>
+                        <Badge bg="info">
+                          ₦{booking.totalAmount.toLocaleString()}
+                        </Badge>
                       </div>
                     </div>
                   </ListGroup.Item>
@@ -589,6 +633,103 @@ const ManualBooking = ({
           </Card.Body>
         </Card>
       </Col>
+
+      {/* Payment Modal */}
+      <Modal
+        show={showPaymentModal}
+        onHide={() => !isProcessing && setShowPaymentModal(false)}
+        centered
+        backdrop="static"
+      >
+        <Modal.Header closeButton={!isProcessing}>
+          <Modal.Title style={{ color: "#20B2AA" }}>
+            Complete Your Reservation
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={handlePaymentSubmit}>
+            <div
+              className="mb-4 p-3 rounded"
+              style={{ backgroundColor: "rgba(64, 224, 208, 0.1)" }}
+            >
+              <h6 className="mb-3 fw-bold">Reservation Summary</h6>
+              <div className="d-flex justify-content-between mb-2">
+                <span>Property:</span>
+                <span className="fw-bold">
+                  {selectedProperty?.title || selectedProperty?.name}
+                </span>
+              </div>
+              <div className="d-flex justify-content-between mb-2">
+                <span>Type:</span>
+                <span className="fw-bold">
+                  {apartmentType === "3br"
+                    ? "3 Bedroom"
+                    : apartmentType === "4br"
+                    ? "4 Bedroom"
+                    : apartmentType === "5br"
+                    ? "5 Bedroom"
+                    : "5 Bedroom (Party)"}
+                </span>
+              </div>
+              <div className="d-flex justify-content-between mb-2">
+                <span>Check-in:</span>
+                <span className="fw-bold">
+                  {checkInDate.toLocaleDateString()}
+                </span>
+              </div>
+              <div className="d-flex justify-content-between mb-2">
+                <span>Check-out:</span>
+                <span className="fw-bold">
+                  {checkOutDate.toLocaleDateString()}
+                </span>
+              </div>
+              <div className="d-flex justify-content-between mt-3">
+                <span className="fw-bold">Total Amount:</span>
+                <span className="fw-bold">₦{totalAmount.toLocaleString()}</span>
+              </div>
+              {apartmentType === "5br-party" && (
+                <div className="d-flex justify-content-between mt-2">
+                  <span className="fw-bold text-danger">Caution Fee:</span>
+                  <span className="fw-bold text-danger">
+                    ₦100,000 (To be paid at arrival)
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <Button
+              variant="primary"
+              type="submit"
+              className="w-100 py-3 fw-bold"
+              disabled={isProcessing}
+              style={{
+                backgroundColor: "#40E0D0",
+                borderColor: "#40E0D0",
+                borderRadius: "8px",
+              }}
+            >
+              {isProcessing ? (
+                <>
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                    className="me-2"
+                  />
+                  Processing...
+                </>
+              ) : (
+                `Pay ₦${totalAmount.toLocaleString()} Now`
+              )}
+            </Button>
+            <p className="text-center text-muted small mt-3">
+              Secure payment powered by Paystack
+            </p>
+          </Form>
+        </Modal.Body>
+      </Modal>
     </Row>
   );
 };

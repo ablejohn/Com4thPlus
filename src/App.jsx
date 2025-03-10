@@ -53,6 +53,7 @@ const App = () => {
             <Route path="/location" element={<LocationPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/admin/add-property" element={<AdminPropertyForm />} />
+
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>
