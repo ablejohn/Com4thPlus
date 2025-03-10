@@ -22,6 +22,7 @@ import {
   FaCheck,
 } from "react-icons/fa";
 import { usePaystackPayment } from "react-paystack";
+import BlockedDatesManager, { checkDateAvailability } from "./BlockedDatesManager";
 
 // Paystack config
 const PAYSTACK_PUBLIC_KEY = "YOUR_PAYSTACK_PUBLIC_KEY"; // Replace with your actual key
@@ -55,21 +56,6 @@ const ManualBooking = ({
   const [totalAmount, setTotalAmount] = useState(0);
   const [apartmentType, setApartmentType] = useState("");
 
-  // Load blocked dates when property changes
-  useEffect(() => {
-    if (selectedProperty) {
-      fetchBlockedDates(selectedProperty.id);
-
-      // Calculate default price
-      if (selectedProperty.price) {
-        const nights = Math.ceil(
-          (checkOutDate - checkInDate) / (24 * 60 * 60 * 1000)
-        );
-        setTotalAmount(selectedProperty.price * nights);
-      }
-    }
-  }, [selectedProperty]);
-
   // Update price when dates change
   useEffect(() => {
     if (selectedProperty && selectedProperty.price) {
@@ -78,37 +64,11 @@ const ManualBooking = ({
       );
       setTotalAmount(selectedProperty.price * nights);
     }
-  }, [checkInDate, checkOutDate]);
+  }, [checkInDate, checkOutDate, selectedProperty]);
 
-  // Fetch blocked dates for the selected property
-  const fetchBlockedDates = async (propertyId) => {
-    try {
-      setLoading(true);
-      // Replace with actual API call
-      // const response = await api.getBlockedDates(propertyId);
-      // setBlockedDates(response.data);
-
-      // Simulated data for demonstration
-      setTimeout(() => {
-        const mockBlockedDates = [
-          {
-            id: 1,
-            startDate: new Date(2025, 2, 15),
-            endDate: new Date(2025, 2, 20),
-          },
-          {
-            id: 2,
-            startDate: new Date(2025, 3, 10),
-            endDate: new Date(2025, 3, 15),
-          },
-        ];
-        setBlockedDates(mockBlockedDates);
-        setLoading(false);
-      }, 600);
-    } catch (error) {
-      showMessage("Failed to load blocked dates", "danger");
-      setLoading(false);
-    }
+  // Handler for when blocked dates are loaded
+  const handleBlockedDatesLoaded = (dates) => {
+    setBlockedDates(dates);
   };
 
   // Fetch recent bookings (will be called after successful payment)
@@ -135,26 +95,6 @@ const ManualBooking = ({
     });
   };
 
-  // Check if selected dates overlap with blocked dates
-  const checkDateAvailability = () => {
-    if (!blockedDates.length) return true;
-
-    for (const blockedPeriod of blockedDates) {
-      // Check if the selected date range overlaps with any blocked period
-      if (
-        (checkInDate >= blockedPeriod.startDate &&
-          checkInDate <= blockedPeriod.endDate) ||
-        (checkOutDate >= blockedPeriod.startDate &&
-          checkOutDate <= blockedPeriod.endDate) ||
-        (checkInDate <= blockedPeriod.startDate &&
-          checkOutDate >= blockedPeriod.endDate)
-      ) {
-        return false;
-      }
-    }
-    return true;
-  };
-
   // Proceed to payment
   const handleProceedToPayment = () => {
     if (!selectedProperty) {
@@ -167,7 +107,8 @@ const ManualBooking = ({
       return;
     }
 
-    if (!checkDateAvailability()) {
+    // Use the imported utility function to check date availability
+    if (!checkDateAvailability(blockedDates, checkInDate, checkOutDate)) {
       showMessage("Selected dates overlap with blocked dates", "danger");
       return;
     }
@@ -351,6 +292,15 @@ const ManualBooking = ({
                   </Form.Group>
                 </Col>
               </Row>
+
+              {/* Blocked Dates Manager Component */}
+              {selectedProperty && (
+                <BlockedDatesManager
+                  propertyId={selectedProperty.id}
+                  onBlockedDatesLoaded={handleBlockedDatesLoaded}
+                  showMessage={showMessage}
+                />
+              )}
 
               {/* Apartment Type Selection */}
               {selectedProperty && (
