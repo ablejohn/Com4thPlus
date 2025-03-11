@@ -13,7 +13,7 @@ import {
   Dropdown,
   Spinner,
   OverlayTrigger,
-  Tooltip
+  Tooltip,
 } from "react-bootstrap";
 import {
   FaPlus,
@@ -26,13 +26,19 @@ import {
   FaSort,
   FaList,
   FaTable,
-  FaHome
+  FaHome,
+  FaCalendarAlt,
 } from "react-icons/fa";
 import { api } from "../../api";
 import { theme } from "../styling/theme";
 import PropertyForm from "./PropertyForm";
 
-const PropertyManagement = ({ properties, setProperties, loading, showMessage }) => {
+const PropertyManagement = ({
+  properties,
+  setProperties,
+  loading,
+  showMessage,
+}) => {
   // Property management state
   const [showForm, setShowForm] = useState(false);
   const [formMode, setFormMode] = useState("add");
@@ -43,6 +49,9 @@ const PropertyManagement = ({ properties, setProperties, loading, showMessage })
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("newest");
+  const [showBlockedDatesModal, setShowBlockedDatesModal] = useState(false);
+  const [propertyToViewBlockedDates, setPropertyToViewBlockedDates] =
+    useState(null);
 
   // Handle editing of a property
   const handleEdit = (property) => {
@@ -55,20 +64,26 @@ const PropertyManagement = ({ properties, setProperties, loading, showMessage })
   const handleDelete = async () => {
     const success = await api.deleteProperty(propertyToDelete.id);
     if (success) {
-      setProperties(properties.filter(p => p.id !== propertyToDelete.id));
+      setProperties(properties.filter((p) => p.id !== propertyToDelete.id));
       showMessage("Property deleted successfully!", "success");
     }
     setShowDeleteModal(false);
     setPropertyToDelete(null);
   };
 
+  // Handle viewing blocked dates
+  const handleViewBlockedDates = (property) => {
+    setPropertyToViewBlockedDates(property);
+    setShowBlockedDatesModal(true);
+  };
+
   // Filter and sort properties
   const filteredProperties = properties
-    .filter(property => {
+    .filter((property) => {
       if (filterStatus === "all") return true;
       return property.availability.toLowerCase() === filterStatus.toLowerCase();
     })
-    .filter(property => {
+    .filter((property) => {
       if (!searchTerm) return true;
       const searchLower = searchTerm.toLowerCase();
       return (
@@ -104,7 +119,10 @@ const PropertyManagement = ({ properties, setProperties, loading, showMessage })
     const success = await api.saveProperties(updatedProperties);
     if (success) {
       setProperties(updatedProperties);
-      showMessage(`Property ${formMode === "add" ? "added" : "updated"} successfully!`, "success");
+      showMessage(
+        `Property ${formMode === "add" ? "added" : "updated"} successfully!`,
+        "success"
+      );
       resetForm();
     }
   };
@@ -132,58 +150,106 @@ const PropertyManagement = ({ properties, setProperties, loading, showMessage })
               >
                 <FaPlus /> Add Property
               </Button>
-              
+
               <OverlayTrigger
                 placement="top"
                 overlay={<Tooltip>List view</Tooltip>}
               >
-                <Button 
-                  variant={viewMode === "list" ? "primary" : "outline-primary"} 
+                <Button
+                  variant={viewMode === "list" ? "primary" : "outline-primary"}
                   className="me-1"
                   onClick={() => setViewMode("list")}
                 >
                   <FaList />
                 </Button>
               </OverlayTrigger>
-              
+
               <OverlayTrigger
                 placement="top"
                 overlay={<Tooltip>Grid view</Tooltip>}
               >
-                <Button 
-                  variant={viewMode === "grid" ? "primary" : "outline-primary"} 
+                <Button
+                  variant={viewMode === "grid" ? "primary" : "outline-primary"}
                   className="me-2"
                   onClick={() => setViewMode("grid")}
                 >
                   <FaTable />
                 </Button>
               </OverlayTrigger>
-              
+
               <Dropdown className="me-2">
-                <Dropdown.Toggle variant="outline-secondary" id="filter-dropdown" className="d-flex align-items-center">
+                <Dropdown.Toggle
+                  variant="outline-secondary"
+                  id="filter-dropdown"
+                  className="d-flex align-items-center"
+                >
                   <FaFilter className="me-1" /> Filter
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
-                  <Dropdown.Item onClick={() => setFilterStatus("all")} active={filterStatus === "all"}>All Properties</Dropdown.Item>
-                  <Dropdown.Item onClick={() => setFilterStatus("available now")} active={filterStatus === "available now"}>Available Now</Dropdown.Item>
-                  <Dropdown.Item onClick={() => setFilterStatus("coming soon")} active={filterStatus === "coming soon"}>Coming Soon</Dropdown.Item>
-                  <Dropdown.Item onClick={() => setFilterStatus("not available")} active={filterStatus === "not available"}>Not Available</Dropdown.Item>
+                  <Dropdown.Item
+                    onClick={() => setFilterStatus("all")}
+                    active={filterStatus === "all"}
+                  >
+                    All Properties
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    onClick={() => setFilterStatus("available now")}
+                    active={filterStatus === "available now"}
+                  >
+                    Available Now
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    onClick={() => setFilterStatus("coming soon")}
+                    active={filterStatus === "coming soon"}
+                  >
+                    Coming Soon
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    onClick={() => setFilterStatus("not available")}
+                    active={filterStatus === "not available"}
+                  >
+                    Not Available
+                  </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
-              
+
               <Dropdown>
-                <Dropdown.Toggle variant="outline-secondary" id="sort-dropdown" className="d-flex align-items-center">
+                <Dropdown.Toggle
+                  variant="outline-secondary"
+                  id="sort-dropdown"
+                  className="d-flex align-items-center"
+                >
                   <FaSort className="me-1" /> Sort
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
-                  <Dropdown.Item onClick={() => setSortBy("newest")} active={sortBy === "newest"}>Newest First</Dropdown.Item>
-                  <Dropdown.Item onClick={() => setSortBy("oldest")} active={sortBy === "oldest"}>Oldest First</Dropdown.Item>
-                  <Dropdown.Item onClick={() => setSortBy("priceAsc")} active={sortBy === "priceAsc"}>Price: Low to High</Dropdown.Item>
-                  <Dropdown.Item onClick={() => setSortBy("priceDesc")} active={sortBy === "priceDesc"}>Price: High to Low</Dropdown.Item>
+                  <Dropdown.Item
+                    onClick={() => setSortBy("newest")}
+                    active={sortBy === "newest"}
+                  >
+                    Newest First
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    onClick={() => setSortBy("oldest")}
+                    active={sortBy === "oldest"}
+                  >
+                    Oldest First
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    onClick={() => setSortBy("priceAsc")}
+                    active={sortBy === "priceAsc"}
+                  >
+                    Price: Low to High
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    onClick={() => setSortBy("priceDesc")}
+                    active={sortBy === "priceDesc"}
+                  >
+                    Price: High to Low
+                  </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
             </div>
-            
+
             <div className="search-container">
               <InputGroup>
                 <Form.Control
@@ -197,7 +263,7 @@ const PropertyManagement = ({ properties, setProperties, loading, showMessage })
               </InputGroup>
             </div>
           </div>
-          
+
           {loading ? (
             <div className="text-center py-5">
               <Spinner animation="border" role="status" variant="primary">
@@ -219,45 +285,72 @@ const PropertyManagement = ({ properties, setProperties, loading, showMessage })
                         >
                           <Row>
                             <Col md={2} className="mb-2 mb-md-0">
-                              <div 
-                                className="property-thumbnail" 
-                                style={{ 
-                                  backgroundImage: `url(${property.images[0] || '/placeholder-image.jpg'})`,
-                                  height: '80px',
-                                  backgroundSize: 'cover',
-                                  backgroundPosition: 'center',
-                                  borderRadius: '4px'
+                              <div
+                                className="property-thumbnail"
+                                style={{
+                                  backgroundImage: `url(${
+                                    property.images[0] ||
+                                    "/placeholder-image.jpg"
+                                  })`,
+                                  height: "80px",
+                                  backgroundSize: "cover",
+                                  backgroundPosition: "center",
+                                  borderRadius: "4px",
                                 }}
                               ></div>
                             </Col>
-                            <Col md={6}>
+                            <Col md={5}>
                               <h5 className="mb-1">{property.title}</h5>
-                              <div className="text-muted small mb-2">{property.location}</div>
+                              <div className="text-muted small mb-2">
+                                {property.location}
+                              </div>
                               <div>
-                                <Badge 
+                                <Badge
                                   bg={
-                                    property.availability === "Available Now" 
-                                      ? "success" 
-                                      : property.availability === "Coming Soon" 
-                                        ? "warning" 
-                                        : "secondary"
+                                    property.availability === "Available Now"
+                                      ? "success"
+                                      : property.availability === "Coming Soon"
+                                      ? "warning"
+                                      : "secondary"
                                   }
                                   className="me-2"
                                 >
                                   {property.availability}
                                 </Badge>
-                                <span className="me-3">{property.beds} Beds</span>
-                                <span className="me-3">{property.baths} Baths</span>
-                                <span>{(property.sqft || 0).toLocaleString()} sqft</span>
+                                <span className="me-3">
+                                  {property.beds} Beds
+                                </span>
+                                <span className="me-3">
+                                  {property.baths} Baths
+                                </span>
+                                <span>
+                                  {(property.sqft || 0).toLocaleString()} sqft
+                                </span>
                               </div>
                             </Col>
                             <Col md={2} className="text-md-center">
-                              <div className="price-tag">₦{(property.priceNaira || 0).toLocaleString()}</div>
+                              <div className="price-tag">
+                                ₦{(property.priceNaira || 0).toLocaleString()}
+                              </div>
                               <div className="small text-success mt-1">
-                                {property.bookings ? `${property.bookings} bookings` : '0 bookings'}
+                                {property.bookings
+                                  ? `${property.bookings} bookings`
+                                  : "0 bookings"}
                               </div>
                             </Col>
-                            <Col md={2} className="d-flex align-items-center justify-content-md-end mt-2 mt-md-0">
+                            <Col
+                              md={3}
+                              className="d-flex align-items-center justify-content-md-end mt-2 mt-md-0"
+                            >
+                              <Button
+                                variant="outline-secondary"
+                                size="sm"
+                                onClick={() => handleViewBlockedDates(property)}
+                                className="me-2"
+                                title="View blocked dates"
+                              >
+                                <FaCalendarAlt /> Dates
+                              </Button>
                               <Button
                                 variant="outline-primary"
                                 size="sm"
@@ -286,11 +379,13 @@ const PropertyManagement = ({ properties, setProperties, loading, showMessage })
                       <FaHome size={40} className="text-muted mb-3" />
                       <h5>No properties found</h5>
                       <p className="text-muted">
-                        {searchTerm ? "Try adjusting your search or filters" : "Add your first property to get started"}
+                        {searchTerm
+                          ? "Try adjusting your search or filters"
+                          : "Add your first property to get started"}
                       </p>
                       {!searchTerm && (
-                        <Button 
-                          variant="primary" 
+                        <Button
+                          variant="primary"
                           onClick={() => setShowForm(true)}
                         >
                           <FaPlus /> Add Property
@@ -300,7 +395,7 @@ const PropertyManagement = ({ properties, setProperties, loading, showMessage })
                   )}
                 </div>
               )}
-              
+
               {/* Grid View */}
               {viewMode === "grid" && (
                 <Row>
@@ -308,28 +403,32 @@ const PropertyManagement = ({ properties, setProperties, loading, showMessage })
                     filteredProperties.map((property) => (
                       <Col key={property.id} md={6} lg={4} className="mb-4">
                         <Card className="h-100 property-card">
-                          <div 
-                            className="property-image" 
-                            style={{ 
-                              backgroundImage: `url(${property.images[0] || '/placeholder-image.jpg'})`,
-                              height: '180px',
-                              backgroundSize: 'cover',
-                              backgroundPosition: 'center',
-                              borderTopLeftRadius: theme.borderRadius?.md || '8px',
-                              borderTopRightRadius: theme.borderRadius?.md || '8px'
+                          <div
+                            className="property-image"
+                            style={{
+                              backgroundImage: `url(${
+                                property.images[0] || "/placeholder-image.jpg"
+                              })`,
+                              height: "180px",
+                              backgroundSize: "cover",
+                              backgroundPosition: "center",
+                              borderTopLeftRadius:
+                                theme.borderRadius?.md || "8px",
+                              borderTopRightRadius:
+                                theme.borderRadius?.md || "8px",
                             }}
                           >
-                            <Badge 
+                            <Badge
                               bg={
-                                property.availability === "Available Now" 
-                                  ? "success" 
-                                  : property.availability === "Coming Soon" 
-                                    ? "warning" 
-                                    : "secondary"
+                                property.availability === "Available Now"
+                                  ? "success"
+                                  : property.availability === "Coming Soon"
+                                  ? "warning"
+                                  : "secondary"
                               }
                               className="position-absolute m-2"
                             >
-                             {property.availability}
+                              {property.availability}
                             </Badge>
                             <div className="position-absolute bottom-0 end-0 m-2">
                               <span className="badge bg-dark">
@@ -338,16 +437,34 @@ const PropertyManagement = ({ properties, setProperties, loading, showMessage })
                             </div>
                           </div>
                           <Card.Body>
-                            <h5 className="card-title mb-1">{property.title}</h5>
-                            <p className="text-muted small mb-2">{property.location}</p>
+                            <h5 className="card-title mb-1">
+                              {property.title}
+                            </h5>
+                            <p className="text-muted small mb-2">
+                              {property.location}
+                            </p>
                             <div className="d-flex justify-content-between mb-3">
                               <div>
-                                <span className="me-2">{property.beds} Beds</span>
-                                <span className="me-2">{property.baths} Baths</span>
+                                <span className="me-2">
+                                  {property.beds} Beds
+                                </span>
+                                <span className="me-2">
+                                  {property.baths} Baths
+                                </span>
                               </div>
-                              <span>{(property.sqft || 0).toLocaleString()} sqft</span>
+                              <span>
+                                {(property.sqft || 0).toLocaleString()} sqft
+                              </span>
                             </div>
                             <div className="d-flex justify-content-between mt-auto pt-2 border-top">
+                              <Button
+                                variant="outline-secondary"
+                                size="sm"
+                                onClick={() => handleViewBlockedDates(property)}
+                                title="View blocked dates"
+                              >
+                                <FaCalendarAlt />
+                              </Button>
                               <Button
                                 variant="outline-primary"
                                 size="sm"
@@ -363,7 +480,7 @@ const PropertyManagement = ({ properties, setProperties, loading, showMessage })
                                   setShowDeleteModal(true);
                                 }}
                               >
-                                <FaTrash /> Delete
+                                <FaTrash />
                               </Button>
                             </div>
                           </Card.Body>
@@ -376,11 +493,13 @@ const PropertyManagement = ({ properties, setProperties, loading, showMessage })
                         <FaHome size={40} className="text-muted mb-3" />
                         <h5>No properties found</h5>
                         <p className="text-muted">
-                          {searchTerm ? "Try adjusting your search or filters" : "Add your first property to get started"}
+                          {searchTerm
+                            ? "Try adjusting your search or filters"
+                            : "Add your first property to get started"}
                         </p>
                         {!searchTerm && (
-                          <Button 
-                            variant="primary" 
+                          <Button
+                            variant="primary"
                             onClick={() => setShowForm(true)}
                           >
                             <FaPlus /> Add Property
@@ -419,7 +538,8 @@ const PropertyManagement = ({ properties, setProperties, loading, showMessage })
         </Modal.Header>
         <Modal.Body>
           Are you sure you want to delete{" "}
-          <strong>{propertyToDelete?.title}</strong>? This action cannot be undone.
+          <strong>{propertyToDelete?.title}</strong>? This action cannot be
+          undone.
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
@@ -427,6 +547,69 @@ const PropertyManagement = ({ properties, setProperties, loading, showMessage })
           </Button>
           <Button variant="danger" onClick={handleDelete}>
             Delete Property
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Blocked Dates Modal */}
+      <Modal
+        show={showBlockedDatesModal}
+        onHide={() => setShowBlockedDatesModal(false)}
+        centered
+        size="lg"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>
+            <FaCalendarAlt className="me-2" />
+            Blocked Dates for {propertyToViewBlockedDates?.title}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {propertyToViewBlockedDates?.blockedDates?.length > 0 ? (
+            <ListGroup>
+              {propertyToViewBlockedDates?.blockedDates?.map(
+                (dateRange, index) => (
+                  <ListGroup.Item
+                    key={index}
+                    className="d-flex justify-content-between align-items-center"
+                  >
+                    <div>
+                      <strong>From:</strong>{" "}
+                      {new Date(dateRange.startDate).toLocaleDateString()}
+                      <strong className="ms-3">To:</strong>{" "}
+                      {new Date(dateRange.endDate).toLocaleDateString()}
+                    </div>
+                    <Badge bg="secondary">
+                      {dateRange.reason || "Unavailable"}
+                    </Badge>
+                  </ListGroup.Item>
+                )
+              ) || []}
+            </ListGroup>
+          ) : (
+            <div className="text-center py-4">
+              <p className="mb-0">No blocked dates for this property.</p>
+              <small className="text-muted">
+                You can add blocked dates when editing the property.
+              </small>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => setShowBlockedDatesModal(false)}
+          >
+            Close
+          </Button>
+          <Button
+            variant="primary"
+            onClick={() => {
+              setShowBlockedDatesModal(false);
+              handleEdit(propertyToViewBlockedDates);
+            }}
+          >
+            Edit Property & Dates
           </Button>
         </Modal.Footer>
       </Modal>

@@ -7,14 +7,9 @@ import {
   Card,
   Alert,
   Dropdown,
-  Nav
+  Nav,
 } from "react-bootstrap";
-import { 
-  FaBuilding, 
-  FaUserCog, 
-  FaCalendarAlt,
-  FaBook 
-} from "react-icons/fa";
+import { FaBuilding, FaUserCog, FaCalendarAlt, FaBook } from "react-icons/fa";
 import { useProperties } from "../services/propertyContext";
 import { theme } from "../styling/theme";
 
@@ -24,7 +19,7 @@ import PropertyManagement from "./PropertyManagement";
 import LeadsManagement from "./LeadsManagement";
 import AffiliatesManagement from "./AffiliatesManagement";
 import AnalyticsTab from "./AnalyticsTab";
-import CalendarManagement from "./CalenderManagement";
+
 import ManualBooking from "./ManualBooking";
 
 const AdminPropertyPage = () => {
@@ -37,14 +32,17 @@ const AdminPropertyPage = () => {
   // Dashboard summary calculations
   const dashboardSummary = {
     totalProperties: properties.length,
-    availableNow: properties.filter(p => p.availability === "Available Now").length,
-    comingSoon: properties.filter(p => p.availability === "Coming Soon").length,
-    notAvailable: properties.filter(p => p.availability === "Not Available").length,
+    availableNow: properties.filter((p) => p.availability === "Available Now")
+      .length,
+    comingSoon: properties.filter((p) => p.availability === "Coming Soon")
+      .length,
+    notAvailable: properties.filter((p) => p.availability === "Not Available")
+      .length,
     totalLeads: 15, // Example data (would be calculated from actual leads)
     totalBookings: 8,
     conversionRate: "53%",
     totalAffiliates: 6,
-    blockedDates: 12 // Example data (would be calculated from actual blocked dates)
+    blockedDates: 12, // Example data (would be calculated from actual blocked dates)
   };
 
   // Show message function (can be passed to child components)
@@ -55,7 +53,7 @@ const AdminPropertyPage = () => {
 
   // Property selection handler
   const handlePropertySelect = (propertyId) => {
-    const property = properties.find(p => p.id === propertyId);
+    const property = properties.find((p) => p.id === propertyId);
     setSelectedProperty(property);
   };
 
@@ -63,15 +61,21 @@ const AdminPropertyPage = () => {
     <Container fluid className="py-4">
       <Row className="mb-4">
         <Col>
-          <Card style={{ 
-            borderRadius: theme.borderRadius?.lg || "12px",
-            boxShadow: "0 4px 20px rgba(0,0,0,0.08)"
-          }}>
-            <Card.Header style={{ 
-              background: theme.colors?.primary || "#007bff", 
-              borderRadius: `${theme.borderRadius?.lg || "12px"} ${theme.borderRadius?.lg || "12px"} 0 0`,
-              padding: "1rem"
-            }}>
+          <Card
+            style={{
+              borderRadius: theme.borderRadius?.lg || "12px",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+            }}
+          >
+            <Card.Header
+              style={{
+                background: theme.colors?.primary || "#007bff",
+                borderRadius: `${theme.borderRadius?.lg || "12px"} ${
+                  theme.borderRadius?.lg || "12px"
+                } 0 0`,
+                padding: "1rem",
+              }}
+            >
               <div className="d-flex justify-content-between align-items-center">
                 <h2 className="m-0" style={{ color: "#fff" }}>
                   <FaBuilding className="me-2" /> Property Management
@@ -104,29 +108,29 @@ const AdminPropertyPage = () => {
 
               <Row>
                 <Col md={3} lg={2} className="mb-4">
-                  <DashboardSidebar 
-                    activeTab={activeTab} 
-                    setActiveTab={setActiveTab} 
-                    dashboardSummary={dashboardSummary} 
+                  <DashboardSidebar
+                    activeTab={activeTab}
+                    setActiveTab={setActiveTab}
+                    dashboardSummary={dashboardSummary}
                   />
                 </Col>
-                
+
                 <Col md={9} lg={10}>
                   {/* Secondary tab navigation for calendar functions */}
                   {(activeTab === "calendar" || activeTab === "booking") && (
                     <div className="mb-4">
                       <Nav variant="tabs">
                         <Nav.Item>
-                          <Nav.Link 
-                            active={activeTab === "calendar"} 
+                          <Nav.Link
+                            active={activeTab === "calendar"}
                             onClick={() => setActiveTab("calendar")}
                           >
                             <FaCalendarAlt className="me-2" /> Block Dates
                           </Nav.Link>
                         </Nav.Item>
                         <Nav.Item>
-                          <Nav.Link 
-                            active={activeTab === "booking"} 
+                          <Nav.Link
+                            active={activeTab === "booking"}
                             onClick={() => setActiveTab("booking")}
                           >
                             <FaBook className="me-2" /> Manual Booking
@@ -139,9 +143,9 @@ const AdminPropertyPage = () => {
                   {activeTab === "dashboard" && (
                     <AnalyticsTab dashboardSummary={dashboardSummary} />
                   )}
-                  
+
                   {activeTab === "properties" && (
-                    <PropertyManagement 
+                    <PropertyManagement
                       properties={properties}
                       setProperties={setProperties}
                       loading={loading}
@@ -149,26 +153,13 @@ const AdminPropertyPage = () => {
                       onPropertySelect={handlePropertySelect}
                     />
                   )}
-                  
-                  {activeTab === "leads" && (
-                    <LeadsManagement />
-                  )}
-                  
-                  {activeTab === "affiliates" && (
-                    <AffiliatesManagement />
-                  )}
 
-                  {activeTab === "calendar" && (
-                    <CalendarManagement 
-                      properties={properties}
-                      selectedProperty={selectedProperty}
-                      onPropertySelect={handlePropertySelect}
-                      showMessage={showMessage}
-                    />
-                  )}
+                  {activeTab === "leads" && <LeadsManagement />}
+
+                  {activeTab === "affiliates" && <AffiliatesManagement />}
 
                   {activeTab === "booking" && (
-                    <ManualBooking 
+                    <ManualBooking
                       properties={properties}
                       selectedProperty={selectedProperty}
                       onPropertySelect={handlePropertySelect}

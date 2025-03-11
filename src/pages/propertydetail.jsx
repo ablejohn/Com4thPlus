@@ -10,22 +10,24 @@ import {
   Spinner,
   Form,
   Modal,
+  Alert,
+  ListGroup,
 } from "react-bootstrap";
 import {
   FaMapMarkerAlt,
-  FaCalendarAlt,
   FaBed,
   FaBath,
   FaRulerCombined,
   FaArrowLeft,
   FaPhone,
+  FaCalendarAlt,
 } from "react-icons/fa";
 import { useProperties } from "../services/propertyContext";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { usePaystackPayment } from "react-paystack";
+import { api } from "../../api";
 
-// Theme configuration (from your provided code)
 const theme = {
   colors: {
     primary: "#40E0D0",
@@ -41,10 +43,8 @@ const theme = {
   boxShadow: { sm: "0 4px 12px rgba(0, 0, 0, 0.05)" },
 };
 
-// Paystack config
-const PAYSTACK_PUBLIC_KEY = "YOUR_PAYSTACK_PUBLIC_KEY"; // Replace with your actual key
+const PAYSTACK_PUBLIC_KEY = "YOUR_PAYSTACK_PUBLIC_KEY";
 
-// Constant House Rules
 const CONSTANT_HOUSE_RULES = [
   "Maximum number of guests is strictly 30 people for parties",
   "No large cooking is allowed for any get together or party at the apartment",
@@ -53,11 +53,45 @@ const CONSTANT_HOUSE_RULES = [
   "Checkout: 12:00 PM",
 ];
 
+const checkDateAvailability = (blockedDates, checkInDate, checkOutDate) => {
+  if (!blockedDates || blockedDates.length === 0) return true;
+  const start = new Date(checkInDate);
+  const end = new Date(checkOutDate);
+  return !blockedDates.some((range) => {
+    const rangeStart = new Date(range.startDate || range.start);
+    const rangeEnd = new Date(range.endDate || range.end);
+    return start <= rangeEnd && end >= rangeStart;
+  });
+};
+
+const getExcludedDates = (blockedDates) => {
+  if (!blockedDates || blockedDates.length === 0) return [];
+  const excluded = [];
+  blockedDates.forEach(({ startDate, endDate, start, end }) => {
+    const rangeStart = startDate || start;
+    const rangeEnd = endDate || end;
+    let currentDate = new Date(rangeStart);
+    const endDateObj = new Date(rangeEnd);
+    while (currentDate <= endDateObj) {
+      excluded.push(new Date(currentDate));
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+  });
+  return excluded;
+};
+
+const formatDate = (dateStr) => {
+  return new Date(dateStr).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+};
+
 const PropertyDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { properties, loading } = useProperties();
-
+  const { properties, loading, updatePropertyBlockedDates } = useProperties();
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [apartmentType, setApartmentType] = useState("");
@@ -67,8 +101,12 @@ const PropertyDetailPage = () => {
   const [phone, setPhone] = useState("");
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState("");
 
-  // Calculate number of days between dates
+  const property = properties.find((p) => p.id === id);
+  const blockedDates = property ? property.blockedDates || [] : [];
+  const excludedDates = getExcludedDates(blockedDates);
+
   const getDays = () => {
     if (startDate && endDate) {
       const difference = Math.abs(endDate - startDate);
@@ -77,26 +115,16 @@ const PropertyDetailPage = () => {
     return 1;
   };
 
-  // Find property first
-  const property = properties.find((p) => p.id === id);
-
-  // Calculate amount based on selection (using the property's price)
   useEffect(() => {
     if (apartmentType && property) {
-      // Use the property's price instead of hardcoded values
       let baseAmount = property.priceNaira || 0;
-      
-      // Adjust price based on apartment type if needed
       const priceMultipliers = {
         "3br": 1,
         "4br": 1.2,
         "5br": 1.4,
-        "5br-party": 2
+        "5br-party": 2,
       };
-      
       baseAmount = baseAmount * (priceMultipliers[apartmentType] || 1);
-      
-      // For party, it's a flat fee. For others, multiply by days
       setAmount(
         apartmentType === "5br-party" ? baseAmount : baseAmount * getDays()
       );
@@ -105,11 +133,10 @@ const PropertyDetailPage = () => {
     }
   }, [apartmentType, startDate, endDate, property]);
 
-  // Paystack config
   const config = {
     reference: new Date().getTime().toString(),
     email,
-    amount: amount * 100, // Convert to kobo
+    amount: amount * 100,
     publicKey: PAYSTACK_PUBLIC_KEY,
     metadata: {
       custom_fields: [
@@ -144,38 +171,80 @@ const PropertyDetailPage = () => {
 
   const initializePayment = usePaystackPayment(config);
 
-  const onSuccess = (reference) => {
+  const onSuccess = async (reference) => {
     setIsProcessing(false);
     setShowPaymentModal(false);
-    navigate(
-      `/payment-success?ref=${reference.reference}&amount=${amount}&type=${apartmentType}`
-    );
+
+    const newBlockedDates = [
+      ...(property.blockedDates || []),
+      {
+        start: startDate.toISOString().split("T")[0],
+        end: endDate.toISOString().split("T")[0],
+      },
+    ];
+
+    const bookingData = {
+      fullName,
+      email,
+      phone,
+      propertyId: id,
+      propertyTitle: property.title,
+      apartmentType,
+      amount,
+      paymentStatus: "paid",
+      paymentReference: reference.reference,
+      checkIn: startDate.toISOString().split("T")[0],
+      checkOut: endDate.toISOString().split("T")[0],
+    };
+
+    try {
+      await api.createBooking(bookingData);
+      await updatePropertyBlockedDates(id, newBlockedDates);
+      await api.updateProperty(id, { availability: "Booked" });
+      navigate(
+        `/payment-success?ref=${reference.reference}&amount=${amount}&type=${apartmentType}`
+      );
+    } catch (err) {
+      setError("Payment succeeded but booking failed. Contact support.");
+      console.error("Booking error:", err);
+    }
   };
 
   const onClose = () => {
     setIsProcessing(false);
-    alert("Payment cancelled. You can try again when ready.");
+    setShowPaymentModal(false);
+    setError("Payment cancelled. You can try again when ready.");
   };
 
   const handleReserveNow = () => {
     if (!apartmentType || !startDate || !endDate) {
-      alert("Please select apartment type and dates");
+      setError("Please select apartment type and dates");
       return;
     }
+
+    if (!checkDateAvailability(blockedDates, startDate, endDate)) {
+      setError("Selected dates are blocked. Please choose different dates.");
+      return;
+    }
+
+    if (property.availability !== "Available Now") {
+      setError("This property is no longer available.");
+      return;
+    }
+
     setShowPaymentModal(true);
   };
 
   const handlePaymentSubmit = (e) => {
     e.preventDefault();
     if (!email || !fullName || !phone) {
-      alert("Please fill in all required fields");
+      setError("Please fill in all required fields");
       return;
     }
     setIsProcessing(true);
     initializePayment(onSuccess, onClose);
   };
 
-  // Loading state
   if (loading) {
     return (
       <Container className="py-5 text-center">
@@ -192,7 +261,6 @@ const PropertyDetailPage = () => {
     );
   }
 
-  // Not found state
   if (!property) {
     return (
       <Container className="py-5 text-center">
@@ -212,20 +280,18 @@ const PropertyDetailPage = () => {
     );
   }
 
-  // Get prices for different apartment types
   const getTypePrice = (type) => {
     const priceMultipliers = {
       "3br": 1,
       "4br": 1.2,
       "5br": 1.4,
-      "5br-party": 2
+      "5br-party": 2,
     };
     return property.priceNaira * (priceMultipliers[type] || 1);
   };
 
   return (
     <Container className="py-5">
-      {/* Back Button */}
       <Button
         variant="outline-primary"
         onClick={() => navigate("/properties")}
@@ -310,7 +376,6 @@ const PropertyDetailPage = () => {
                   {(property.sqft ?? 0).toLocaleString()} sqft
                 </span>
               </div>
-             
               <p>
                 <FaPhone
                   className="me-2"
@@ -324,7 +389,54 @@ const PropertyDetailPage = () => {
             </Col>
           </Row>
 
-          {/* About This Property */}
+          {/* Blocked Dates Section - Moved Up for Priority */}
+          <Card
+            className="mt-4 shadow-sm"
+            style={{
+              borderRadius: theme.borderRadius.sm,
+              backgroundColor: theme.colors.primaryLight,
+              border: `1px solid ${theme.colors.primary}`,
+            }}
+          >
+            <Card.Body className="p-3">
+              <h5
+                className="fw-bold mb-3 d-flex align-items-center"
+                style={{ color: theme.colors.primaryDark }}
+              >
+                <FaCalendarAlt className="me-2" /> Unavailable Dates
+              </h5>
+              {blockedDates.length > 0 ? (
+                <ListGroup variant="flush">
+                  {blockedDates.slice(0, 3).map((dateRange, index) => (
+                    <ListGroup.Item
+                      key={index}
+                      className="border-0 p-1 d-flex justify-content-between align-items-center"
+                    >
+                      <span className="text-muted small">
+                        {formatDate(dateRange.startDate || dateRange.start)} -{" "}
+                        {formatDate(dateRange.endDate || dateRange.end)}
+                      </span>
+                      {dateRange.reason && (
+                        <Badge bg="info" className="ms-2 small">
+                          {dateRange.reason}
+                        </Badge>
+                      )}
+                    </ListGroup.Item>
+                  ))}
+                  {blockedDates.length > 3 && (
+                    <ListGroup.Item className="border-0 p-1 text-muted small">
+                      +{blockedDates.length - 3} more blocked period(s)
+                    </ListGroup.Item>
+                  )}
+                </ListGroup>
+              ) : (
+                <p className="text-success mb-0 small">
+                  No blocked dates - fully available!
+                </p>
+              )}
+            </Card.Body>
+          </Card>
+
           {property.description && (
             <Card
               className="border-0 shadow-sm mt-4"
@@ -355,7 +467,6 @@ const PropertyDetailPage = () => {
             </Card>
           )}
 
-          {/* House Rules (Constant) */}
           <Card
             className="border-0 shadow-sm mt-4"
             style={{ borderRadius: theme.borderRadius.md }}
@@ -388,7 +499,6 @@ const PropertyDetailPage = () => {
             </Card.Body>
           </Card>
 
-          {/* Pricing Table - NEW ADDITION */}
           <Card
             className="border-0 shadow-sm mt-4"
             style={{ borderRadius: theme.borderRadius.md }}
@@ -434,13 +544,16 @@ const PropertyDetailPage = () => {
                     <tr>
                       <td>5 Bedroom</td>
                       <td>₦{getTypePrice("5br").toLocaleString()}/day</td>
-                      <td>₦{getTypePrice("5br-party").toLocaleString()} (flat fee)</td>
+                      <td>
+                        ₦{getTypePrice("5br-party").toLocaleString()} (flat fee)
+                      </td>
                     </tr>
                   </tbody>
                 </table>
               </div>
               <p className="text-muted mt-3 mb-0 small">
-                * The 5 Bedroom Party option includes a refundable caution fee of ₦100,000 to be paid upon arrival.
+                * The 5 Bedroom Party option includes a refundable caution fee
+                of ₦100,000 to be paid upon arrival.
               </p>
             </Card.Body>
           </Card>
@@ -448,7 +561,6 @@ const PropertyDetailPage = () => {
 
         <Col lg={4}>
           <div style={{ position: "sticky", top: "20px" }}>
-            {/* Make a Reservation (Paystack Container) */}
             <Card
               className="shadow-sm border-0 mb-4"
               style={{ borderRadius: theme.borderRadius.md }}
@@ -460,6 +572,15 @@ const PropertyDetailPage = () => {
                 >
                   Make a Reservation
                 </h5>
+                {error && (
+                  <Alert
+                    variant="danger"
+                    onClose={() => setError("")}
+                    dismissible
+                  >
+                    {error}
+                  </Alert>
+                )}
                 <Form.Group className="mb-4">
                   <Form.Label className="fw-semibold">
                     Select Apartment Type
@@ -488,8 +609,10 @@ const PropertyDetailPage = () => {
                     startDate={startDate}
                     endDate={endDate}
                     minDate={new Date()}
+                    excludeDates={excludedDates}
                     className="form-control"
                     placeholderText="Select check-in date"
+                    disabled={isProcessing}
                   />
                 </Form.Group>
                 <Form.Group className="mb-4">
@@ -501,8 +624,10 @@ const PropertyDetailPage = () => {
                     startDate={startDate}
                     endDate={endDate}
                     minDate={startDate || new Date()}
+                    excludeDates={excludedDates}
                     className="form-control"
                     placeholderText="Select check-out date"
+                    disabled={isProcessing}
                   />
                 </Form.Group>
                 <div
@@ -529,10 +654,10 @@ const PropertyDetailPage = () => {
                       {apartmentType !== "5br-party" && (
                         <div className="d-flex justify-content-between text-muted small mb-2">
                           <span>
-                            {getDays()} {getDays() === 1 ? "day" : "days"}
+                            {getDays()} {getDays() === 1 ? "day" : "days"}{" "}
                             {startDate &&
                               endDate &&
-                              ` (${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()})`}
+                              `(${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()})`}
                           </span>
                         </div>
                       )}
@@ -560,7 +685,9 @@ const PropertyDetailPage = () => {
                   variant="primary"
                   className="w-100 py-3 fw-bold"
                   onClick={handleReserveNow}
-                  disabled={!apartmentType || !startDate || !endDate}
+                  disabled={
+                    !apartmentType || !startDate || !endDate || isProcessing
+                  }
                   style={{
                     backgroundColor: theme.colors.primary,
                     borderColor: theme.colors.primary,
@@ -572,7 +699,6 @@ const PropertyDetailPage = () => {
               </Card.Body>
             </Card>
 
-            {/* Contact Card */}
             <Card
               className="shadow-sm border-0"
               style={{ borderRadius: theme.borderRadius.md }}
@@ -597,8 +723,8 @@ const PropertyDetailPage = () => {
                     borderRadius: theme.borderRadius.sm,
                   }}
                 >
-                  <FaPhone className="me-2" />
-                  Call {property.contactPhone || "0814 318 3494"}
+                  <FaPhone className="me-2" /> Call{" "}
+                  {property.contactPhone || "0814 318 3494"}
                 </Button>
               </Card.Body>
             </Card>
@@ -606,7 +732,6 @@ const PropertyDetailPage = () => {
         </Col>
       </Row>
 
-      {/* Payment Modal */}
       <Modal
         show={showPaymentModal}
         onHide={() => !isProcessing && setShowPaymentModal(false)}
@@ -620,6 +745,11 @@ const PropertyDetailPage = () => {
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handlePaymentSubmit}>
+            {error && (
+              <Alert variant="danger" onClose={() => setError("")} dismissible>
+                {error}
+              </Alert>
+            )}
             <div
               className="mb-4 p-3 rounded"
               style={{ backgroundColor: theme.colors.primaryLight }}

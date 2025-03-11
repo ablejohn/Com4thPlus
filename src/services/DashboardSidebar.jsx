@@ -8,16 +8,20 @@ import {
   FaFileExport,
   FaHandshake,
   FaCalendarAlt,
-  FaBookmark
+  FaBookmark,
 } from "react-icons/fa";
 
 const DashboardSidebar = ({ activeTab, setActiveTab, dashboardSummary }) => {
   // Add tooltips for better UX
-  const renderTooltip = (text) => (props) => (
-    <Tooltip id={`tooltip-${text.toLowerCase().replace(/\s/g, '-')}`} {...props}>
-      {text}
-    </Tooltip>
-  );
+  const renderTooltip = (text) => (props) =>
+    (
+      <Tooltip
+        id={`tooltip-${text.toLowerCase().replace(/\s/g, "-")}`}
+        {...props}
+      >
+        {text}
+      </Tooltip>
+    );
 
   return (
     <>
@@ -25,8 +29,8 @@ const DashboardSidebar = ({ activeTab, setActiveTab, dashboardSummary }) => {
         <Card.Body className="p-0">
           <Nav variant="pills" className="flex-column">
             <Nav.Item>
-              <Nav.Link 
-                eventKey="dashboard" 
+              <Nav.Link
+                eventKey="dashboard"
                 active={activeTab === "dashboard"}
                 onClick={() => setActiveTab("dashboard")}
                 className="d-flex align-items-center"
@@ -35,8 +39,8 @@ const DashboardSidebar = ({ activeTab, setActiveTab, dashboardSummary }) => {
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link 
-                eventKey="properties" 
+              <Nav.Link
+                eventKey="properties"
                 active={activeTab === "properties"}
                 onClick={() => setActiveTab("properties")}
                 className="d-flex align-items-center"
@@ -47,50 +51,33 @@ const DashboardSidebar = ({ activeTab, setActiveTab, dashboardSummary }) => {
                 </Badge>
               </Nav.Link>
             </Nav.Item>
-            
-            {/* Calendar Management - New Item */}
-            <Nav.Item>
-              <OverlayTrigger placement="right" overlay={renderTooltip("Block dates for maintenance or owner stays")}>
-                <Nav.Link 
-                  eventKey="calendar" 
-                  active={activeTab === "calendar"}
-                  onClick={() => setActiveTab("calendar")}
-                  className="d-flex align-items-center"
-                >
-                  <FaCalendarAlt className="me-2" /> 
-                  Block Dates
-                  {dashboardSummary.blockedDates && (
-                    <Badge bg="danger" pill className="ms-auto">
-                      {dashboardSummary.blockedDates}
-                    </Badge>
-                  )}
-                </Nav.Link>
-              </OverlayTrigger>
-            </Nav.Item>
-            
+
             {/* Manual Booking - New Item */}
             <Nav.Item>
-              <OverlayTrigger placement="right" overlay={renderTooltip("Manually create bookings for guests")}>
-                <Nav.Link 
-                  eventKey="booking" 
+              <OverlayTrigger
+                placement="right"
+                overlay={renderTooltip("Manually create bookings for guests")}
+              >
+                <Nav.Link
+                  eventKey="booking"
                   active={activeTab === "booking"}
                   onClick={() => setActiveTab("booking")}
                   className="d-flex align-items-center"
                 >
-                  <FaBookmark className="me-2" /> 
+                  <FaBookmark className="me-2" />
                   Manual Booking
                 </Nav.Link>
               </OverlayTrigger>
             </Nav.Item>
-            
+
             <Nav.Item>
-              <Nav.Link 
-                eventKey="leads" 
+              <Nav.Link
+                eventKey="leads"
                 active={activeTab === "leads"}
                 onClick={() => setActiveTab("leads")}
                 className="d-flex align-items-center"
               >
-                <FaUsers className="me-2" /> 
+                <FaUsers className="me-2" />
                 Leads & Bookings
                 <Badge bg="success" pill className="ms-auto">
                   {dashboardSummary.totalLeads}
@@ -98,13 +85,13 @@ const DashboardSidebar = ({ activeTab, setActiveTab, dashboardSummary }) => {
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link 
-                eventKey="affiliates" 
+              <Nav.Link
+                eventKey="affiliates"
                 active={activeTab === "affiliates"}
                 onClick={() => setActiveTab("affiliates")}
                 className="d-flex align-items-center"
               >
-                <FaHandshake className="me-2" /> 
+                <FaHandshake className="me-2" />
                 Affiliates
                 <Badge bg="info" pill className="ms-auto">
                   {dashboardSummary.totalAffiliates}
@@ -112,20 +99,20 @@ const DashboardSidebar = ({ activeTab, setActiveTab, dashboardSummary }) => {
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link 
-                eventKey="reports" 
+              <Nav.Link
+                eventKey="reports"
                 active={activeTab === "reports"}
                 onClick={() => setActiveTab("reports")}
                 className="d-flex align-items-center"
               >
-                <FaFileExport className="me-2" /> 
+                <FaFileExport className="me-2" />
                 Reports
               </Nav.Link>
             </Nav.Item>
           </Nav>
         </Card.Body>
       </Card>
-      
+
       {/* Enhanced Quick Stats Card */}
       <Card className="shadow-sm">
         <Card.Header className="bg-light">
@@ -148,14 +135,12 @@ const DashboardSidebar = ({ activeTab, setActiveTab, dashboardSummary }) => {
             <span>Bookings</span>
             <span className="fw-bold">{dashboardSummary.totalBookings}</span>
           </div>
-          {/* New stat for blocked dates */}
-          <div className="d-flex justify-content-between mb-2">
-            <span>Blocked Dates</span>
-            <span className="fw-bold text-danger">{dashboardSummary.blockedDates || 0}</span>
-          </div>
+
           <div className="d-flex justify-content-between">
             <span>Conversion</span>
-            <span className="fw-bold text-success">{dashboardSummary.conversionRate}</span>
+            <span className="fw-bold text-success">
+              {dashboardSummary.conversionRate}
+            </span>
           </div>
         </Card.Body>
       </Card>
