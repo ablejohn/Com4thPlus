@@ -1,18 +1,29 @@
 import React, { useState, useEffect } from "react";
-import { ChevronRight, Coffee, Wifi, Home, Check, Star, MapPin, Shield, Zap } from "lucide-react";
+import {
+  ChevronRight,
+  Coffee,
+  Wifi,
+  Home,
+  Check,
+  Star,
+  MapPin,
+  Shield,
+  Zap,
+} from "lucide-react";
 import Apartment1 from "../assets/appartment1.jpg";
 import BookingModal from "../components/bookingModal";
+import { Link } from "react-router-dom";
 
 const AboutUs = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
-  
+
   // Set up testimonial carousel
   useEffect(() => {
     const interval = setInterval(() => {
-      setActiveTestimonial(prev => (prev + 1) % testimonials.length);
+      setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
     }, 8000);
-    
+
     return () => clearInterval(interval);
   }, []);
 
@@ -30,18 +41,19 @@ const AboutUs = () => {
     {
       icon: <Shield size={20} color="#40E0D0" />,
       title: "Elite Security",
-      description: "Maximum security in a gated and well-monitored environment"
+      description: "Maximum security in a gated and well-monitored environment",
     },
     {
       icon: <Zap size={20} color="#40E0D0" />,
       title: "Spacious rooms",
-      description: "Spacious rooms designed for relaxation and convenience"
+      description: "Spacious rooms designed for relaxation and convenience",
     },
     {
       icon: <Zap size={20} color="#40E0D0" />,
       title: "Master bedroom",
-      description: "Master bedroom includes an office workspace for business travelers"
-    }
+      description:
+        "Master bedroom includes an office workspace for business travelers",
+    },
   ];
 
   const amenities = [
@@ -49,31 +61,42 @@ const AboutUs = () => {
     { icon: <Wifi size={14} />, name: "Free high-speed WiFi" },
     { icon: <Home size={14} />, name: "Maximum security" },
     { icon: <Star size={14} />, name: "Spacious rooms" },
-    { icon: <Star size={14} />, name: "Master bedroom with office workspace" }
+    { icon: <Star size={14} />, name: "Master bedroom with office workspace" },
   ];
-  
+
   const testimonials = [
     {
-      quote: "Com4th Plus provided the perfect space for our family trip. The extra comfort, clean environment, and great location made all the difference.",
+      quote:
+        "Com4th Plus provided the perfect space for our family trip. The extra comfort, clean environment, and great location made all the difference.",
       name: "Grace A.",
-      title: "Family Vacationer"
+      title: "Family Vacationer",
     },
     {
-      quote: "The security and amenities exceeded my expectations. The workspace in the master bedroom was a great bonus.",
+      quote:
+        "The security and amenities exceeded my expectations. The workspace in the master bedroom was a great bonus.",
       name: "David O.",
-      title: " Business Traveler"
-    }
+      title: " Business Traveler",
+    },
   ];
-  
+
   return (
-    <section className="py-5" style={{ background: "#fafafa", borderBottom: "1px solid #eaeaea" }}>
+    <section
+      className="py-5"
+      style={{ background: "#fafafa", borderBottom: "1px solid #eaeaea" }}
+    >
       <div className="container">
         <div className="row align-items-center">
           {/* Image Column */}
           <div className="col-md-6 mb-5 mb-md-0">
             <div className="position-relative">
               {/* Main Image */}
-              <div style={{ borderRadius: "16px", overflow: "hidden", boxShadow: "0 10px 30px rgba(0, 0, 0, 0.1)" }}>
+              <div
+                style={{
+                  borderRadius: "16px",
+                  overflow: "hidden",
+                  boxShadow: "0 10px 30px rgba(0, 0, 0, 0.1)",
+                }}
+              >
                 <img
                   src={Apartment1}
                   alt="Luxury Apartment at Com4thPLUS GRA Ikeja"
@@ -82,29 +105,34 @@ const AboutUs = () => {
                   loading="lazy"
                 />
               </div>
-              
+
               {/* Rating Badge */}
-              <div 
+              <div
                 className="position-absolute top-0 start-0 text-white py-2 px-3 m-4 rounded-pill d-flex align-items-center"
                 style={{ background: "rgba(0, 0, 0, 0.7)" }}
               >
-                <Star size={16} fill="#FFD700" stroke="#FFD700" className="me-2" />
+                <Star
+                  size={16}
+                  fill="#FFD700"
+                  stroke="#FFD700"
+                  className="me-2"
+                />
                 <span>4.9/5 on Booking.com</span>
               </div>
-              
+
               {/* Testimonial Container - Fixed height to prevent layout shifts */}
-              <div 
-                className="bg-white rounded-3 shadow-sm p-4 ms-4 position-relative" 
-                style={{ 
-                  marginTop: "-60px", 
-                  maxWidth: "85%", 
+              <div
+                className="bg-white rounded-3 shadow-sm p-4 ms-4 position-relative"
+                style={{
+                  marginTop: "-60px",
+                  maxWidth: "85%",
                   borderLeft: "4px solid #40E0D0",
-                  minHeight: "180px" 
+                  minHeight: "180px",
                 }}
               >
                 {testimonials.map((testimonial, index) => (
-                  <div 
-                    key={index} 
+                  <div
+                    key={index}
                     className="w-100 p-2"
                     style={{
                       opacity: activeTestimonial === index ? 1 : 0,
@@ -112,8 +140,9 @@ const AboutUs = () => {
                       top: "0",
                       left: "0",
                       transition: "opacity 0.5s ease",
-                      visibility: activeTestimonial === index ? "visible" : "hidden",
-                      padding: "1rem"
+                      visibility:
+                        activeTestimonial === index ? "visible" : "hidden",
+                      padding: "1rem",
                     }}
                   >
                     <p className="mb-2">{testimonial.quote}</p>
@@ -121,19 +150,20 @@ const AboutUs = () => {
                     <p className="text-muted small mb-0">{testimonial.title}</p>
                   </div>
                 ))}
-                
+
                 {/* Testimonial Navigation Dots */}
                 <div className="position-absolute bottom-0 start-50 translate-middle-x mb-2 d-flex gap-1">
                   {testimonials.map((_, index) => (
-                    <button 
+                    <button
                       key={index}
                       className="btn p-0 m-0"
                       style={{
                         width: activeTestimonial === index ? "24px" : "8px",
                         height: "8px",
-                        background: activeTestimonial === index ? "#40E0D0" : "#e0e0e0",
+                        background:
+                          activeTestimonial === index ? "#40E0D0" : "#e0e0e0",
                         borderRadius: "4px",
-                        border: "none"
+                        border: "none",
                       }}
                       onClick={() => setActiveTestimonial(index)}
                       aria-label={`View testimonial ${index + 1}`}
@@ -147,24 +177,33 @@ const AboutUs = () => {
           {/* Content Column */}
           <div className="col-md-6">
             <div className="text-center text-md-start">
-              <div className="badge bg-light text-primary mb-3 px-3 py-2">About US</div>
-              
-              <h2 className="fw-bold mb-4">
-               Where Comfort Meets Practicality
-              </h2>
-              
+              <div className="badge bg-light text-primary mb-3 px-3 py-2">
+                About US
+              </div>
+
+              <h2 className="fw-bold mb-4">Where Comfort Meets Practicality</h2>
+
               <p className="lead mb-4">
-                Com4thPLUS Apartment, where comfort, security, and convenience seamlessly blend to offer guests a truly satisfying short term apartment rental experience. Located in the serene GRA Ikeja neighborhood, Com4thplus has carefully curated its portfolio of apartments to cater to both business travelers and leisure seekers. Immerse yourself in a world of modern amenities, elegant decor, and unparalleled comfort, making your stay in Lagos a truly memorable one.
+                Com4thPLUS Apartment, where comfort, security, and convenience
+                seamlessly blend to offer guests a truly satisfying short term
+                apartment rental experience. Located in the serene GRA Ikeja
+                neighborhood, Com4thplus has carefully curated its portfolio of
+                apartments to cater to both business travelers and leisure
+                seekers. Immerse yourself in a world of modern amenities,
+                elegant decor, and unparalleled comfort, making your stay in
+                Lagos a truly memorable one.
               </p>
-              
+
               {/* Highlights */}
               <div className="d-flex flex-wrap gap-2 mb-4">
                 {[
                   "Signature Design",
                   "Dedicated Concierge",
-                  "Airport VIP Transfer"
+                  "Airport VIP Transfer",
                 ].map((highlight, index) => (
-                  <span key={index} className="badge bg-light text-dark p-2">{highlight}</span>
+                  <span key={index} className="badge bg-light text-dark p-2">
+                    {highlight}
+                  </span>
                 ))}
               </div>
             </div>
@@ -172,27 +211,33 @@ const AboutUs = () => {
             {/* Features */}
             <div className="mb-4">
               {features.map((feature, index) => (
-                <div 
+                <div
                   key={index}
                   className="d-flex align-items-start mb-3 p-3 rounded"
-                  style={{ 
+                  style={{
                     background: index % 2 === 0 ? "#f5f5f5" : "transparent",
                     borderLeft: index % 2 === 0 ? "3px solid #40E0D0" : "none",
-                    transition: "background-color 0.2s ease"
+                    transition: "background-color 0.2s ease",
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = "#f0f0f0";
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = index % 2 === 0 ? "#f5f5f5" : "transparent";
+                    e.currentTarget.style.backgroundColor =
+                      index % 2 === 0 ? "#f5f5f5" : "transparent";
                   }}
                 >
-                  <div className="me-3 p-2 rounded" style={{ backgroundColor: "rgba(64, 224, 208, 0.1)" }}>
+                  <div
+                    className="me-3 p-2 rounded"
+                    style={{ backgroundColor: "rgba(64, 224, 208, 0.1)" }}
+                  >
                     {feature.icon}
                   </div>
                   <div>
                     <h5 className="mb-1 fs-6 fw-semibold">{feature.title}</h5>
-                    <p className="mb-0 small text-muted">{feature.description}</p>
+                    <p className="mb-0 small text-muted">
+                      {feature.description}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -201,8 +246,8 @@ const AboutUs = () => {
             {/* Amenities with proper formatting */}
             <div className="d-flex flex-wrap gap-2 mb-4">
               {amenities.map((amenity, index) => (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className="badge bg-light text-dark d-flex align-items-center p-2"
                   style={{ transition: "transform 0.2s ease" }}
                   onMouseEnter={(e) => {
@@ -217,36 +262,38 @@ const AboutUs = () => {
                 </div>
               ))}
             </div>
-            
+
             {/* CTA Button with improved styling */}
             <div className="mt-4 text-center text-md-start">
-              <button 
-                className="btn px-4 py-2"
-                style={{
-                  background: "#40E0D0",
-                  color: "white",
-                  border: "none",
-                  boxShadow: "0 4px 10px rgba(64, 224, 208, 0.2)",
-                  transition: "all 0.2s ease"
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-2px)";
-                  e.currentTarget.style.boxShadow = "0 6px 12px rgba(64, 224, 208, 0.3)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow = "0 4px 10px rgba(64, 224, 208, 0.2)";
-                }}
-                onClick={() => setIsModalOpen(true)}
-              >
-                Book Your Stay Now <ChevronRight size={16} className="ms-1" />
-              </button>
+              <Link to="/properties">
+                <button
+                  className="btn px-4 py-2"
+                  style={{
+                    background: "#40E0D0",
+                    color: "white",
+                    border: "none",
+                    boxShadow: "0 4px 10px rgba(64, 224, 208, 0.2)",
+                    transition: "all 0.2s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow =
+                      "0 6px 12px rgba(64, 224, 208, 0.3)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow =
+                      "0 4px 10px rgba(64, 224, 208, 0.2)";
+                  }}
+                  onClick={() => setIsModalOpen(true)}
+                >
+                  Book Your Stay Now <ChevronRight size={16} className="ms-1" />
+                </button>
+              </Link>
             </div>
           </div>
         </div>
       </div>
-      
-      
     </section>
   );
 };
