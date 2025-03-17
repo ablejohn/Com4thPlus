@@ -41,7 +41,7 @@ const Footer = () => {
       // If triple-clicked, navigate to admin login
       if (clickCount === 3) {
         clickCount = 0;
-        navigate("/admin/add-property");
+        navigate("/admin/login");
       }
     };
   })();

@@ -1,4 +1,3 @@
-// AdminPropertyPage.jsx - Main Component
 import React, { useState } from "react";
 import {
   Container,
@@ -12,6 +11,8 @@ import {
 import { FaBuilding, FaUserCog, FaCalendarAlt, FaBook } from "react-icons/fa";
 import { useProperties } from "../services/propertyContext";
 import { theme } from "../styling/theme";
+import { Link, useNavigate } from "react-router-dom";
+import { getAuth, signOut } from "firebase/auth";
 
 // Import modularized components
 import DashboardSidebar from "./DashboardSidebar";
@@ -19,11 +20,10 @@ import PropertyManagement from "./PropertyManagement";
 import LeadsManagement from "./LeadsManagement";
 import AffiliatesManagement from "./AffiliatesManagement";
 import AnalyticsTab from "./AnalyticsTab";
-
 import ManualBooking from "./ManualBooking";
 
 const AdminPropertyPage = () => {
-  // Core state
+  const navigate = useNavigate(); // Navigation hook
   const { properties, setProperties, loading } = useProperties();
   const [message, setMessage] = useState({ show: false, text: "", type: "" });
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -38,14 +38,14 @@ const AdminPropertyPage = () => {
       .length,
     notAvailable: properties.filter((p) => p.availability === "Not Available")
       .length,
-    totalLeads: 15, // Example data (would be calculated from actual leads)
+    totalLeads: 15, // Example data
     totalBookings: 8,
     conversionRate: "53%",
     totalAffiliates: 6,
-    blockedDates: 12, // Example data (would be calculated from actual blocked dates)
+    blockedDates: 12, // Example data
   };
 
-  // Show message function (can be passed to child components)
+  // Show message function
   const showMessage = (text, type = "success") => {
     setMessage({ show: true, text, type });
     setTimeout(() => setMessage({ show: false }), 3000);
@@ -55,6 +55,20 @@ const AdminPropertyPage = () => {
   const handlePropertySelect = (propertyId) => {
     const property = properties.find((p) => p.id === propertyId);
     setSelectedProperty(property);
+  };
+
+  // Logout handler
+  const handleLogout = () => {
+    const auth = getAuth();
+    signOut(auth)
+      .then(() => {
+        localStorage.removeItem("authToken"); // Clear stored tokens if any
+        sessionStorage.clear(); // Clear session storage
+        navigate("/admin/login"); // Redirect to login page
+      })
+      .catch((error) => {
+        console.error("Error during logout:", error);
+      });
   };
 
   return (
@@ -89,7 +103,9 @@ const AdminPropertyPage = () => {
                       <Dropdown.Item>Profile</Dropdown.Item>
                       <Dropdown.Item>Settings</Dropdown.Item>
                       <Dropdown.Divider />
-                      <Dropdown.Item>Logout</Dropdown.Item>
+                      <Dropdown.Item onClick={handleLogout}>
+                        Logout
+                      </Dropdown.Item>
                     </Dropdown.Menu>
                   </Dropdown>
                 </div>
