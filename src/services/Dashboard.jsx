@@ -8,7 +8,15 @@ import {
   Dropdown,
   Nav,
 } from "react-bootstrap";
-import { FaBuilding, FaUserCog, FaCalendarAlt, FaBook } from "react-icons/fa";
+import { 
+  FaBuilding, 
+  FaUserCog, 
+  FaBook, 
+  FaChartBar, 
+  FaUsers, 
+  FaHandshake, 
+  FaTachometerAlt 
+} from "react-icons/fa";
 import { useProperties } from "../services/propertyContext";
 import { theme } from "../styling/theme";
 import { Link, useNavigate } from "react-router-dom";
@@ -28,16 +36,42 @@ const AdminPropertyPage = () => {
   const [message, setMessage] = useState({ show: false, text: "", type: "" });
   const [activeTab, setActiveTab] = useState("dashboard");
   const [selectedProperty, setSelectedProperty] = useState(null);
+  
+  // Define tab configuration for the sidebar
+  const tabConfig = [
+    {
+      id: "dashboard",
+      label: "Dashboard",
+      icon: <FaTachometerAlt />
+    },
+    {
+      id: "properties",
+      label: "Properties",
+      icon: <FaBuilding />
+    },
+    {
+      id: "leads",
+      label: "Leads",
+      icon: <FaUsers />
+    },
+    {
+      id: "affiliates",
+      label: "Affiliates",
+      icon: <FaHandshake />
+    },
+    {
+      id: "booking",
+      label: "Booking",
+      icon: <FaBook />
+    }
+  ];
 
   // Dashboard summary calculations
   const dashboardSummary = {
-    totalProperties: properties.length,
-    availableNow: properties.filter((p) => p.availability === "Available Now")
-      .length,
-    comingSoon: properties.filter((p) => p.availability === "Coming Soon")
-      .length,
-    notAvailable: properties.filter((p) => p.availability === "Not Available")
-      .length,
+    totalProperties: properties?.length || 0, // Added null check
+    availableNow: properties?.filter((p) => p.availability === "Available Now").length || 0,
+    comingSoon: properties?.filter((p) => p.availability === "Coming Soon").length || 0,
+    notAvailable: properties?.filter((p) => p.availability === "Not Available").length || 0,
     totalLeads: 15, // Example data
     totalBookings: 8,
     conversionRate: "53%",
@@ -128,25 +162,18 @@ const AdminPropertyPage = () => {
                     activeTab={activeTab}
                     setActiveTab={setActiveTab}
                     dashboardSummary={dashboardSummary}
+                    tabConfig={tabConfig}
                   />
                 </Col>
 
                 <Col md={9} lg={10}>
-                  {/* Secondary tab navigation for calendar functions */}
-                  {(activeTab === "calendar" || activeTab === "booking") && (
+                  {/* Secondary tab navigation for booking functions */}
+                  {activeTab === "booking" && (
                     <div className="mb-4">
                       <Nav variant="tabs">
                         <Nav.Item>
                           <Nav.Link
-                            active={activeTab === "calendar"}
-                            onClick={() => setActiveTab("calendar")}
-                          >
-                            <FaCalendarAlt className="me-2" /> Block Dates
-                          </Nav.Link>
-                        </Nav.Item>
-                        <Nav.Item>
-                          <Nav.Link
-                            active={activeTab === "booking"}
+                            active={true}
                             onClick={() => setActiveTab("booking")}
                           >
                             <FaBook className="me-2" /> Manual Booking
@@ -173,6 +200,8 @@ const AdminPropertyPage = () => {
                   {activeTab === "leads" && <LeadsManagement />}
 
                   {activeTab === "affiliates" && <AffiliatesManagement />}
+
+
 
                   {activeTab === "booking" && (
                     <ManualBooking
