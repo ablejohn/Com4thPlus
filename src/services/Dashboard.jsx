@@ -13,7 +13,6 @@ import {
   FaUserCog, 
   FaBook, 
   FaChartBar, 
-  FaUsers, 
   FaHandshake, 
   FaTachometerAlt 
 } from "react-icons/fa";
@@ -25,7 +24,6 @@ import { getAuth, signOut } from "firebase/auth";
 // Import modularized components
 import DashboardSidebar from "./DashboardSidebar";
 import PropertyManagement from "./PropertyManagement";
-import LeadsManagement from "./LeadsManagement";
 import AffiliatesManagement from "./AffiliatesManagement";
 import AnalyticsTab from "./AnalyticsTab";
 import ManualBooking from "./ManualBooking";
@@ -50,11 +48,6 @@ const AdminPropertyPage = () => {
       icon: <FaBuilding />
     },
     {
-      id: "leads",
-      label: "Leads",
-      icon: <FaUsers />
-    },
-    {
       id: "affiliates",
       label: "Affiliates",
       icon: <FaHandshake />
@@ -72,10 +65,9 @@ const AdminPropertyPage = () => {
     availableNow: properties?.filter((p) => p.availability === "Available Now").length || 0,
     comingSoon: properties?.filter((p) => p.availability === "Coming Soon").length || 0,
     notAvailable: properties?.filter((p) => p.availability === "Not Available").length || 0,
-    totalLeads: 15, // Example data
-    totalBookings: 8,
+    totalBookings: 0,
     conversionRate: "53%",
-    totalAffiliates: 6,
+    totalAffiliates: 0,
     blockedDates: 12, // Example data
   };
 
@@ -197,11 +189,7 @@ const AdminPropertyPage = () => {
                     />
                   )}
 
-                  {activeTab === "leads" && <LeadsManagement />}
-
                   {activeTab === "affiliates" && <AffiliatesManagement />}
-
-
 
                   {activeTab === "booking" && (
                     <ManualBooking

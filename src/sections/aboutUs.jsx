@@ -31,37 +31,36 @@ const AboutUs = () => {
     {
       icon: <MapPin size={20} color="#40E0D0" />,
       title: "24/7 Electricity",
-      description: "24/7 electricity for an uninterrupted stay.",
+      description: "Uninterrupted power supply.",
     },
     {
       icon: <Home size={20} color="#40E0D0" />,
-      title: "Free High-speed WiFi",
-      description: "Free high-speed WiFi for work and entertainment",
+      title: "High-speed WiFi",
+      description: "Reliable internet for work and entertainment.",
     },
     {
       icon: <Shield size={20} color="#40E0D0" />,
       title: "Elite Security",
-      description: "Maximum security in a gated and well-monitored environment",
+      description: " A gated community with 24/7 surveillance for peace of mind.",
     },
     {
       icon: <Zap size={20} color="#40E0D0" />,
       title: "Spacious rooms",
-      description: "Spacious rooms designed for relaxation and convenience",
+      description: "Carefully curated spaces offering ultimate relaxation.",
     },
     {
       icon: <Zap size={20} color="#40E0D0" />,
-      title: "Master bedroom",
+      title: "Work-Ready Space",
       description:
-        "Master bedroom includes an office workspace for business travelers",
+        "Dedicated workspace in the master bedroom for business travelers.",
     },
   ];
 
   const amenities = [
     { icon: <Coffee size={14} />, name: "24/7 electriicity" },
-    { icon: <Wifi size={14} />, name: "Free high-speed WiFi" },
-    { icon: <Home size={14} />, name: "Maximum security" },
-    { icon: <Star size={14} />, name: "Spacious rooms" },
-    { icon: <Star size={14} />, name: "Master bedroom with office workspace" },
+    { icon: <Wifi size={14} />, name: "High-speed WiFi" },
+    { icon: <Home size={14} />, name: "Top-tier security" },
+    { icon: <Star size={14} />, name: "Fully furnished spaces" },
   ];
 
   const testimonials = [
@@ -73,7 +72,7 @@ const AboutUs = () => {
     },
     {
       quote:
-        "The security and amenities exceeded my expectations. The workspace in the master bedroom was a great bonus.",
+        "The security and amenities exceeded my expectations. The workspace in the master bedroom was a great bonus for my business.",
       name: "David O.",
       title: " Business Traveler",
     },
@@ -181,17 +180,12 @@ const AboutUs = () => {
                 About US
               </div>
 
-              <h2 className="fw-bold mb-4">Where Comfort Meets Practicality</h2>
+              <h2 className="fw-bold mb-4">Where Comfort Meets Convenience
+              </h2>
 
               <p className="lead mb-4">
-                Com4thPLUS Apartment, where comfort, security, and convenience
-                seamlessly blend to offer guests a truly satisfying short term
-                apartment rental experience. Located in the serene GRA Ikeja
-                neighborhood, Com4thplus has carefully curated its portfolio of
-                apartments to cater to both business travelers and leisure
-                seekers. Immerse yourself in a world of modern amenities,
-                elegant decor, and unparalleled comfort, making your stay in
-                Lagos a truly memorable one.
+              At Com4thPlus, we redefine luxury and convenience with fully serviced apartments in the serene GRA Ikeja neighborhood. Whether you're traveling for business or leisure, our modern interiors, top-tier amenities, and prime location ensure an exceptional stay.
+
               </p>
 
               {/* Highlights */}

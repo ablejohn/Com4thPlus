@@ -68,20 +68,22 @@ const HomePage = () => {
           <div className="text-center">
             <div className="bg-primary bg-opacity-25 text-info d-inline-block px-3 py-2 rounded-pill mb-4 upp">
               <span className="text-uppercase fw-bold small " style={{ color: "#40E0D0" }}>
-                Welcome to COM4thPLUS
+              Com4thPlus
               </span>
             </div>
             
             <h1 className="display-3 fw-bold text-white mb-4">
-              A Stay That Feels Like Home -
+            Your Home Away from
+
               <br />
               <span style={{ color: "#40E0D0" }}>
-                Extra Comfort
+              Home
               </span>
             </h1>
             
             <p className="lead text-white-50 mb-5 mx-auto" style={{ maxWidth: "800px" }}>
-              Fully furnished apartments with 24/7 electricity, high-speed WiFi, and top-tier security for a hassle-free stay
+            Experience Extra Comfort in Our Luxury Apartments
+
             </p>
 
             {/* Quick Stats */}

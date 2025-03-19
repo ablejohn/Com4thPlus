@@ -4,7 +4,6 @@ import { Card, Nav, Badge, OverlayTrigger, Tooltip, ProgressBar } from "react-bo
 import {
   FaChartBar,
   FaBuilding,
-  FaUsers,
   FaFileExport,
   FaHandshake,
   FaCalendarAlt,
@@ -66,11 +65,6 @@ const DashboardSidebar = ({ activeTab, setActiveTab, dashboardSummary, tabConfig
                   {tab.id === "properties" && (
                     <Badge bg="primary" pill className="ms-auto" style={{ opacity: 0.8 }}>
                       {dashboardSummary.totalProperties}
-                    </Badge>
-                  )}
-                  {tab.id === "leads" && (
-                    <Badge bg="success" pill className="ms-auto" style={{ opacity: 0.8 }}>
-                      {dashboardSummary.totalLeads}
                     </Badge>
                   )}
                   {tab.id === "affiliates" && (
@@ -144,24 +138,6 @@ const DashboardSidebar = ({ activeTab, setActiveTab, dashboardSummary, tabConfig
               <span className="me-2">Available: {dashboardSummary.availableNow}</span>
               <span>Coming Soon: {dashboardSummary.comingSoon}</span>
             </div>
-          </div>
-          
-          <div className="stat-item mb-3">
-            <div className="d-flex justify-content-between align-items-center mb-1">
-              <span className="d-flex align-items-center">
-                <FaUsers className="text-info me-2" style={{ fontSize: "0.85rem" }} />
-                <span>Leads</span>
-              </span>
-              <Badge bg="light" text="dark" className="fw-semibold">
-                {dashboardSummary.totalLeads}
-              </Badge>
-            </div>
-            <ProgressBar 
-              now={(dashboardSummary.totalBookings / dashboardSummary.totalLeads) * 100} 
-              variant="info" 
-              style={{ height: "6px" }}
-              className="mt-1"
-            />
           </div>
           
           <div className="stat-item mb-3">
