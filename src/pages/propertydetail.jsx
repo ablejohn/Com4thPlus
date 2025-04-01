@@ -499,64 +499,59 @@ const PropertyDetailPage = () => {
             </Card.Body>
           </Card>
 
-          <Card
-            className="border-0 shadow-sm mt-4"
-            style={{ borderRadius: theme.borderRadius.md }}
-          >
-            <div
-              className="position-absolute"
-              style={{
-                top: 0,
-                left: 0,
-                right: 0,
-                height: "6px",
-                background: `linear-gradient(90deg, ${theme.colors.primary}, ${theme.colors.primaryDark})`,
-                borderRadius: `${theme.borderRadius.md} ${theme.borderRadius.md} 0 0`,
-              }}
-            />
-            <Card.Body className="p-4">
-              <h5
-                className="mb-3 fw-bold"
-                style={{ color: theme.colors.primaryDark }}
-              >
-                Pricing Information
-              </h5>
-              <div className="table-responsive">
-                <table className="table table-bordered">
-                  <thead>
-                    <tr>
-                      <th>Apartment Type</th>
-                      <th>Daily Rate</th>
-                      <th>Party Rate (Flat Fee)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>3 Bedroom</td>
-                      <td>₦{getTypePrice("3br").toLocaleString()}/day</td>
-                      <td>N/A</td>
-                    </tr>
-                    <tr>
-                      <td>4 Bedroom</td>
-                      <td>₦{getTypePrice("4br").toLocaleString()}/day</td>
-                      <td>N/A</td>
-                    </tr>
-                    <tr>
-                      <td>5 Bedroom</td>
-                      <td>₦{getTypePrice("5br").toLocaleString()}/day</td>
-                      <td>
-                        ₦{getTypePrice("5br-party").toLocaleString()} (flat fee)
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <p className="text-muted mt-3 mb-0 small">
-                * The 5 Bedroom Party option includes a refundable caution fee
-                of ₦100,000 to be paid upon arrival.
-              </p>
-            </Card.Body>
-          </Card>
+          <Card className="border-0 shadow-sm mt-4" style={{ borderRadius: theme.borderRadius.md }}>
+  <div
+    className="position-absolute"
+    style={{
+      top: 0,
+      left: 0,
+      right: 0,
+      height: "6px",
+      background: `linear-gradient(90deg, ${theme.colors.primary}, ${theme.colors.primaryDark})`,
+      borderRadius: `${theme.borderRadius.md} ${theme.borderRadius.md} 0 0`,
+    }}
+  />
+  <Card.Body className="p-4">
+    <h5 className="mb-3 fw-bold" style={{ color: theme.colors.primaryDark }}>
+      Pricing Information
+    </h5>
+    <div className="table-responsive">
+      <table className="table table-bordered">
+        <thead>
+          <tr>
+            <th>Apartment Type</th>
+            <th>Daily Rate</th>
+            <th>Party Rate (Flat Fee)</th>
+            <th>Caution Fee</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>3 Bedroom</td>
+            <td>₦{getTypePrice("3br").toLocaleString()}/day</td>
+            <td>N/A</td>
+            <td>₦100,000</td>
+          </tr>
+          <tr>
+            <td>4 Bedroom</td>
+            <td>₦{getTypePrice("4br").toLocaleString()}/day</td>
+            <td>N/A</td>
+            <td>₦100,000</td>
+          </tr>
+          <tr>
+            <td>5 Bedroom</td>
+            <td>₦{getTypePrice("5br").toLocaleString()}/day</td>
+            <td>₦{getTypePrice("5br-party").toLocaleString()} (flat fee)</td>
+            <td>₦100,000</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p className="text-muted mt-3 mb-0 small">
+      * A refundable caution fee of ₦100,000 is required for all apartment types and is to be paid upon arrival.
+    </p>
+  </Card.Body>
+</Card>
         </Col>
 
         <Col lg={4}>
@@ -630,57 +625,54 @@ const PropertyDetailPage = () => {
                     disabled={isProcessing}
                   />
                 </Form.Group>
-                <div
-                  className="mb-4 p-3 rounded"
-                  style={{ backgroundColor: theme.colors.primaryLight }}
-                >
-                  <h6 className="fw-bold mb-3">Price Breakdown</h6>
-                  {amount > 0 ? (
-                    <>
-                      <div className="d-flex justify-content-between mb-2">
-                        <span>
-                          {apartmentType === "3br"
-                            ? "3 Bedroom"
-                            : apartmentType === "4br"
-                            ? "4 Bedroom"
-                            : apartmentType === "5br"
-                            ? "5 Bedroom"
-                            : "5 Bedroom (Party)"}
-                        </span>
-                        <span className="fw-bold">
-                          ₦{amount.toLocaleString()}
-                        </span>
-                      </div>
-                      {apartmentType !== "5br-party" && (
-                        <div className="d-flex justify-content-between text-muted small mb-2">
-                          <span>
-                            {getDays()} {getDays() === 1 ? "day" : "days"}{" "}
-                            {startDate &&
-                              endDate &&
-                              `(${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()})`}
-                          </span>
-                        </div>
-                      )}
-                      <hr className="my-3" />
-                      <div className="d-flex justify-content-between fw-bold">
-                        <span>Total</span>
-                        <span style={{ color: theme.colors.primaryDark }}>
-                          ₦{amount.toLocaleString()}
-                        </span>
-                      </div>
-                      {apartmentType === "5br-party" && (
-                        <div className="d-flex justify-content-between mt-2 text-danger">
-                          <span className="fw-bold">Caution Fee</span>
-                          <span className="fw-bold">₦100,000</span>
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <p className="text-muted mb-0">
-                      Select apartment type and dates to see pricing
-                    </p>
-                  )}
-                </div>
+                <div className="mb-4 p-3 rounded" style={{ backgroundColor: theme.colors.primaryLight }}>
+  <h6 className="fw-bold mb-3">Price Breakdown</h6>
+  {amount > 0 ? (
+    <>
+      <div className="d-flex justify-content-between mb-2">
+        <span>
+          {apartmentType === "3br"
+            ? "3 Bedroom"
+            : apartmentType === "4br"
+            ? "4 Bedroom"
+            : apartmentType === "5br"
+            ? "5 Bedroom"
+            : "5 Bedroom (Party)"}
+        </span>
+        <span className="fw-bold">
+          ₦{amount.toLocaleString()}
+        </span>
+      </div>
+      {apartmentType !== "5br-party" && (
+        <div className="d-flex justify-content-between text-muted small mb-2">
+          <span>
+            {getDays()} {getDays() === 1 ? "day" : "days"}{" "}
+            {startDate &&
+              endDate &&
+              `(${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()})`}
+          </span>
+        </div>
+      )}
+      <hr className="my-3" />
+      <div className="d-flex justify-content-between fw-bold">
+        <span>Total</span>
+        <span style={{ color: theme.colors.primaryDark }}>
+          ₦{amount.toLocaleString()}
+        </span>
+      </div>
+      {/* Show caution fee for all apartment types */}
+      <div className="d-flex justify-content-between mt-2 text-danger">
+        <span className="fw-bold">Caution Fee (Refundable)</span>
+        <span className="fw-bold">₦100,000</span>
+      </div>
+    </>
+  ) : (
+    <p className="text-muted mb-0">
+      Select apartment type and dates to see pricing
+    </p>
+  )}
+</div>
+
                 <Button
                   variant="primary"
                   className="w-100 py-3 fw-bold"
@@ -750,56 +742,52 @@ const PropertyDetailPage = () => {
                 {error}
               </Alert>
             )}
-            <div
-              className="mb-4 p-3 rounded"
-              style={{ backgroundColor: theme.colors.primaryLight }}
-            >
-              <h6 className="mb-3 fw-bold">Reservation Summary</h6>
-              <div className="d-flex justify-content-between mb-2">
-                <span>Property:</span>
-                <span className="fw-bold">{property.title}</span>
-              </div>
-              <div className="d-flex justify-content-between mb-2">
-                <span>Type:</span>
-                <span className="fw-bold">
-                  {apartmentType === "3br"
-                    ? "3 Bedroom"
-                    : apartmentType === "4br"
-                    ? "4 Bedroom"
-                    : apartmentType === "5br"
-                    ? "5 Bedroom"
-                    : "5 Bedroom (Party)"}
-                </span>
-              </div>
-              {startDate && (
-                <div className="d-flex justify-content-between mb-2">
-                  <span>Check-in:</span>
-                  <span className="fw-bold">
-                    {startDate.toLocaleDateString()}
-                  </span>
-                </div>
-              )}
-              {endDate && (
-                <div className="d-flex justify-content-between mb-2">
-                  <span>Check-out:</span>
-                  <span className="fw-bold">
-                    {endDate.toLocaleDateString()}
-                  </span>
-                </div>
-              )}
-              <div className="d-flex justify-content-between mt-3">
-                <span className="fw-bold">Total Amount:</span>
-                <span className="fw-bold">₦{amount.toLocaleString()}</span>
-              </div>
-              {apartmentType === "5br-party" && (
-                <div className="d-flex justify-content-between mt-2">
-                  <span className="fw-bold text-danger">Caution Fee:</span>
-                  <span className="fw-bold text-danger">
-                    ₦100,000 (To be paid at arrival)
-                  </span>
-                </div>
-              )}
-            </div>
+           <div className="mb-4 p-3 rounded" style={{ backgroundColor: theme.colors.primaryLight }}>
+  <h6 className="mb-3 fw-bold">Reservation Summary</h6>
+  <div className="d-flex justify-content-between mb-2">
+    <span>Property:</span>
+    <span className="fw-bold">{property.title}</span>
+  </div>
+  <div className="d-flex justify-content-between mb-2">
+    <span>Type:</span>
+    <span className="fw-bold">
+      {apartmentType === "3br"
+        ? "3 Bedroom"
+        : apartmentType === "4br"
+        ? "4 Bedroom"
+        : apartmentType === "5br"
+        ? "5 Bedroom"
+        : "5 Bedroom (Party)"}
+    </span>
+  </div>
+  {startDate && (
+    <div className="d-flex justify-content-between mb-2">
+      <span>Check-in:</span>
+      <span className="fw-bold">
+        {startDate.toLocaleDateString()}
+      </span>
+    </div>
+  )}
+  {endDate && (
+    <div className="d-flex justify-content-between mb-2">
+      <span>Check-out:</span>
+      <span className="fw-bold">
+        {endDate.toLocaleDateString()}
+      </span>
+    </div>
+  )}
+  <div className="d-flex justify-content-between mt-3">
+    <span className="fw-bold">Total Amount:</span>
+    <span className="fw-bold">₦{amount.toLocaleString()}</span>
+  </div>
+  {/* Show caution fee for all apartment types */}
+  <div className="d-flex justify-content-between mt-2">
+    <span className="fw-bold text-danger">Caution Fee (Refundable):</span>
+    <span className="fw-bold text-danger">
+      ₦100,000 (To be paid at arrival)
+    </span>
+  </div>
+</div>
             <h6
               className="mb-3 fw-bold"
               style={{ color: theme.colors.primaryDark }}
