@@ -2,23 +2,21 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAnalytics } from "firebase/analytics";
-import { getStorage } from "firebase/storage"; // Add Storage
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyA-tCW9EXSE0hxy075uyvutWIhyg12-DzQ",
-  authDomain: "propertyapp-d6591.firebaseapp.com",
-  projectId: "propertyapp-d6591",
-  storageBucket: "propertyapp-d6591.firebasestorage.app",
-  messagingSenderId: "130689397634",
-  appId: "1:130689397634:web:e82ea42231046d8c79d59b",
-  measurementId: "G-6YTB0Q1HFV",
+  apiKey: import.meta.env.VITE_API_KEY,
+  authDomain: import.meta.env.VITE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_APP_ID,
+  measurementId: import.meta.env.VITE_MEASUREMENT_ID,
 };
 
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
-// Export Firestore and Storage
 export const db = getFirestore(app);
 export const storage = getStorage(app);
-
 export { app, analytics };
